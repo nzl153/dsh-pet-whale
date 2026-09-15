@@ -60,7 +60,7 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 
 | DSH 版本 | 状态 | 依据 |
 |---|---|---|
-| `0.1.5-rc.2` | compatible | 真机跑过：新建会话 / 工具调用 / 纯文字回合，控制台 0 报错，鲸鱼 `think→working→celebrate` 都正常 |
+| `0.1.5-rc.2` | compatible | 真机跑过：新建会话 / 工具调用 / 纯文字回合，控制台 0 报错，鲸鱼 `idle→think→working→celebrate→idle` 全部触发，且 celebrate 2.5 秒后自己回落到 idle（不需要下一条消息来顶） |
 | `0.1.5-rc.1` | compatible | 未实跑。npm 包逐文件比对：本插件用到的 `dsh-api-session-controller` / `dsh-client-ui-conversation` / `dsh-client-locale` / `dsh-client-modules` / `dsh-cordis-client-runner` 与 rc.2 **逐字节相同**；`dsh-client-ui-chat` 只差一段 15 字符的 CSS（与本插件读的 `legacy` 投影无关） |
 | `0.1.5-alpha.2` | compatible | 未实跑。同上，唯一差异是 `dsh-cordis-client-runner` 里一个文档字符串的行号（`contract.ts:23` → `:24`） |
 

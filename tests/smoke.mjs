@@ -180,6 +180,22 @@ legacySlice.turnEnds = new Map([[1, 5]])
 notify()
 check('回合完成 → celebrate', classesOf() === 'celebrate')
 
+// 回归（用户实报「庆祝一直停不下来」）：回合结束后快照就不再更新了，
+// 没有新的 notify 时 celebrate 也必须自己到点结束（CELEBRATE_MS = 2500）。
+await new Promise((r) => setTimeout(r, 3000))
+check('不靠下一条快照，celebrate 自己到点结束', classesOf() !== 'celebrate')
+
+// 回归（用户实报「写代码时不切 working」）：短工具调用时 legacy.runningCalls 可能
+// 整个生命周期都观察不到，但流式消息里已经出现 tool-call 块。只认 runningCalls 会漏。
+sessionSnap.running = true
+legacySlice.runningCalls = []
+legacySlice.partial = { turn: 2, step: 1, blocks: [{ kind: 'tool-call', callId: 'c9', name: 'pwsh', argsRaw: '{}' }] }
+notify()
+check('partial 里出现 tool-call → working', classesOf() === 'working')
+legacySlice.partial = null
+legacySlice.runningCalls = []
+notify()
+
 // 状态机：error 边沿（新错误出现）
 sessionSnap.lastAgentError = 'boom'
 notify()

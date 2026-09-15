@@ -883,6 +883,18 @@ export function apply(ctx: Context): () => void {
     }
     return parts.join(' ')
   }
+  // 流式消息里出现 tool-call 块 = 模型已经吐出工具调用。
+  // legacy.runningCalls 是另一条路（工具真正在飞），短调用时可能整个生命周期都观察不到，
+  // 所以两个信号取或，别让鲸鱼漏掉"敲代码"。
+  const partialHasToolCall = (partial: unknown): boolean => {
+    if (partial === null || typeof partial !== 'object') return false
+    const blocks = (partial as { blocks?: readonly unknown[] }).blocks
+    if (!Array.isArray(blocks)) return false
+    for (const block of blocks) {
+      if (block !== null && typeof block === 'object' && (block as { kind?: string }).kind === 'tool-call') return true
+    }
+    return false
+  }
 
   // ===== 后台省电：页面不可见时暂停动画/音效/思考流 =====
   let pageVisible = true
@@ -1710,10 +1722,12 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     if (face === undefined) return undefined
     const session = face.getSnapshot()
     const legacy = chat?.legacy
+    const partial = legacy?.partial ?? null
     return {
       running: session.running,
-      partial: legacy?.partial ?? null,
+      partial,
       runningCalls: legacy?.runningCalls ?? [],
+      partialToolCall: partialHasToolCall(partial),
       lastAgentError: session.lastAgentError,
       openError: session.openError,
       turnEnds: legacy?.turnEnds,
@@ -1725,9 +1739,31 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     }
   }
 
+  // 瞬态到点回落需要一个"没人推快照也要醒一次"的定时器。
+  // 没有它：回合结束后快照不再更新 ⇒ step() 不再被调用 ⇒ celebrate 永远不停（实测 18.5s 以上）。
+  let wakeTimer = 0
+  const clearWake = () => {
+    if (wakeTimer !== 0) {
+      window.clearTimeout(wakeTimer)
+      wakeTimer = 0
+    }
+  }
+  const scheduleWake = () => {
+    clearWake()
+    const now = performance.now()
+    const at = driver.nextDeadline(now)
+    if (at === null) return
+    // +24ms 是给 performance.now / setTimeout 之间的粒度差留的余量，避免差一毫秒又睡一轮
+    wakeTimer = window.setTimeout(() => {
+      wakeTimer = 0
+      onSnapshot()
+    }, Math.max(16, at - now + 24))
+  }
+
   const onSnapshot = () => {
     const snapObj = composeSnapshot()
     if (snapObj === undefined) {
+      clearWake()
       lastErrorText = ''
       setState('idle', visualState !== 'idle')
       updateTicker('')
@@ -1738,6 +1774,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     setState(step.state, step.changed)
     // 只有开关打开且真实状态是 think 时展示思考流；假装工作模式不展示
     updateTicker(tickerOn && step.state === 'think' ? partialTextOf(snapObj.partial) : '')
+    scheduleWake()
   }
   const syncSession = () => {
     unsubSession?.()
@@ -1856,6 +1893,8 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     if (eyeRaf !== 0) window.cancelAnimationFrame(eyeRaf)
     unsubList?.()
     unsubSession?.()
+    unsubChat?.()
+    clearWake()
     document.removeEventListener('pointerdown', onDocPointerDown)
     document.removeEventListener('keydown', markActive)
     document.removeEventListener('wheel', markActive)

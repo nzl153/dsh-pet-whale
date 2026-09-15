@@ -58,7 +58,7 @@ Requires DSH `>=0.1.5-alpha.2 <0.2.0` (web profile) and Node.js `^22.19.0 || >=2
 
 | DSH release | Status | Basis |
 |---|---|---|
-| `0.1.5-rc.2` | compatible | Ran on a real host: new session, tool call, plain-text turn — zero console errors, `think → working → celebrate` all fired |
+| `0.1.5-rc.2` | compatible | Ran on a real host: new session, tool call, plain-text turn — zero console errors, `idle → think → working → celebrate → idle` all fired, and celebrate self-expires back to idle after 2.5s (no next message needed to unstick it) |
 | `0.1.5-rc.1` | compatible | Not run. Per-file npm comparison: `dsh-api-session-controller`, `dsh-client-ui-conversation`, `dsh-client-locale`, `dsh-client-modules`, `dsh-cordis-client-runner` are **byte-identical** to rc.2; `dsh-client-ui-chat` differs only by a 15-character CSS tweak unrelated to the `legacy` projection this plugin reads |
 | `0.1.5-alpha.2` | compatible | Not run. Same as above; the only difference is a doc-string line number (`contract.ts:23` → `:24`) in `dsh-cordis-client-runner` |
 

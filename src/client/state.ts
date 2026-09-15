@@ -45,6 +45,12 @@ export interface WhaleSnapshot {
   partial?: unknown | null
   /** 工具调用中（来自 ChatSnapshot.legacy.runningCalls） */
   runningCalls?: readonly unknown[]
+  /**
+   * 流式消息（partial）里已经出现 tool-call 块。
+   * 这比 legacy.runningCalls 更早就能看到——短工具调用时 runningCalls 可能整个生命周期
+   * 都没被观察到，只靠它会让鲸鱼漏掉 working。两者取或。
+   */
+  partialToolCall?: boolean
   lastAgentError: string | null
   openError: unknown | null
   /**
@@ -71,10 +77,15 @@ export const WORK_STICKY_MS = 2500
 export function deriveContinuous(snap: WhaleSnapshot, stickyUntil: number | null, now: number): WhaleState {
   if (!snap.running) return 'idle'
   // 字段可能整个缺失（0.1.5），先兜底再读长度
-  if ((snap.runningCalls?.length ?? 0) > 0) return 'working'
+  if (hasToolActivity(snap)) return 'working'
   if (stickyUntil !== null && now < stickyUntil) return 'working'
   // 回合进行中但无工具：文字流或模型内部推理，都表现为深潜思考
   return 'think'
+}
+
+/** 有工具在飞：legacy.runningCalls 非空，或者流式消息里已经出现了 tool-call 块。 */
+function hasToolActivity(snap: WhaleSnapshot): boolean {
+  return (snap.runningCalls?.length ?? 0) > 0 || snap.partialToolCall === true
 }
 
 export interface WhaleStep {
@@ -136,7 +147,7 @@ export class WhaleDriver {
     this.prevRunning = snap.running
 
     // working 粘滞：见到工具活动就刷新窗口；回合结束清掉
-    if (snap.running && (snap.runningCalls?.length ?? 0) > 0) this.stickyUntil = now + WORK_STICKY_MS
+    if (snap.running && hasToolActivity(snap)) this.stickyUntil = now + WORK_STICKY_MS
     if (!snap.running) this.stickyUntil = null
 
     const waiting = (snap.pending?.length ?? 0) > 0
@@ -175,6 +186,23 @@ export class WhaleDriver {
 
   get state(): WhaleState {
     return this.current
+  }
+
+  /**
+   * 下一个「不需要新快照、时间到了状态自己就该变」的时刻（ms，与 step 的 now 同基准）。
+   * null = 没有待到期的东西。
+   *
+   * 为什么需要它：step() 只在快照更新时被调用，而 celebrate / error / disappointed 是
+   * 到点回落的瞬态、working 粘滞也是到点回落。回合结束后快照往往就不再更新了，
+   * 没人再调 step ⇒ 瞬态永远不结束。实测：celebrate 卡住 18.5 秒，直到下一条消息
+   * 把它顶掉（用户看到的就是"庆祝停不下来"）。调用方拿这个时刻挂一个定时器即可。
+   */
+  nextDeadline(now: number): number | null {
+    const candidates: number[] = []
+    if (this.transient !== null) candidates.push(Math.max(now, this.transient.until))
+    if (this.stickyUntil !== null) candidates.push(Math.max(now, this.stickyUntil))
+    if (candidates.length === 0) return null
+    return Math.min(...candidates)
   }
 }
 

@@ -1,7 +1,9 @@
 // pet-whale client bundle：纯 DOM 桌宠。
-// apply(ctx) 由官方 client 通道调用；状态来自 ctx.sessions（会话快照可观察对象）。
+// apply(ctx) 由官方 client 通道调用；状态来自 ctx.sessions（会话生命周期快照）
+// 与 ctx.uiConversation（会话对话视图，提供 partial / runningCalls / turnEnds）。
 import type { Context } from '@deepseek-ai/cordis'
-import type { ISessions, SessionFace } from '@deepseek-ai/dsh-client-runtime/client'
+import type { ISessions, SessionFace } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { WHALE_HTML } from './whale'
 import { WHALE_CSS } from './styles'
 import { WhaleSounds } from './sounds'
@@ -10,8 +12,10 @@ import { PALETTES, applyPalette, loadPaletteId, paletteOf, savePaletteId } from 
 import { detectBrowserLocale, getStrings, paletteName, type PetLocale, type PetStrings } from './i18n'
 import { WhaleSwimmer } from './swim'
 
-// 官方 client 通道的服务闸：等 sessions 和 locale 服务就绪后再 apply
-export const inject = ['sessions', 'locale']
+// 官方 client 通道的服务闸：等 sessions / locale / uiConversation 服务就绪后再 apply。
+// uiConversation 由 @deepseek-ai/dsh-client-ui-conversation 提供，
+// chat 视图（ChatSnapshot）由 @deepseek-ai/dsh-client-ui-chat 注册。
+export const inject = ['sessions', 'locale', 'uiConversation']
 
 const STATES: readonly WhaleState[] = ['idle', 'think', 'working', 'celebrate', 'error', 'wait', 'disappointed']
 const POS_KEY = 'pet-whale:pos'
@@ -1686,33 +1690,62 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
   window.addEventListener('resize', onResize)
 
   // ===== 会话状态订阅 =====
+  // 0.1.5 起数据分两处（见 state.ts 文件头的字段对照）：
+  //  - ctx.sessions → SessionFace：running / lastAgentError / openError
+  //  - ctx.uiConversation → binding(...).target('chat') 的 ChatSnapshot.legacy：
+  //    partial / runningCalls / turnEnds —— 这三个字段 0.1.5 的会话快照里没有
   const driver = new WhaleDriver()
   const sessions: ISessions | undefined = ctx.sessions
+  const uiConversation = ctx.uiConversation
   let unsubList: (() => void) | undefined
   let unsubSession: (() => void) | undefined
+  let unsubChat: (() => void) | undefined
   let face: SessionFace | undefined
+  let chat: ChatSnapshot | undefined
   let prevSessionId: string | undefined = undefined
   let isFirstSessionSync = true
 
+  /** 把两处订阅合成状态机需要的"最小快照面"。 */
+  const composeSnapshot = (): WhaleSnapshot | undefined => {
+    if (face === undefined) return undefined
+    const session = face.getSnapshot()
+    const legacy = chat?.legacy
+    return {
+      running: session.running,
+      partial: legacy?.partial ?? null,
+      runningCalls: legacy?.runningCalls ?? [],
+      lastAgentError: session.lastAgentError,
+      openError: session.openError,
+      turnEnds: legacy?.turnEnds,
+      // pending：0.1.5 的会话快照没有这个字段，也没有替代的公开读取面
+      //（审批 / 提问的数据只在 slot 的 carrier 上，见 state.ts 文件头）。
+      // 这里按老字段兜底读一次：宿主将来补上就自动生效，没有就是 undefined，
+      // 绝不因为字段缺失而抛错。
+      pending: (session as { pending?: readonly unknown[] }).pending,
+    }
+  }
+
   const onSnapshot = () => {
-    const snap = face?.getSnapshot()
-    if (snap === undefined) {
+    const snapObj = composeSnapshot()
+    if (snapObj === undefined) {
       lastErrorText = ''
       setState('idle', visualState !== 'idle')
       updateTicker('')
       return
     }
-    const snapObj = snap as WhaleSnapshot
-    lastErrorText = snapObj.lastAgentError ?? (snapObj.openError !== null ? 'open-error' : '')
+    lastErrorText = snapObj.lastAgentError ?? (snapObj.openError != null ? 'open-error' : '')
     const step = driver.step(snapObj, performance.now())
     setState(step.state, step.changed)
     // 只有开关打开且真实状态是 think 时展示思考流；假装工作模式不展示
-    updateTicker(tickerOn && step.state === 'think' ? partialTextOf((snap as { partial?: unknown }).partial) : '')
+    updateTicker(tickerOn && step.state === 'think' ? partialTextOf(snapObj.partial) : '')
   }
   const syncSession = () => {
     unsubSession?.()
+    unsubChat?.()
     unsubSession = undefined
+    unsubChat = undefined
     face = undefined
+    chat = undefined
     const list = sessions.list.getSnapshot()
     const id = list.current
     if (id !== undefined && id !== prevSessionId && !isFirstSessionSync) {
@@ -1732,6 +1765,21 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     }
     face = binding.session
     unsubSession = face.subscribe(onSnapshot)
+
+    // 对话视图的 chat 投影：legacy 就是旧快照的 partial / runningCalls / turnEnds。
+    // 契约上 target() 的第一次订阅会激活该 view。
+    try {
+      const target = uiConversation.binding(binding).target('chat')
+      chat = target.getSnapshot()
+      unsubChat = target.subscribe(() => {
+        chat = target.getSnapshot()
+        onSnapshot()
+      })
+    } catch {
+      // 拿不到 chat 投影就退化成"没有工具/文本信号"：鲸鱼仍能 think / idle / celebrate，
+      // 只是工具调用期间不切 working。绝不能让它把 apply 打断，那会整只鲸鱼消失。
+      chat = undefined
+    }
     onSnapshot()
   }
 

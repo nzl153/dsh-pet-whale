@@ -54,7 +54,16 @@ The repository's [preview.html](preview.html) is the same page and can be opened
 
 ## Install
 
-Requires DSH `>=0.1.0-rc.6` (web profile).
+Requires DSH `>=0.1.5-alpha.2 <0.2.0` (web profile) and Node.js `^22.19.0 || >=24.0.0`.
+
+| DSH release | Status | Basis |
+|---|---|---|
+| `0.1.5-rc.2` | compatible | Ran on a real host: new session, tool call, plain-text turn — zero console errors, `think → working → celebrate` all fired |
+| `0.1.5-rc.1` | compatible | Not run. Per-file npm comparison: `dsh-api-session-controller`, `dsh-client-ui-conversation`, `dsh-client-locale`, `dsh-client-modules`, `dsh-cordis-client-runner` are **byte-identical** to rc.2; `dsh-client-ui-chat` differs only by a 15-character CSS tweak unrelated to the `legacy` projection this plugin reads |
+| `0.1.5-alpha.2` | compatible | Not run. Same as above; the only difference is a doc-string line number (`contract.ts:23` → `:24`) in `dsh-cordis-client-runner` |
+
+The previous 1.1.0 threw `TypeError: Cannot read properties of undefined (reading 'length')` on every session-snapshot
+update under 0.1.5. The field-by-field mapping and the fix are documented at the top of `src/client/state.ts`.
 
 ```sh
 # Local directory install (the repo already contains built lib/, no build needed)
@@ -64,15 +73,18 @@ dsh plugin --profile web add link:/path/to/pet-whale
 dsh plugin --profile web add "github:nzl153/pet-whale#main"
 ```
 
-After installation, restart `dsh web` (the host half is composed at startup). Client-side changes only need a hard refresh (Ctrl+F5).
+After installation, restart `dsh web` (the host half is composed at startup; only host-side changes require a restart).
+Client-side development changes do not require a restart or hard refresh — see "Development / Hot Reload" below.
 
 ## Build & Test
 
 ```sh
 pnpm install
 pnpm typecheck   # TypeScript type check
+pnpm dev           # dev watch: rebuild lib/client.js on src/client changes; DSH HMR applies it automatically
 pnpm build       # tsdown → lib/index.mjs + lib/client.js
 pnpm test        # jsdom smoke test (state machine / interactions / skins / cleanup)
+pnpm verify:hmr    # verify local repo <-> running DSH HMR wiring
 ```
 
 ## Development
@@ -80,7 +92,33 @@ pnpm test        # jsdom smoke test (state machine / interactions / skins / clea
 - `src/client/palettes.ts` — palette extension point. Add one line for a new skin.
 - `scripts/extract-whale.mjs` — sync the V2 SVG from `preview.html` into `src/client/whale.ts`.
 - `scripts/verify-live.mjs` — one-click live verification after restart.
-- State source: `ctx.sessions` session snapshots (`running` / `runningCalls` / `partial` / `lastAgentError` / `turnEnds`).
+- State source (dsh 0.1.5): session lifecycle comes from the `ctx.sessions` snapshot
+  (`running` / `lastAgentError` / `openError`); `partial` / `runningCalls` / `turnEnds` come from the
+  chat projection on `ctx.uiConversation` (`ChatSnapshot.legacy`). The field-by-field mapping lives at the
+  top of `src/client/state.ts`.
+
+### Hot Reload
+
+Prerequisite: the DSH web profile installs this repo via `link:` (not a static GitHub/npm copy), and DSH `>=0.1.5-alpha.2`.
+
+```sh
+pnpm dev
+```
+
+`pnpm dev` watches `src/` and rebuilds `lib/client.js` (and the host half `lib/index.mjs`).
+The built-in `@deepseek-ai/dsh-client-hmr` polls for rebuilds and broadcasts through `/plugins/events`;
+the browser invalidates and reloads this plugin automatically. **Client-only changes do not require a DSH restart or a page refresh.**
+
+- Hot-reloadable: `src/client/**` UI, styles, state machine, interactions.
+- Still requires a DSH restart:
+  - changes to `package.json` `dsh.client` / `dsh.bundle` / `exports` structure
+  - `cordis.patch.yml` or host half `src/index.mjs` composition changes
+  - installing/uninstalling dependencies, upgrading DSH, changing the profile bundle list
+- Verify wiring with DSH running: `pnpm verify:hmr`.
+- Common commands:
+  - `pnpm dev` / `pnpm dev:client` — dev watch (currently equivalent; `dev:client` names the client hot-reload target)
+  - `pnpm build` — one-shot full build before committing
+  - `pnpm typecheck` / `pnpm test` — type check and smoke tests
 
 ## License
 

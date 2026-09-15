@@ -56,7 +56,16 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 
 ## 安装
 
-要求 DSH `>=0.1.0-rc.6`（web profile）。
+要求 DSH `>=0.1.5-alpha.2 <0.2.0`（web profile），Node.js `^22.19.0 || >=24.0.0`。
+
+| DSH 版本 | 状态 | 依据 |
+|---|---|---|
+| `0.1.5-rc.2` | compatible | 真机跑过：新建会话 / 工具调用 / 纯文字回合，控制台 0 报错，鲸鱼 `think→working→celebrate` 都正常 |
+| `0.1.5-rc.1` | compatible | 未实跑。npm 包逐文件比对：本插件用到的 `dsh-api-session-controller` / `dsh-client-ui-conversation` / `dsh-client-locale` / `dsh-client-modules` / `dsh-cordis-client-runner` 与 rc.2 **逐字节相同**；`dsh-client-ui-chat` 只差一段 15 字符的 CSS（与本插件读的 `legacy` 投影无关） |
+| `0.1.5-alpha.2` | compatible | 未实跑。同上，唯一差异是 `dsh-cordis-client-runner` 里一个文档字符串的行号（`contract.ts:23` → `:24`） |
+
+这台机器上原本跑的 1.1.0 在 0.1.5 下会在会话快照更新时抛
+`TypeError: Cannot read properties of undefined (reading 'length')`，成因与改法见 `src/client/state.ts` 开头的字段对照。
 
 ```sh
 # 本地目录安装（仓库已包含构建产物 lib/，无需先构建）
@@ -66,15 +75,18 @@ dsh plugin --profile web add link:/path/to/pet-whale
 dsh plugin --profile web add "github:<user>/pet-whale#main"
 ```
 
-装完**重启 dsh web**（host 半在启动时合成）。之后 client 半的改动只需硬刷新（Ctrl+F5），无需重启。
+装完**重启 dsh web**（host 半在启动时合成；只有 host 半的改动需要重启）。
+Client 半的开发改动不需要重启、不需要硬刷新：见下方「开发 / Hot Reload」。
 
 ## 构建与测试
 
 ```sh
 pnpm install
 pnpm typecheck   # tsc 类型检查
+pnpm dev           # 开发态 watch：改 src/client 自动重建 lib/client.js，DSH HMR 自动生效
 pnpm build       # tsdown → lib/index.mjs + lib/client.js
 pnpm test        # jsdom 冒烟测试（状态机 / 交互 / 换肤 / 清理）
+pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 ```
 
 ## 开发
@@ -82,7 +94,32 @@ pnpm test        # jsdom 冒烟测试（状态机 / 交互 / 换肤 / 清理）
 - `src/client/palettes.ts` — 色板扩展点。加一行就是一个新皮肤；`eye`/`pupil` 字段用于深色皮肤的"眼睛反白"
 - `scripts/extract-whale.mjs` — 从 `preview.html` 同步 V2 SVG（含 CSS 变量替换），改完模板重跑 `pnpm extract`
 - `scripts/verify-live.mjs` — 重启后的一键线上验证（boot 清单 / bundle 下载 / 注册格式）
-- 状态来源：`ctx.sessions` 服务的会话快照（`running` / `runningCalls` / `partial` / `lastAgentError` / `turnEnds`），详见 `src/client/state.ts`
+- 状态来源（dsh 0.1.5）：会话生命周期取自 `ctx.sessions` 的会话快照（`running` / `lastAgentError` / `openError`）；
+  `partial` / `runningCalls` / `turnEnds` 取自 `ctx.uiConversation` 的 chat 投影（`ChatSnapshot.legacy`）。
+  两处的字段对照和 0.1.5 的变更说明写在 `src/client/state.ts` 文件头。
+
+### Hot Reload
+
+前提：DSH web profile 用 `link:` 方式安装本仓库（不是 GitHub/npm 的静态副本），且 DSH `>=0.1.5-alpha.2`。
+
+```sh
+pnpm dev
+```
+
+`pnpm dev` 会 watch 整个 `src/` 并自动重建 `lib/client.js`（以及 host 半 `lib/index.mjs`）。
+DSH 内置的 `@deepseek-ai/dsh-client-hmr` 会轮询到重建结果，通过 `/plugins/events` 广播，
+浏览器自动 invalide 并 reload 该插件——**client-only 改动不需要重启 DSH，也不需要刷新页面**。
+
+- 可热更新的范围：`src/client/**` 的 UI、样式、状态机、交互等 client 实现。
+- 仍然必须重启 DSH 的范围：
+  - `package.json` 的 `dsh.client` / `dsh.bundle` / `exports` 结构变化
+  - `cordis.patch.yml` 或 host 半 `src/index.mjs` 的插件组合变化
+  - 安装 / 卸载依赖、升级 DSH、改动 profile bundles 列表
+- 验证链路是否就绪：先确保 DSH 在跑，然后执行 `pnpm verify:hmr`。
+- 常用脚本：
+  - `pnpm dev` / `pnpm dev:client` — 开发 watch（两者当前等价，`dev:client` 语义上只指 client 热更新目标）
+  - `pnpm build` — 提交前的一次性完整构建
+  - `pnpm typecheck` / `pnpm test` — 类型检查与冒烟测试
 
 ## 附：自用 UI 美化补丁（仅供参考）
 

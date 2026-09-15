@@ -52,22 +52,29 @@ const exports_ = handoff.factory(() => {
 check('导出 apply', typeof exports_.apply === 'function')
 check('导出 inject=[sessions]', Array.isArray(exports_.inject) && exports_.inject[0] === 'sessions')
 
-// 可观察会话桩：current 会话 + 会话快照
+// 可观察会话桩：按 dsh 0.1.5-rc.2 的真实形状搭。
+// 会话快照（SessionSnapshot）在 0.1.5 里**没有** partial / runningCalls / turnEnds：
+//   @deepseek-ai/dsh-api-session-controller/lib/types/client/contract/snapshot.d.ts
+// 这三个字段改由会话对话视图的 ChatSnapshot.legacy 提供：
+//   @deepseek-ai/dsh-client-ui-chat/lib/types/client/contract/snapshot.d.ts
+// 所以这里也拆成"会话快照 + chat 投影"两处可观察对象。
 let currentId = 's1'
-const snap = {
+const sessionSnap = {
+  sessionId: 's1',
   running: false,
-  partial: null,
-  runningCalls: [],
   lastAgentError: null,
   openError: null,
-  turnEnds: new Map(),
-  pending: [],
   queue: [],
+  pendingSubmissions: [],
+  openState: 'open',
   blank: false,
   removed: false,
-  openState: 'open',
-  composerPhase: 'active',
+  // 非 0.1.5 字段：0.1.5 的官方快照里没有 pending，插件按老字段兜底读，
+  // 这里保留它以便继续覆盖 wait 分支。
+  pending: [],
 }
+const legacySlice = { nodes: [], turnTimings: new Map(), turnEnds: new Map(), partial: null, runningCalls: [] }
+const chatSnap = { legacy: legacySlice }
 const makeObservable = (get) => {
   const subs = new Set()
   return {
@@ -76,7 +83,10 @@ const makeObservable = (get) => {
     notify: () => { for (const fn of [...subs]) fn() },
   }
 }
-const sessionObservable = makeObservable(() => snap)
+const sessionObservable = makeObservable(() => sessionSnap)
+const chatObservable = makeObservable(() => chatSnap)
+/** 两处订阅一起推一次（插件同时订阅了会话快照和 chat 投影）。 */
+const notify = () => { sessionObservable.notify(); chatObservable.notify() }
 const ctx = {
   sessions: {
     list: makeObservable(() => ({ current: currentId, phase: 'ready', sessions: [] })),
@@ -97,6 +107,10 @@ const ctx = {
     fork() { return Promise.reject(new Error('not used')) },
     provide() { return () => {} },
   },
+  // 0.1.5 新增：会话对话视图服务（提供 chat 投影，里面就是旧快照的 partial / runningCalls / turnEnds）
+  uiConversation: {
+    binding: () => ({ target: () => chatObservable }),
+  },
 }
 
 // apply：挂载
@@ -116,40 +130,59 @@ check('影子不在鲸鱼内部', pet?.querySelector('.dsh-whale-shadow') === nu
 const classesOf = () => [...(pet?.classList ?? [])].filter((c) => ['idle', 'think', 'working', 'celebrate', 'error', 'wait'].includes(c)).join(',')
 
 // 状态机：think（文本流，先于 working 测，避免粘滞窗口干扰）
-snap.running = true
-snap.partial = { turn: 1, step: 1, blocks: [] }
-sessionObservable.notify()
+sessionSnap.running = true
+legacySlice.partial = { turn: 1, step: 1, blocks: [] }
+notify()
 check('文本流 → think', classesOf() === 'think')
 
 // 状态机：回合中无文字流无工具 → think（不回 idle）
-snap.partial = null
-sessionObservable.notify()
+legacySlice.partial = null
+notify()
 check('回合中空档 → think', classesOf() === 'think')
 
-// 状态机：working（工具调用）
-snap.runningCalls = [{ id: 't1' }]
-sessionObservable.notify()
+// 状态机：working（工具调用，runningCalls 现在从 chat 投影读）
+legacySlice.runningCalls = [{ callId: 'c1', name: 'bash', turn: 1, step: 1 }]
+notify()
 check('工具调用 → working', classesOf() === 'working')
 
 // 状态机：有 pending 等待用户处理 → wait
-snap.runningCalls = []
-snap.pending = [{ kind: 'approval' }]
-sessionObservable.notify()
+// （0.1.5 的会话快照没有 pending，也没有替代的公开读取面；插件按老字段兜底读，
+//  所以这里仍然能覆盖这一分支）
+legacySlice.runningCalls = []
+sessionSnap.pending = [{ kind: 'approval' }]
+notify()
 check('有 pending → wait', classesOf() === 'wait')
-snap.pending = []
-sessionObservable.notify()
+sessionSnap.pending = []
+notify()
 check('pending 清空回到底态', classesOf() === 'think' || classesOf() === 'working')
 
+// 回归：0.1.5 的纯 SessionSnapshot（没有 partial / runningCalls / turnEnds / pending）
+// 绝不能让订阅回调抛错 —— 正是 "Cannot read properties of undefined (reading 'length')"
+// 把整条快照链打断、鲸鱼从此不动。删掉这些字段再推一次，必须不抛且落到 think。
+delete sessionSnap.pending
+legacySlice.partial = null
+legacySlice.runningCalls = []
+legacySlice.turnEnds = new Map()
+let regressThrew = null
+try {
+  notify()
+} catch (error) {
+  regressThrew = error
+}
+check('0.1.5 形状快照不抛错（runningCalls/turnEnds 缺失回归）', regressThrew === null)
+// 此时仍有 working 粘滞窗口，所以 think / working 都算对；关键是不能掉回 idle
+check('缺字段时回合中仍在干活态', classesOf() === 'think' || classesOf() === 'working')
+
 // 状态机：回合正常结束 → celebrate（瞬态）
-snap.running = false
-snap.runningCalls = []
-snap.turnEnds = new Map([[1, 5]])
-sessionObservable.notify()
+sessionSnap.running = false
+legacySlice.runningCalls = []
+legacySlice.turnEnds = new Map([[1, 5]])
+notify()
 check('回合完成 → celebrate', classesOf() === 'celebrate')
 
 // 状态机：error 边沿（新错误出现）
-snap.lastAgentError = 'boom'
-sessionObservable.notify()
+sessionSnap.lastAgentError = 'boom'
+notify()
 check('新错误 → error', classesOf() === 'error')
 
 // 会话切走 → idle
@@ -276,15 +309,15 @@ window.document.title = originalTitle
 pageHidden = true
 currentId = 's1'
 ctx.sessions.list.notify()
-snap.running = true
-snap.partial = null
-snap.runningCalls = []
-snap.lastAgentError = null
-snap.openError = null
-sessionObservable.notify()
-snap.running = false
-snap.turnEnds = new Map([[1, 5], [2, 9]])
-sessionObservable.notify()
+sessionSnap.running = true
+legacySlice.partial = null
+legacySlice.runningCalls = []
+sessionSnap.lastAgentError = null
+sessionSnap.openError = null
+notify()
+sessionSnap.running = false
+legacySlice.turnEnds = new Map([[1, 5], [2, 9]])
+notify()
 check('后台完成回合 → 标题被改写', window.document.title.startsWith('✅'))
 check('标题保留原文', window.document.title.includes(originalTitle))
 

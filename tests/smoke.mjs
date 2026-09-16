@@ -492,6 +492,24 @@ await toThink()
 const whaleLine = dialog4?.textContent ?? ''
 // 状态台词是随机取的，所以用"不含任何猫口吻标记"来断言基准文案已恢复
 check(`切回鲸鱼后不再出现猫口吻 ⟨${whaleLine}⟩`, /喵|舔爪子|炸毛|耷拉|巡逻|溜达|毛球|踩了踩奶|尾巴尖|键盘边/.test(whaleLine) === false)
+
+// 第三只宠物（灵儿）：顺带验证"竖版盒子"这条能力 —— size 会写进 --pw-pet-w/h，切走时必须清掉
+const openAppearance4 = () => {
+  pet4?.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 200 }))
+  clickMenu4('更多设置')
+  clickMenu4('外观')
+}
+openAppearance4()
+clickMenu4('灵儿')
+const petStyle4 = window.document.getElementById('pet-whale-pet-style')
+check('切到灵儿：data-pet=linger', rootEl4?.getAttribute('data-pet') === 'linger')
+check(`灵儿用竖版容器 ⟨${rootEl4?.style.getPropertyValue('--pw-pet-w')}×${rootEl4?.style.getPropertyValue('--pw-pet-h')}⟩`,
+  rootEl4?.style.getPropertyValue('--pw-pet-w') === '104px' && rootEl4?.style.getPropertyValue('--pw-pet-h') === '140px')
+check('灵儿样式表已挂上', petStyle4?.textContent.includes('linger-breathe') === true)
+check(`切到灵儿的提示语是她的名字 ⟨${dialog4?.textContent ?? ''}⟩`, /灵儿/.test(dialog4?.textContent ?? ''))
+openAppearance4()
+clickMenu4('小鲸鱼')
+check('切回鲸鱼：竖版容器变量被清掉', rootEl4?.style.getPropertyValue('--pw-pet-w') === '')
 dispose4()
 
 // dispose

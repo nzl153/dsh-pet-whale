@@ -28,7 +28,7 @@ The repository's [preview.html](preview.html) is the same page and can be opened
 | Idle micro-movements | Random swimming, looking around, and bubble blowing |
 | Error care | Click the whale during error state to copy the error text |
 | Skins | 7 built-in palettes (default Theme Blue), extensible by adding one line in `src/client/palettes.ts` |
-| Multiple pets | Right-click → "Appearance → 🐾 Pet" to switch between the whale and a cat; the choice persists. Each pet ships its own SVG, its own animation stylesheet and **its own lines** (the cat does not talk about diving), so they never interfere, while palettes and size stay shared. Adding a pet = one new folder under `src/client/pets/<id>/` plus one registry line — see [docs/MULTI-PET.md](docs/MULTI-PET.md) |
+| Multiple pets | Right-click → "Appearance → 🐾 Pet" to switch between the whale, a cat and Ling'er; the choice persists. Each pet ships its own SVG, its own animation stylesheet and **its own lines** (the cat does not talk about diving), so they never interfere, while palettes and size stay shared. Humanoid pets can declare a portrait box via `size` (Ling'er is 104×140). Adding a pet = one new folder under `src/client/pets/<id>/` plus one registry line — see [docs/MULTI-PET.md](docs/MULTI-PET.md) |
 | Hide/recall | Hide to a small 🐳 button; state persists across refresh |
 | Scheduled hide | Hide after 1 hour or every day at 22:00 |
 | Free swimming | Toggle "Swim" to let the whale roam the page along cubic Bezier paths, with banking, adaptive flipping, depth dives, wake ripples, and splashes; it yields while the agent is busy, and the preference is persisted |
@@ -97,7 +97,7 @@ pnpm verify:hmr    # verify local repo <-> running DSH HMR wiring
   whale's voice; a pet overrides just the entries it wants via `PetModule.text`.
 - `preview.html` — hand-written interactive playground (pet/state switching, feed, roll, eye tracking,
   roaming). Its V1/V2 blocks are the whale's design source and the input of `extract-whale.mjs`; other pets
-  are injected by `pnpm sync:preview` (`?pet=cat` opens a pet directly).
+  are injected by `pnpm sync:preview` (`?pet=cat`, `?pet=linger` open a pet directly).
 - `scripts/preview-pets.mjs` — generated check sheet (`pnpm preview`): every pet × every state in one grid.
 - `scripts/extract-whale.mjs` — sync the V2 SVG from `preview.html` into `src/client/whale.ts`
   (run `git diff src/client/whale.ts` afterwards to confirm nothing else moved).

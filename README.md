@@ -33,7 +33,7 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 | idle 小动作 | idle 久了会随机游动、左右张望、吐泡泡，不再只是打瞌睡 |
 | 错误关怀 | error 状态下点击鲸鱼或右键「📋 复制错误信息」，直接把错误文本复制到剪贴板 |
 | 换肤 | 7 套预设色板（默认**主题蓝**）：主题蓝 / 陶土 / 深海蓝 / 抹茶绿 / 樱粉 / 墨灰 / 夜黑；夜黑为深色皮肤示例（眼睛自动反白）。扩展只需在 `src/client/palettes.ts` 加一行 |
-| 多宠物 | 右键 →「外观 → 🐾 宠物」在**小鲸鱼 / 小猫**之间切换，选择持久化。每只宠物自带 SVG、独立动画样式表和**自己的台词**（猫不会说"深潜"），互不干扰；色板与大小对任何宠物通用。加一只新宠物 = 新建 `src/client/pets/<id>/` 一个目录 + 注册一行，详见 [docs/MULTI-PET.md](docs/MULTI-PET.md) |
+| 多宠物 | 右键 →「外观 → 🐾 宠物」在**小鲸鱼 / 小猫 / 灵儿**之间切换，选择持久化。每只宠物自带 SVG、独立动画样式表和**自己的台词**（猫不会说"深潜"），互不干扰；色板与大小对任何宠物通用，人物型可以用 `size` 声明竖版盒子（灵儿 104×140）。加一只新宠物 = 新建 `src/client/pets/<id>/` 一个目录 + 注册一行，详见 [docs/MULTI-PET.md](docs/MULTI-PET.md) |
 | 隐藏/召回 | 右键菜单「🙈 隐藏到右下角」收起桌宠，右下角出现 🐳 小按钮，点击召回；隐藏状态跨刷新记忆，隐藏期间自动静音、不说话 |
 | 小按钮状态 | 隐藏时小按钮随 agent 状态变色呼吸：idle 蓝 / think 深蓝 / working 橙 / celebrate 绿 / error 红 |
 | 小按钮拖拽 | 小按钮可拖拽移动，位置用 localStorage 记忆 |
@@ -102,7 +102,7 @@ pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 
 ```sh
 pnpm preview      # 生成 pet-preview.html：所有宠物 × 多状态铺成一张网格，浏览器直接打开
-pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在也能切宠物：?pet=cat）
+pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在也能切宠物：?pet=cat / ?pet=linger）
 pnpm pet:doctor   # 体检：样式切分、宠物注册、预览页同步、构建产物新鲜度（只读）
 ```
 

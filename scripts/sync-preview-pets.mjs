@@ -37,8 +37,8 @@ const dataOf = (file, exportName) => {
   return new Function(`${src}\nreturn ${exportName}`)()
 }
 
-/** 宠物目录清单：加一只宠物就在这里加一行（与 src/client/pets/index.ts 对应）。 */
-const PET_DIRS = ['cat']
+/** 宠物目录清单：加一只宠物就在这里加一行（与 src/client/pets/index.ts 对应，跳过 whale —— 它是手写稿）。 */
+const PET_DIRS = ['cat', 'linger']
 
 const pets = PET_DIRS.map((id) => {
   const dir = join(client, 'pets', id)
@@ -46,7 +46,9 @@ const pets = PET_DIRS.map((id) => {
   const nameZh = /zh:\s*'([^']+)'/.exec(meta)?.[1] ?? id
   const nameEn = /en:\s*'([^']+)'/.exec(meta)?.[1] ?? id
   const icon = /icon:\s*'([^']+)'/.exec(meta)?.[1] ?? '🐾'
-  const text = dataOf(join(dir, 'text.ts'), 'CAT_TEXT')
+  const text = dataOf(join(dir, 'text.ts'), `${id.toUpperCase()}_TEXT`)
+  // 宠物自带尺寸（竖版人物用），预览页要按它显示
+  const sizeMatch = /size:\s*\{\s*w:\s*(\d+)\s*,\s*h:\s*(\d+)\s*\}/.exec(meta)
   const toPageDict = (t) => ({
     // 预览页自己的键名（见 preview.html 里的 i18n 对象）
     ...(t.status ? { status: t.status } : {}),
@@ -68,6 +70,7 @@ const pets = PET_DIRS.map((id) => {
     icon,
     nameZh,
     nameEn,
+    size: sizeMatch ? { w: Number(sizeMatch[1]), h: Number(sizeMatch[2]) } : undefined,
     html: tpl(join(dir, 'markup.ts')),
     css: tpl(join(dir, 'styles.ts')),
     ui: {
@@ -123,12 +126,15 @@ html = upsert(html, 'pet-css', cssBlock, '</style>')
 
 // 2) 宠物承载节点：插在 V2 鲸鱼容器之后（用鲸鱼独有的 bubble-blue 结尾做锚点）
 const nodeBlock = pets
-  .map(
-    (p) => `      <div data-dsh-whale id="pet-${p.id}" data-preview-pet="${p.id}" style="display:none">
+  .map((p) => {
+    // 竖版宠物（灵儿）在预览页里要按自己的 size 显示：预览页手写的 .pet-official 是硬编码 137×101，
+    // 插件里则是靠 --pw-pet-w/--pw-pet-h，所以这里用行内样式把它对齐过来。
+    const box = p.size ? ` style="width:${p.size.w}px;height:${p.size.h}px"` : ''
+    return `      <div data-dsh-whale id="pet-${p.id}" data-preview-pet="${p.id}" style="display:none">
         <!-- 由 scripts/sync-preview-pets.mjs 生成，勿手改（改 src/client/pets/${p.id}/markup.ts） -->
-        <div class="pet-official idle">${p.html}</div>
-      </div>`,
-  )
+        <div class="pet-official idle"${box}>${p.html}</div>
+      </div>`
+  })
   .join('\n')
 html = upsert(html, 'pet-nodes', nodeBlock, '        <span class="bubble-blue bb3"></span>\n      </div>')
 

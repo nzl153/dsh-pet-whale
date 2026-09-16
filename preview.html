@@ -1081,6 +1081,450 @@
   100% { transform: translateY(-14px) translateX(3px) scale(1.05); opacity: 0; }
 }
 </style>
+<style id="pet-linger-css">
+/* 由 scripts/sync-preview-pets.mjs 生成，勿手改（改 src/client/pets/linger/styles.ts） */
+
+/* ===== 灵儿专属变量：她那身白袍要保持"白"，只有蓝/红的部件跟着色板走 ===== */
+[data-dsh-whale] {
+  --pw-robe: #F7F9FC;        /* 白袍主色 */
+  --pw-robe-shade: #E4EAF2;  /* 白袍暗部 */
+}
+
+/* ===== 容器是竖盒子（index.ts 里 size: 104×140），这几处跟着改 ===== */
+[data-dsh-whale][data-pet="linger"] .dsh-whale-shadow {
+  bottom: calc(-7px * var(--pw-scale));
+  width: calc(58px * var(--pw-scale));
+  height: calc(11px * var(--pw-scale));
+  margin-left: calc(-29px * var(--pw-scale));
+}
+[data-dsh-whale] .dsh-whale-zzz { left: 60%; top: 27px; }
+/* 巡游时的光晕换成剑气青光 */
+[data-dsh-whale] .dsh-whale-wake {
+  width: calc(120px * var(--pw-scale));
+  height: calc(120px * var(--pw-scale));
+  margin-left: calc(-60px * var(--pw-scale));
+  margin-top: calc(-60px * var(--pw-scale));
+  background: radial-gradient(ellipse at center, rgba(168, 236, 255, 0.30) 0%, rgba(96, 190, 220, 0.10) 50%, transparent 72%);
+}
+
+/* ===== 泡泡（庆祝 + 点击）===== */
+[data-dsh-whale] .bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: rgba(232,217,188,.9);
+  border: 1px solid rgba(46,42,36,.15);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-dsh-whale] .bubble::after {
+  content: "";
+  position: absolute;
+  left: 1.4px;
+  top: 1.4px;
+  width: 2.2px;
+  height: 2.2px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+}
+[data-dsh-whale] .bubble.show { animation: linger-rise 0.9s ease-out forwards; }
+[data-dsh-whale] .bubble-blue {
+  position: absolute;
+  left: 50%;
+  bottom: 4.5px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3.2px;
+  border-radius: 50%;
+  background: rgba(190,235,245,.8);
+  border: 1px solid rgba(96,180,200,.45);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-dsh-whale] .bubble-blue::after {
+  content: "";
+  position: absolute;
+  left: 1.4px;
+  top: 1.4px;
+  width: 1.8px;
+  height: 1.8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+}
+
+/* ===== 待机：呼吸 + 裙摆与披帛飘 + 长发微动 ===== */
+[data-dsh-whale] .pet-official .body { animation: linger-breathe 3.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .skirt { animation: linger-skirtSway 3.8s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .sash { animation: linger-sashFloat 3.0s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .sash + .sash { animation-delay: -1.1s; }
+[data-dsh-whale] .pet-official .ribbon { animation: linger-ribbonFlutter 2.4s ease-in-out infinite; transform-origin: 13px 3.4px; }
+[data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 8.05px; }
+
+/* ===== 思考：凝神掐诀，光点上升 ===== */
+[data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.think .bubble-blue { animation: linger-riseBlue 3.2s ease-out infinite; }
+[data-dsh-whale] .pet-official.think .bubble-blue.bb2 { animation-delay: 0.9s; }
+[data-dsh-whale] .pet-official.think .bubble-blue.bb3 { animation-delay: 1.8s; }
+[data-dsh-whale] .pet-official.think .pupil-highlight { animation: linger-pupilGaze 2.2s ease-in-out infinite alternate; }
+
+/* ===== 御剑飞行（自主巡游）===== */
+[data-dsh-whale] .pet-official.swimming .body,
+[data-dsh-whale] .pet-official.swimming-dive .body { animation: linger-fly 1.1s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.swim-dive .body,
+[data-dsh-whale] .pet-official.swimming-dive .body { animation: linger-flyDive 1.6s ease-in-out; }
+[data-dsh-whale] .pet-official.swimming .sword,
+[data-dsh-whale] .pet-official.swim-dive .sword,
+[data-dsh-whale] .pet-official.swimming-dive .sword { display: block; animation: linger-bladeFloat 1.1s ease-in-out infinite; transform-origin: 13px 32.5px; }
+[data-dsh-whale] .pet-official.swimming .skirt { animation: linger-skirtTrail 1.1s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.swimming .sash { animation: linger-sashTrail 0.9s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.swim-dive .bubble-blue,
+[data-dsh-whale] .pet-official.swimming-dive .bubble-blue { display: block; animation: linger-riseBlue 1.2s ease-out infinite; }
+
+/* ===== 工作：脚下起法阵，符文浮动 ===== */
+[data-dsh-whale] .pet-official.working { animation: linger-cast 1.0s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.working .body { animation: none; }
+[data-dsh-whale] .pet-official.working .keyboard-unit { display: block !important; }
+[data-dsh-whale] .pet-official.working .code-particle { display: block !important; }
+[data-dsh-whale] .pet-official.working .skirt { animation: linger-skirtSway 1.6s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.working .sash { animation: linger-sashFloat 1.4s ease-in-out infinite; }
+
+/* ===== 报错：施法失败，符光乱窜 ===== */
+[data-dsh-whale] .pet-official.error { animation: linger-shake 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .angry { display: block; animation: linger-angryJitter 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .eye-group .eye,
+[data-dsh-whale] .pet-official.error .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.error .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 8.05px;
+  animation: linger-dizzyShake 0.4s ease-in-out infinite alternate;
+}
+
+/* ===== 打坐入定 ===== */
+[data-dsh-whale].sleeping .eye-group .eye,
+[data-dsh-whale].sleeping .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale].sleeping .eye-group .sleep-eyes { display: inline !important; }
+
+/* ===== 开心：轻跃 ===== */
+[data-dsh-whale] .pet-official.joy { animation: linger-joyHop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.joy .eye-group .eye,
+[data-dsh-whale] .pet-official.joy .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.joy .eye-group .sleep-eyes { display: inline !important; }
+
+/* ===== 戳晕 ===== */
+[data-dsh-whale] .pet-official.dizzy { animation: linger-dizzyWobble 0.8s ease-in-out !important; }
+[data-dsh-whale] .pet-official.dizzy .eye-group .eye,
+[data-dsh-whale] .pet-official.dizzy .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.dizzy .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 8.05px;
+  animation: linger-dizzyShake 0.35s ease-in-out infinite alternate;
+}
+
+/* ===== 甩晕：发髻散乱 ===== */
+[data-dsh-whale] .pet-official.shaken .eye-group .eye,
+[data-dsh-whale] .pet-official.shaken .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale].dragging .pet-official.shaken .eye-group .caught-eyes { display: none !important; }
+[data-dsh-whale] .pet-official.shaken .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 8.05px;
+  animation: linger-dizzyShake 0.22s ease-in-out infinite alternate;
+}
+[data-dsh-whale]:not(.dragging) .pet-official.shaken { animation: linger-dizzyWobble 0.7s ease-in-out 2 !important; }
+
+/* ===== 双击：旋身行礼（替代鲸鱼的翻肚皮）===== */
+[data-dsh-whale] .pet-official.belly-up { animation: linger-spinBow 1.9s cubic-bezier(0.34, 1.3, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.belly-up .eye-group .eye,
+[data-dsh-whale] .pet-official.belly-up .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.belly-up .eye-group .sleep-eyes { display: inline !important; }
+[data-dsh-whale] .pet-official.belly-up .sash { animation: linger-sashSpin 1.9s ease-in-out; }
+
+/* ===== 贴边挤扁 ===== */
+[data-dsh-whale].edge-left .pet-official .body,
+[data-dsh-whale].edge-right .pet-official .body,
+[data-dsh-whale].dragging.edge-left .pet-official .body,
+[data-dsh-whale].dragging.edge-right .pet-official .body {
+  transform-origin: 50% 50%;
+  animation: linger-squeeze 0.35s ease-out forwards !important;
+}
+
+/* 拖着不动又不耐烦 */
+[data-dsh-whale].dragging .pet-official.impatient .body { animation: linger-impatientSway 0.9s ease-in-out infinite !important; }
+/* 连戳中段：侧身躲 */
+[data-dsh-whale] .pet-official.annoyed { animation: linger-annoyedDodge 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) !important; }
+/* 连戳过头：扭头吊眉 */
+[data-dsh-whale] .pet-official.sulking { animation: linger-sulkTurn 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) forwards !important; }
+[data-dsh-whale] .pet-official.sulking .eye-group .angry-eyes { display: inline !important; }
+
+/* ===== 欢迎 / 庆祝：跃起 + 灵光花瓣 ===== */
+[data-dsh-whale] .pet-official.welcome { animation: linger-leap 1.2s ease-in-out !important; }
+[data-dsh-whale] .pet-official.welcome .stars { display: block !important; }
+[data-dsh-whale] .pet-official.welcome .spout-group {
+  display: inline !important;
+  transform-origin: 13px 3.0px;
+  animation: linger-petal 1.2s cubic-bezier(0.2, 0.8, 0.35, 1);
+}
+[data-dsh-whale] .pet-official.celebrate { animation: linger-leap 1.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
+[data-dsh-whale] .pet-official.celebrate .starL { animation: linger-starSpin 1.2s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .starR { animation: linger-starSpin 1.2s ease-in-out 0.3s infinite; }
+[data-dsh-whale] .pet-official.celebrate .bubble { animation: linger-rise 1.2s ease-out 0.3s infinite; }
+[data-dsh-whale] .pet-official.celebrate .bubble.b2 { animation-delay: 0.7s; }
+[data-dsh-whale] .pet-official.celebrate .bubble.b3 { animation-delay: 1.05s; }
+[data-dsh-whale] .pet-official.celebrate .spout-group,
+[data-dsh-whale] .pet-official.spouting .spout-group {
+  display: inline !important;
+  transform-origin: 13px 3.0px;
+  animation: linger-petal 1.3s cubic-bezier(0.2, 0.8, 0.35, 1) infinite;
+}
+
+/* ===== 等待输入 / 失落 ===== */
+[data-dsh-whale] .pet-official.wait { animation: linger-wait 1.2s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.wait .bubble-blue { display: block; animation: linger-riseBlue 1.2s ease-out infinite; }
+[data-dsh-whale] .pet-official.disappointed { animation: linger-disappointed 2.6s ease-in-out infinite; }
+
+/* 双击翻滚特技（摸头/翻跟头按钮） */
+[data-dsh-whale] .pet-official.rolling { animation: linger-spinBow 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) !important; }
+/* 点击挤压回弹 */
+[data-dsh-whale] .pet-official.squish svg { animation: linger-squish 0.42s cubic-bezier(0.25, 1.4, 0.5, 1); }
+
+/* ===== 拖拽中 ===== */
+[data-dsh-whale].dragging .pet-official {
+  animation: none !important;
+  transform: scaleX(1) rotate(-5deg) scale(1.04, 0.96) !important;
+}
+[data-dsh-whale].dragging[data-facing="right"] .pet-official {
+  transform: scaleX(-1) rotate(5deg) scale(1.04, 0.96) !important;
+}
+[data-dsh-whale].dragging .pet-official .body { animation: none !important; }
+[data-dsh-whale].dragging .eye-group .eye,
+[data-dsh-whale].dragging .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale].dragging .eye-group .caught-eyes { display: inline !important; }
+[data-dsh-whale].dragging .eye-group .caught-eyes path { stroke: var(--pw-eye, #2E2A24) !important; stroke-width: 0.34 !important; }
+
+/* 打坐入定：身体起伏、裙摆收拢 */
+[data-dsh-whale].sleeping .pet-official .body { animation: linger-sleepBob 4s ease-in-out infinite !important; }
+[data-dsh-whale].sleeping .pet-official .skirt { animation: linger-skirtSway 6s ease-in-out infinite; }
+[data-dsh-whale].sleeping .pet-official .sash { animation: none !important; }
+[data-dsh-whale].sleeping .pet-official .eye-group { transform: scaleY(0.08) !important; }
+[data-dsh-whale].sleeping .pet-official .pupil-highlight { opacity: 0 !important; }
+
+/* 悬停：腮红加深 */
+[data-dsh-whale] .pet-official:hover .blush { opacity: .78; }
+
+/* 符文与法阵的动画 */
+[data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 27.4px; }
+[data-dsh-whale] .tap-k2 { animation: linger-runePulse 1.4s ease-in-out infinite; transform-origin: 13px 27.4px; }
+[data-dsh-whale] .code-fx1 { animation: linger-runeFloat1 1.6s ease-out infinite; }
+[data-dsh-whale] .code-fx2 { animation: linger-runeFloat2 1.6s ease-out 0.7s infinite; }
+
+/* ===== 御剑飞行：把公共的水花粒子改造成剑气与云气 =====
+   粒子由 swim.ts 生成、挂在 body 下的共享层 [data-dsh-whale-particles]，
+   所以要用属性选择器而不是 [data-dsh-whale]（层不在宠物容器里）。 */
+[data-dsh-whale-particles] .pw-water-ripple {
+  border: 1.2px solid rgba(186, 240, 255, 0.75);
+  background: radial-gradient(ellipse at center, rgba(186, 240, 255, 0.24) 0%, rgba(96, 200, 225, 0.06) 55%, transparent 75%);
+  box-shadow: 0 0 10px rgba(150, 230, 255, 0.5);
+}
+[data-dsh-whale-particles] .pw-stream-bubble {
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, rgba(206, 244, 255, 0.8) 55%, rgba(120, 205, 230, 0.35) 100%);
+  border: 0.8px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 7px rgba(170, 235, 255, 0.6);
+}
+[data-dsh-whale-particles] .pw-splash-drop {
+  background: linear-gradient(120deg, #FFFFFF 0%, rgba(196, 244, 255, 0.95) 60%, rgba(120, 205, 230, 0.6) 100%);
+  box-shadow: 0 0 6px rgba(180, 240, 255, 0.75);
+  border-radius: 60% 15% 60% 15%;
+}
+[data-dsh-whale-particles] .pw-drag-drip {
+  background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, rgba(206, 244, 255, 0.85) 60%, rgba(120, 205, 230, 0.4) 100%);
+  box-shadow: 0 0 6px rgba(180, 240, 255, 0.55);
+}
+[data-dsh-whale-particles] .pw-confetti {
+  background: var(--pw-blush, #F0A0A0);
+  border-radius: 62% 12% 62% 12%;
+}
+
+/* ===== keyframes（linger- 前缀）===== */
+@keyframes linger-breathe {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  50%     { transform: translateY(-1.1px) scale(1.008, .992); }
+}
+@keyframes linger-skirtSway {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  50%     { transform: rotate(1.6deg) scaleX(1.03); }
+}
+@keyframes linger-sashFloat {
+  0%,100% { transform: rotate(-2.5deg) translateY(0); }
+  50%     { transform: rotate(3.5deg) translateY(-0.6px); }
+}
+@keyframes linger-ribbonFlutter {
+  0%,100% { transform: rotate(-2deg); }
+  50%     { transform: rotate(2.5deg); }
+}
+@keyframes linger-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%, 97%      { transform: scaleY(0.12); }
+}
+@keyframes linger-meditate {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  35%     { transform: translateY(-1.6px) rotate(-1.2deg); }
+  70%     { transform: translateY(-0.8px) rotate(1deg); }
+}
+@keyframes linger-cast {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  30%     { transform: translateY(-1.2px) rotate(-0.8deg); }
+  70%     { transform: translateY(0.4px) rotate(0.8deg); }
+}
+@keyframes linger-fly {
+  0%,100% { transform: translateY(0) rotate(-1.5deg); }
+  50%     { transform: translateY(-1.6px) rotate(1.5deg); }
+}
+@keyframes linger-flyDive {
+  0%   { transform: translateY(0) rotate(0deg); }
+  35%  { transform: translateY(4px) rotate(-10deg) scale(1.02, .97); }
+  70%  { transform: translateY(1px) rotate(-4deg) scale(1, 1); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes linger-bladeFloat {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%     { transform: translateY(-1.8px) rotate(3deg); }
+}
+@keyframes linger-skirtTrail {
+  0%,100% { transform: rotate(-3deg) scaleX(1.05); }
+  50%     { transform: rotate(2deg) scaleX(1.08); }
+}
+@keyframes linger-sashTrail {
+  0%,100% { transform: rotate(-8deg) translateX(-0.6px); }
+  50%     { transform: rotate(-14deg) translateX(-1.4px); }
+}
+@keyframes linger-pupilGaze {
+  0%   { transform: translate(-0.22px, -0.22px); }
+  100% { transform: translate(0.32px, -0.4px); }
+}
+@keyframes linger-shake {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  25%     { transform: translateX(-1px) rotate(-1.4deg); }
+  75%     { transform: translateX(1px) rotate(1.4deg); }
+}
+@keyframes linger-angryJitter {
+  0%,100% { transform: translate(0, 0); }
+  50%     { transform: translate(0.5px, -0.4px); }
+}
+@keyframes linger-dizzyShake {
+  0%   { transform: rotate(-6deg) scale(1); }
+  100% { transform: rotate(6deg) scale(1.06); }
+}
+@keyframes linger-dizzyWobble {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-6deg); }
+  45%  { transform: rotate(5deg); }
+  70%  { transform: rotate(-3.5deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes linger-joyHop {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  25%     { transform: translateY(-6px) scale(.985, 1.03); }
+  55%     { transform: translateY(1px) scale(1.03, .97); }
+  75%     { transform: translateY(-2px) scale(.995, 1.01); }
+}
+@keyframes linger-spinBow {
+  0%   { transform: rotate(0deg) translateY(0) scale(1, 1); }
+  30%  { transform: rotate(-140deg) translateY(-5px) scale(.98, 1.03); }
+  60%  { transform: rotate(-330deg) translateY(0) scale(1.02, .98); }
+  80%  { transform: rotate(-360deg) translateY(0) scale(1.03, .96); }
+  100% { transform: rotate(-360deg) translateY(0) scale(1, 1); }
+}
+@keyframes linger-sashSpin {
+  0%,100% { transform: rotate(0deg); }
+  45%     { transform: rotate(-24deg); }
+  70%     { transform: rotate(18deg); }
+}
+@keyframes linger-squeeze {
+  0%   { transform: scaleX(1) scaleY(1); }
+  40%  { transform: scaleX(.64) scaleY(1.07); }
+  100% { transform: scaleX(.7) scaleY(1.05); }
+}
+@keyframes linger-impatientSway {
+  0%,100% { transform: rotate(-2.4deg); }
+  50%     { transform: rotate(2.4deg); }
+}
+@keyframes linger-annoyedDodge {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  35%     { transform: translateX(3.5px) rotate(3.5deg); }
+  70%     { transform: translateX(-1.4px) rotate(-2deg); }
+}
+@keyframes linger-sulkTurn {
+  0%   { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(1.2px) rotate(6deg); }
+}
+@keyframes linger-leap {
+  0%,100% { transform: translateY(0) rotate(0deg) scale(1, 1); }
+  14%     { transform: translateY(-14px) rotate(-4deg) scale(.98, 1.05); }
+  36%     { transform: translateY(1px) rotate(3deg) scale(1.05, .93); }
+  58%     { transform: translateY(-6px) rotate(-2deg) scale(.99, 1.02); }
+  78%     { transform: translateY(0) rotate(1deg) scale(1.02, .98); }
+}
+@keyframes linger-petal {
+  0%   { transform: translateY(3px) scale(.6); opacity: 0; }
+  30%  { transform: translateY(0) scale(1); opacity: .95; }
+  100% { transform: translateY(-8px) scale(1.15) rotate(14deg); opacity: 0; }
+}
+@keyframes linger-starSpin {
+  0%,100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50%     { transform: scale(1.35) rotate(22deg); opacity: .6; }
+}
+@keyframes linger-rise {
+  0%   { transform: translateY(0) scale(.55); opacity: 0; }
+  25%  { opacity: .95; }
+  100% { transform: translateY(-40px) scale(1); opacity: 0; }
+}
+@keyframes linger-riseBlue {
+  0%   { transform: translateY(0) scale(.55); opacity: 0; }
+  25%  { opacity: .9; }
+  100% { transform: translateY(-34px) scale(1); opacity: 0; }
+}
+@keyframes linger-wait {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-1.4px) rotate(-1.2deg); }
+}
+@keyframes linger-disappointed {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  35%     { transform: translateY(1.6px) scale(1.025, .965); }
+  70%     { transform: translateY(1px) scale(1.015, .98); }
+}
+@keyframes linger-squish {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.1, .87); }
+  70%  { transform: scale(.965, 1.045); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes linger-sleepBob {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  50%     { transform: translateY(1.4px) scale(1.015, .98); }
+}
+@keyframes linger-formation {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes linger-runePulse {
+  0%,100% { transform: scale(1); opacity: .5; }
+  50%     { transform: scale(1.08); opacity: .85; }
+}
+@keyframes linger-runeFloat1 {
+  0%   { transform: translateY(0) scale(.5); opacity: 0; }
+  30%  { opacity: .95; }
+  100% { transform: translateY(-12px) translateX(-3.5px) scale(1.05); opacity: 0; }
+}
+@keyframes linger-runeFloat2 {
+  0%   { transform: translateY(0) scale(.5); opacity: 0; }
+  30%  { opacity: .95; }
+  100% { transform: translateY(-13px) translateX(3px) scale(1.05); opacity: 0; }
+}
+</style>
 <!-- pet-css:end -->
 </head>
 <body>
@@ -1428,6 +1872,183 @@
         <span class="bubble-blue bb2"></span>
         <span class="bubble-blue bb3"></span></div>
       </div>
+      <div data-dsh-whale id="pet-linger" data-preview-pet="linger" style="display:none">
+        <!-- 由 scripts/sync-preview-pets.mjs 生成，勿手改（改 src/client/pets/linger/markup.ts） -->
+        <div class="pet-official idle" style="width:104px;height:140px"><svg viewBox="0 0 26 35" aria-hidden="true">
+          <defs>
+            <linearGradient id="lingRobe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--pw-robe,#F7F9FC)"/>
+              <stop offset="0.75" style="stop-color:var(--pw-robe,#F7F9FC)"/>
+              <stop offset="1" style="stop-color:var(--pw-robe-shade,#E4EAF2)"/>
+            </linearGradient>
+            <linearGradient id="lingBlue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--pw-body,#4D6BFE)"/>
+              <stop offset="1" style="stop-color:var(--pw-body-dark,#3550C9)"/>
+            </linearGradient>
+            <linearGradient id="lingHair" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#403A4C"/>
+              <stop offset="1" stop-color="#221F2A"/>
+            </linearGradient>
+            <linearGradient id="lingBlade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#BFE6FF"/>
+              <stop offset="0.5" stop-color="#FFFFFF"/>
+              <stop offset="1" stop-color="#8FD0F5"/>
+            </linearGradient>
+          </defs>
+
+          <g class="body">
+            <!-- 及腰长发（画在最底层，两侧垂下） -->
+            <path class="hair" d="M8.3 5.8 C6.3 10.2 5.9 15.4 6.5 20.6 C6.6 22.4 7.4 23.2 8.5 22.8 C8.0 17.8 8.3 12.4 9.5 7.2 Z" fill="url(#lingHair)"/>
+            <path class="hair" d="M17.7 5.8 C19.7 10.2 20.1 15.4 19.5 20.6 C19.4 22.4 18.6 23.2 17.5 22.8 C18.0 17.8 17.7 12.4 16.5 7.2 Z" fill="url(#lingHair)"/>
+
+            <!-- 裙（腰为轴心）：白裙身 + 蓝侧片 + 浅蓝滚边 -->
+            <g class="skirt" style="transform-origin: 13px 18.5px">
+              <path d="M10.0 18.5 L16.0 18.5 C17.8 23.2 19.6 27.6 20.5 30.0 C17.9 31.2 14.7 31.8 13 31.8 C11.3 31.8 8.1 31.2 5.5 30.0 C6.4 27.6 8.2 23.2 10.0 18.5 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.22" stroke-linejoin="round"/>
+              <!-- 两侧蓝色裙片 -->
+              <path d="M10.0 18.6 C8.6 23.2 7.1 27.4 6.0 29.9 C7.4 30.4 8.5 30.7 9.5 30.9 C9.6 26.6 10.5 22.0 11.3 18.7 Z" fill="url(#lingBlue)" opacity=".95"/>
+              <path d="M16.0 18.6 C17.4 23.2 18.9 27.4 20.0 29.9 C18.6 30.4 17.5 30.7 16.5 30.9 C16.4 26.6 15.5 22.0 14.7 18.7 Z" fill="url(#lingBlue)" opacity=".95"/>
+              <!-- 裙摆滚边 -->
+              <path d="M5.7 29.6 C8.7 30.9 17.3 30.9 20.3 29.6 L20.6 30.6 C17.3 31.9 8.7 31.9 5.4 30.6 Z" style="fill:var(--pw-body,#4D6BFE)"/>
+              <path d="M13 19.2 L13 31.0" fill="none" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.12" opacity=".3"/>
+            </g>
+
+            <!-- 浅蓝布鞋 -->
+            <ellipse cx="11.2" cy="31.4" rx="1.2" ry="0.52" style="fill:var(--pw-body,#4D6BFE)"/>
+            <ellipse cx="14.8" cy="31.4" rx="1.2" ry="0.52" style="fill:var(--pw-body,#4D6BFE)"/>
+
+            <!-- 白色广袖（垂袖，袖口一道浅蓝滚边） -->
+            <path d="M9.2 14.2 C7.2 15.4 6.1 18.0 6.2 20.8 C6.3 22.2 7.2 22.8 8.3 22.2 C9.4 20.6 10.2 17.8 10.4 15.2 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+            <path d="M16.8 14.2 C18.8 15.4 19.9 18.0 19.8 20.8 C19.7 22.2 18.8 22.8 17.7 22.2 C16.6 20.6 15.8 17.8 15.6 15.2 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+            <path d="M6.6 20.4 C7.7 21.1 8.9 20.6 9.6 19.4" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.32" stroke-linecap="round" opacity=".85"/>
+            <path d="M19.4 20.4 C18.3 21.1 17.1 20.6 16.4 19.4" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.32" stroke-linecap="round" opacity=".85"/>
+
+            <!-- 上衣：白色交领内衬 + 蓝色外袍 -->
+            <path d="M13 13.2 C10.2 13.2 8.3 14.7 8.0 17.0 L10.0 18.7 L16.0 18.7 L18.0 17.0 C17.7 14.7 15.8 13.2 13 13.2 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+            <path d="M9.6 14.0 C11.0 15.4 15.0 15.4 16.4 14.0 C17.2 14.5 17.8 15.5 18.0 16.8 L15.4 18.7 L13 17.0 L10.6 18.7 L8.0 16.8 C8.2 15.5 8.8 14.5 9.6 14.0 Z" fill="url(#lingBlue)"/>
+            <path d="M13 14.4 L11.0 17.9 M13 14.4 L15.0 17.9" fill="none" style="stroke:var(--pw-robe,#F7F9FC)" stroke-width="0.3" stroke-linecap="round" opacity=".95"/>
+
+            <!-- 红腰带 + 两条长飘带 -->
+            <rect x="9.4" y="17.4" width="7.2" height="1.5" rx="0.35" style="fill:var(--pw-blush,#F0A0A0)"/>
+            <circle cx="13" cy="18.2" r="0.5" style="fill:var(--pw-blush,#F0A0A0)"/>
+            <g class="sash" style="transform-origin: 12.4px 18.4px">
+              <path d="M12.4 18.6 C11.7 21.6 11.5 24.6 12.0 27.4 C12.5 27.6 12.9 27.3 13.0 26.8 C12.7 24.2 12.8 21.4 13.2 18.6 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+            </g>
+            <g class="sash" style="transform-origin: 13.6px 18.4px">
+              <path d="M13.6 18.6 C14.3 21.4 14.5 24.2 14.1 26.8 C13.6 27.0 13.2 26.7 13.1 26.2 C13.4 23.8 13.3 21.2 13.0 18.6 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+            </g>
+
+            <!-- 手 -->
+            <circle class="hand" cx="8.3" cy="22.0" r="0.78" fill="#F7E0CE"/>
+            <circle class="hand" cx="17.7" cy="22.0" r="0.78" fill="#F7E0CE"/>
+
+            <!-- 脖子 -->
+            <rect x="12.3" y="11.8" width="1.4" height="2.2" rx="0.4" fill="#EFCDB4"/>
+
+            <!-- 脸 -->
+            <circle cx="13" cy="7.8" r="4.9" fill="#F7E0CE"/>
+            <!-- 垂在脸侧的两缕鬓发 -->
+            <path d="M8.2 5.6 C7.4 8.8 7.5 12.0 8.5 14.4 C9.6 14.6 10.4 13.8 10.5 12.8 C9.7 10.2 9.6 7.8 10.1 5.8 Z" fill="url(#lingHair)"/>
+            <path d="M17.8 5.6 C18.6 8.8 18.5 12.0 17.5 14.4 C16.4 14.6 15.6 13.8 15.5 12.8 C16.3 10.2 16.4 7.8 15.9 5.8 Z" fill="url(#lingHair)"/>
+            <!-- 顶发 + 中分刘海 -->
+            <path d="M13 1.9 C8.7 1.9 6.8 4.9 7.1 7.9 C7.6 6.5 8.2 5.5 9.1 5.0 C10.2 6.8 11.5 7.2 13 6.9 C14.5 7.2 15.8 6.8 16.9 5.0 C17.8 5.5 18.4 6.5 18.9 7.9 C19.2 4.9 17.3 1.9 13 1.9 Z" fill="url(#lingHair)"/>
+            <!-- 双丫髻 + 蓝色发带 -->
+            <circle cx="10.4" cy="2.5" r="1.1" fill="url(#lingHair)"/>
+            <circle cx="15.6" cy="2.5" r="1.1" fill="url(#lingHair)"/>
+            <path d="M9.4 2.0 C10.0 1.5 10.9 1.5 11.4 2.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.3" stroke-linecap="round"/>
+            <path d="M14.6 2.0 C15.1 1.5 16.0 1.5 16.6 2.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.3" stroke-linecap="round"/>
+            <g class="ribbon" style="transform-origin: 10.4px 3.0px">
+              <path d="M10.2 3.3 C9.0 4.4 8.3 5.8 8.1 7.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.3" stroke-linecap="round"/>
+            </g>
+            <g class="ribbon" style="transform-origin: 15.6px 3.0px">
+              <path d="M15.8 3.3 C17.0 4.4 17.7 5.8 17.9 7.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.3" stroke-linecap="round"/>
+            </g>
+
+            <!-- 眼（细眉 + 深色眼）、腮红、小口 -->
+            <path d="M10.3 6.7 Q11.3 6.35 12.25 6.6" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.18" stroke-linecap="round" opacity=".75"/>
+            <path d="M15.7 6.7 Q14.7 6.35 13.75 6.6" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.18" stroke-linecap="round" opacity=".75"/>
+            <g class="eye-group">
+              <ellipse class="eye" cx="11.35" cy="8.3" rx="0.95" ry="1.12" style="fill:var(--pw-eye,#2E2A24)"/>
+              <ellipse class="eye" cx="14.65" cy="8.3" rx="0.95" ry="1.12" style="fill:var(--pw-eye,#2E2A24)"/>
+              <g class="pupil-highlight">
+                <circle cx="11.62" cy="7.9" r="0.33" style="fill:var(--pw-pupil,#FBF8F0)"/>
+                <circle cx="14.92" cy="7.9" r="0.33" style="fill:var(--pw-pupil,#FBF8F0)"/>
+              </g>
+              <g class="caught-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.34" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.65 7.8 L11.7 8.33 L10.65 8.85"/>
+                <path d="M15.35 7.8 L14.3 8.33 L15.35 8.85"/>
+              </g>
+              <g class="sleep-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.3" stroke-linecap="round">
+                <path d="M10.5 8.47 Q11.35 7.7 12.2 8.47"/>
+                <path d="M13.8 8.47 Q14.65 7.7 15.5 8.47"/>
+              </g>
+              <g class="dizzy-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.26" stroke-linecap="round">
+                <path d="M10.8 7.8 L11.9 8.9 M11.9 7.8 L10.8 8.9"/>
+                <path d="M14.1 7.8 L15.2 8.9 M15.2 7.8 L14.1 8.9"/>
+              </g>
+              <g class="angry-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.3" stroke-linecap="round">
+                <path d="M10.4 7.2 L12.1 7.85"/>
+                <path d="M15.6 7.2 L13.9 7.85"/>
+              </g>
+            </g>
+            <ellipse class="blush" cx="10.0" cy="10.0" rx="0.8" ry="0.44" style="fill:var(--pw-blush,#F0A0A0)" opacity=".4"/>
+            <ellipse class="blush" cx="16.0" cy="10.0" rx="0.8" ry="0.44" style="fill:var(--pw-blush,#F0A0A0)" opacity=".4"/>
+            <path d="M12.6 10.5 Q13 10.9 13.4 10.5" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.18" stroke-linecap="round" opacity=".75"/>
+
+            <!-- 施法失败的青筋 -->
+            <g class="angry" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.26" stroke-linecap="round">
+              <path d="M18.7 1.7 L19.4 3.1"/>
+              <path d="M19.9 2.4 L20.6 3.8"/>
+            </g>
+
+            <!-- 灵光星星 -->
+            <g class="stars" style="display:none">
+              <path class="starL" d="M4.9 3.2 L5.18 3.92 L5.9 4.2 L5.18 4.48 L4.9 5.2 L4.62 4.48 L3.9 4.2 L4.62 3.92 Z" fill="#FFE9A8" style="transform-origin: 4.9px 4.2px"/>
+              <path class="starR" d="M21.1 2.8 L21.38 3.52 L22.1 3.8 L21.38 4.08 L21.1 4.8 L20.82 4.08 L20.1 3.8 L20.82 3.52 Z" fill="#FFE9A8" style="transform-origin: 21.1px 3.8px"/>
+            </g>
+
+            <!-- 花瓣/灵光上升（醒来与庆祝） -->
+            <g class="spout-group" style="display:none">
+              <circle class="spout-drop" cx="10.3" cy="0.9" r="0.38" style="fill:var(--pw-blush,#F0A0A0)" opacity=".9"/>
+              <circle class="spout-drop" cx="13.0" cy="0.35" r="0.48" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".9"/>
+              <circle class="spout-drop" cx="15.7" cy="0.9" r="0.38" style="fill:var(--pw-blush,#F0A0A0)" opacity=".9"/>
+              <path class="spout-stream" d="M9.9 2.3 Q9.1 1.7 10.1 1.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-linecap="round" opacity=".85"/>
+              <path class="spout-stream" d="M16.1 2.3 Q16.9 1.7 15.9 1.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-linecap="round" opacity=".85"/>
+            </g>
+          </g>
+
+          <!-- 灵光符文（working 时浮起） -->
+          <g class="code-particle" style="display:none">
+            <path class="code-fx1" d="M6.0 24.2 L6.25 24.85 L6.9 25.1 L6.25 25.35 L6.0 26.0 L5.75 25.35 L5.1 25.1 L5.75 24.85 Z" style="fill:var(--pw-body-light,#8FB5FF)"/>
+            <path class="code-fx2" d="M20.0 23.4 L20.25 24.05 L20.9 24.3 L20.25 24.55 L20.0 25.2 L19.75 24.55 L19.1 24.3 L19.75 24.05 Z" style="fill:var(--pw-body,#4D6BFE)"/>
+          </g>
+
+          <!-- 法阵（working 时出现，替代键盘） -->
+          <g class="keyboard-unit" style="display:none">
+            <ellipse cx="13" cy="28.9" rx="5.8" ry="1.5" style="fill:var(--pw-body-dark,#3550C9)" opacity=".26"/>
+            <g class="tap-k1">
+              <circle cx="13" cy="27.6" r="4.7" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-dasharray="1.1 .7" opacity=".9"/>
+              <circle cx="13" cy="27.6" r="3.3" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.2" stroke-dasharray=".5 .9" opacity=".75"/>
+            </g>
+            <g class="tap-k2">
+              <path d="M10.4 25.7 L10.7 26.5 M11.0 25.7 L10.7 26.5" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.22" stroke-linecap="round"/>
+              <path d="M15.6 25.7 L15.3 26.5 M15.0 25.7 L15.3 26.5" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.22" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <!-- 御剑：御剑飞行时才出现（swimming / swim-dive） -->
+          <g class="sword" style="display:none">
+            <path d="M1.6 32.5 L24.0 31.3 L24.6 32.2 L1.2 33.5 Z" fill="url(#lingBlade)" stroke="#9BD4F0" stroke-width="0.12" stroke-linejoin="round"/>
+            <path d="M2.2 32.6 L23.6 31.45" fill="none" stroke="#FFFFFF" stroke-width="0.16" opacity=".85"/>
+            <ellipse cx="13" cy="32.9" rx="7.6" ry="1.5" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".3"/>
+          </g>
+        </svg>
+        <span class="bubble"></span>
+        <span class="bubble b2"></span>
+        <span class="bubble b3"></span>
+        <span class="bubble-blue"></span>
+        <span class="bubble-blue bb2"></span>
+        <span class="bubble-blue bb3"></span></div>
+      </div>
 <!-- pet-nodes:end -->
     </div>
   </div>
@@ -1445,6 +2066,7 @@
     <button data-m="v2" class="active">官方轮廓版</button>
 <!-- pet-mode-buttons:begin -->
     <button data-m="cat">🐱 小猫</button>
+    <button data-m="linger">🌸 灵儿</button>
 <!-- pet-mode-buttons:end -->
     <!-- 其余宠物按钮由 scripts/sync-preview-pets.mjs 注入（文案来自 __PET_UI__） -->
   </div>
@@ -1469,6 +2091,10 @@
   window.__PET_MODULES__ = [
   {
     "id": "cat",
+    "baseClass": "pet-official"
+  },
+  {
+    "id": "linger",
     "baseClass": "pet-official"
   }
 ];
@@ -1625,6 +2251,162 @@
       ],
       "swimOnMsg": "Patrol mode on — I will wander around on my own 🐱🐾",
       "swimOffMsg": "Patrol mode off, I will stay put~"
+    }
+  },
+  "linger": {
+    "zh": {
+      "modeLabels": {
+        "linger": "🌸 灵儿"
+      },
+      "title": "🌸 桌宠灵儿 · 预览",
+      "hint": "提示：单击灵儿触发撒娇/翻滚/晕乎互动；双击翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。",
+      "status": {
+        "idle": [
+          "灵儿在此，静候差遣 🌸",
+          "今日要处理什么凡间事务？",
+          "衣袖轻拂，随时可以动身。",
+          "（理了理裙裾，安静站着）"
+        ],
+        "think": [
+          "凝神推演中…",
+          "让我静心算一算这一步。",
+          "灵台清明，正在梳理脉络 ✦",
+          "（闭目掐指，指尖灵光微亮）"
+        ],
+        "working": [
+          "法术将成，稍候片刻。",
+          "正在施展符术，灵光流转 ✦",
+          "（以指为笔，在空中画符）"
+        ],
+        "celebrate": [
+          "事成！天地灵气为之一清 ✦",
+          "此局已解，皆大欢喜。",
+          "（轻轻一跃，花瓣随之升起）"
+        ],
+        "error": [
+          "哎呀，法诀念错了一个字……",
+          "灵气紊乱，待我重新结印。",
+          "（符纸烧焦了，有点不好意思）"
+        ],
+        "wait": [
+          "此事需你定夺。",
+          "我在此候你一句话。",
+          "（歪头看你，等你示下）"
+        ],
+        "disappointed": [
+          "唔……这一式没能成。",
+          "修行本就有起有落，我再练练。",
+          "（垂袖静立，稍作调息）"
+        ]
+      },
+      "poke": [
+        "嘻，痒的。",
+        "再戳灵气要散了哦 🌸",
+        "把我当小猫了么？",
+        "（用袖子挡了一下）"
+      ],
+      "welcomeText": "你回来啦，今日也一起吧。",
+      "pokeDizzy": [
+        "哎呀，轻些……有点晕 @-@",
+        "转得我眼花啦。",
+        "（扶了扶发簪）"
+      ],
+      "joy": [
+        "心里欢喜 ✦",
+        "（转了个圈，裙摆旋开）",
+        "灵气都轻快起来了。",
+        "嘻，今日甚好。"
+      ],
+      "feedText": "（小口吃了）多谢，味道清甜。",
+      "headpatText": "唔……这样被摸头，倒也安心 🥰",
+      "rollText": "旋身一礼，谢你相伴 ♡",
+      "sleepText": "入定去了…… (Zzz) 💤",
+      "swimQuotes": [
+        "御剑起，随云而行 🗡",
+        "换个方向看看你在哪。",
+        "剑气开路，闲人退避。",
+        "乘风一游，正好散心。",
+        "（衣袂翻飞，落在剑上）"
+      ],
+      "swimOnMsg": "御剑术已开，我自己走走 🗡☁️",
+      "swimOffMsg": "收剑，灵儿归位。"
+    },
+    "en": {
+      "modeLabels": {
+        "linger": "🌸 linger"
+      },
+      "title": "🌸 Desktop Pet linger · Preview",
+      "hint": "Tip: click the linger for pokes/rolls; double-click to roll; move the mouse to follow; it naps when idle.",
+      "status": {
+        "idle": [
+          "Ling'er is here, awaiting your word 🌸",
+          "What mortal business shall we handle today?",
+          "Sleeves ready — I can set off anytime.",
+          "(smooths her skirt and stands quietly)"
+        ],
+        "think": [
+          "Divining quietly…",
+          "Let me calmly work out this step.",
+          "My mind is clear; sorting the threads ✦",
+          "(eyes closed, fingers tracing a seal)"
+        ],
+        "working": [
+          "The spell is nearly done — one moment.",
+          "Casting the charm, light spiraling ✦",
+          "(drawing a sigil in the air with one finger)"
+        ],
+        "celebrate": [
+          "Done! The air feels clearer already ✦",
+          "The problem is solved — joy all around.",
+          "(a light hop, petals rising with her)"
+        ],
+        "error": [
+          "Oh dear, I mispronounced one syllable…",
+          "The qi is tangled; let me reseal it.",
+          "(the talisman scorched a little — a bit embarrassed)"
+        ],
+        "wait": [
+          "This needs your decision.",
+          "I will wait here for your word.",
+          "(tilts her head, waiting for your call)"
+        ],
+        "disappointed": [
+          "Mm… that stance did not come together.",
+          "Cultivation has its ups and downs; I will practice.",
+          "(stands with lowered sleeves, catching her breath)"
+        ]
+      },
+      "poke": [
+        "Hehe, that tickles.",
+        "Poke again and my qi scatters 🌸",
+        "Do you take me for a cat?",
+        "(blocks it with her sleeve)"
+      ],
+      "welcomeText": "You are back — let us begin again today.",
+      "pokeDizzy": [
+        "Oh — gently, I am a little dizzy @-@",
+        "You are making my head spin.",
+        "(steadies her hairpin)"
+      ],
+      "joy": [
+        "My heart is light ✦",
+        "(spins once, skirt flaring)",
+        "Even the qi feels cheerful.",
+        "Hehe, a fine day."
+      ],
+      "feedText": "(takes a small bite) Thank you — sweet and light.",
+      "headpatText": "Mm… a headpat like that is oddly reassuring 🥰",
+      "rollText": "A spin and a bow, for your company ♡",
+      "sleepText": "Entering meditation… (Zzz) 💤",
+      "swimQuotes": [
+        "The sword rises — riding the clouds 🗡",
+        "Circling around to find you.",
+        "Sword light clears the way.",
+        "A ride on the wind, just to clear my head.",
+        "(robe fluttering, alighting on the blade)"
+      ],
+      "swimOnMsg": "Sword flight engaged — I will wander on my own 🗡☁️",
+      "swimOffMsg": "Blade sheathed; Ling'er returns."
     }
   }
 };

@@ -231,6 +231,7 @@ const zh: PetStrings = {
   pet: {
     whale: '小鲸鱼',
     cat: '小猫',
+    linger: '灵儿',
   },
   palette: {
     terracotta: '陶土',
@@ -240,6 +241,7 @@ const zh: PetStrings = {
     ink: '墨灰',
     night: '夜黑',
     'theme-blue': '主题蓝',
+    qinglian: '青莲',
   },
   feedback: {
     squish: '戳一戳，心情 +1 ✨',
@@ -442,6 +444,7 @@ const en: PetStrings = {
   pet: {
     whale: 'Whale',
     cat: 'Cat',
+    linger: "Ling'er",
   },
   palette: {
     terracotta: 'Terracotta',
@@ -451,6 +454,7 @@ const en: PetStrings = {
     ink: 'Ink Gray',
     night: 'Night Black',
     'theme-blue': 'Theme Blue',
+    qinglian: 'Lotus Green',
   },
   feedback: {
     squish: 'Poke! Mood +1 ✨',

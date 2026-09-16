@@ -27,10 +27,12 @@ src/client/
     index.ts                PETS 注册表 / DEFAULT_PET_ID / 选择持久化
     whale/{index.ts,styles.ts}          鲸鱼模块 + 宠物私有样式（从 styles.ts 切分而来）
     cat/{index.ts,styles.ts,markup.ts,text.ts}   小猫：手写 SVG + 独立 cat-* 动画 + 专属台词
+    linger/{index.ts,markup.ts,styles.ts,text.ts} 灵儿：Q 版 3 头身人物 + 竖版盒子（size）
 scripts/
   sync-preview-pets.mjs     把宠物资源注入手写的 preview.html（pnpm sync:preview）
   preview-pets.mjs          生成"全部宠物 × 全部状态"检查页（pnpm preview）
   extract-whale.mjs         从 preview.html 抽 V2 鲸鱼 SVG → src/client/whale.ts
+  doctor.mjs                改造体检（pnpm pet:doctor）
 ```
 
 运行时挂**两张** `<style>`：
@@ -101,6 +103,48 @@ export const PETS: readonly PetModule[] = [whalePet, catPet, foxPet]
 
 `i18n.ts` 里的基准文案是**鲸鱼口吻**："正在深潜检索知识库...""游一游，活动一下~"。
 一只猫说这些很违和，所以宠物可以整组覆盖它 —— 见下一节。
+
+### 5. 让预览页也认识它（两步，别漏）
+
+```powershell
+# ① scripts/sync-preview-pets.mjs 顶部的 PET_DIRS 里加一行：const PET_DIRS = ['cat', 'linger']
+pnpm sync:preview
+```
+
+`pnpm pet:doctor` 和 `pnpm sync:preview --check` 都会在你忘记同步时直接报错，所以漏了也不会静默。
+
+## 人物型宠物：竖版盒子与专属配色变量
+
+两个只在"人物/大体量宠物"上才会用到的东西，`pets/linger` 是范例：
+
+**(1) 竖版盒子 `size`** —— 默认容器是 137×101（横的），站立人物塞进去会被压扁：
+
+```ts
+export const lingerPet: PetModule = {
+  // …
+  size: { w: 104, h: 140 },   // 插件写进 --pw-pet-w/--pw-pet-h，贴边挤扁、巡游范围、地面阴影都跟着走
+}
+```
+
+配套要做两件事，否则比例对不上：
+
+- `viewBox` 的长宽比要与 `size` 一致（灵儿是 26×35 ↔ 104×140）；
+- 地面阴影是固定像素的，要在宠物自己的样式表里覆盖：
+  `[data-dsh-whale][data-pet="linger"] .dsh-whale-shadow { … }`
+- 预览页那边由 `scripts/sync-preview-pets.mjs` 自动加行内尺寸（它读 `index.ts` 里的 `size`）。
+
+**(2) 专属配色变量** —— 色板只给了 `--pw-body/--pw-body-light/--pw-body-dark/--pw-blush`
+四个槽位。灵儿的造型是"白袍 + 蓝 + 红腰带"，白袍必须保持白，所以在她的样式表里加了两个局部变量：
+
+```css
+[data-dsh-whale] {
+  --pw-robe: #F7F9FC;        /* 白袍主色，跟着宠物表只在选中时存在 */
+  --pw-robe-shade: #E4EAF2;
+}
+```
+
+SVG 里 `style="stop-color:var(--pw-robe,#F7F9FC)"` 用它，于是换肤时**蓝色与红色跟着色板走、白袍保持白**。
+加新宠物时想加自己的槽位，照这个写法在宠物样式表里定义即可（不需要动 BASE_CSS）。
 
 ## 台词也跟着宠物走
 

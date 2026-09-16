@@ -26,6 +26,8 @@ export const PALETTES: readonly WhalePalette[] = [
   { id: 'ink', name: '墨灰', light: '#B8B8B8', main: '#787878', dark: '#4C4C4C', blush: '#C89B9B' },
   { id: 'night', name: '夜黑', light: '#4A4A4A', main: '#262626', dark: '#121212', blush: '#7A5C5C', eye: '#F7F2E6', pupil: '#2E2A24' },
   { id: 'theme-blue', name: '主题蓝', light: '#8FB5FF', main: '#4D6BFE', dark: '#3550C9', blush: '#F0A0A0' },
+  // 仙侠气质的青碧（灵儿那套）：青白裙 + 藕荷披帛 + 朱红点缀
+  { id: 'qinglian', name: '青莲', light: '#B4DED4', main: '#5E9E93', dark: '#3D6F68', blush: '#E79AA6' },
 ]
 
 export const DEFAULT_PALETTE = PALETTES.find((p) => p.id === 'theme-blue') ?? PALETTES[0]

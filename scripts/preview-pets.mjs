@@ -23,6 +23,13 @@ const base = tpl(join(client, 'styles.ts'))
 const pets = [
   { id: 'whale', html: tpl(join(client, 'whale.ts')), css: tpl(join(client, 'pets', 'whale', 'styles.ts')) },
   { id: 'cat', html: tpl(join(client, 'pets', 'cat', 'markup.ts')), css: tpl(join(client, 'pets', 'cat', 'styles.ts')) },
+  // 竖版宠物：给它自己的盒子（预览页的 [data-dsh-whale] 默认是 137×101）
+  {
+    id: 'linger',
+    html: tpl(join(client, 'pets', 'linger', 'markup.ts')),
+    css: tpl(join(client, 'pets', 'linger', 'styles.ts')),
+    box: { w: 104, h: 140 },
+  },
 ]
 
 // 想多看几个状态就改这里：['宠物 id', '要挂的 class', '根上要挂的 class(可空)']
@@ -30,6 +37,7 @@ const cells = [
   ['whale', 'idle', ''], ['whale', 'working', ''], ['whale', 'celebrate', ''],
   ['cat', 'idle', ''], ['cat', 'working', ''], ['cat', 'celebrate', ''],
   ['cat', 'error', ''], ['cat', 'sleeping', ''], ['cat', 'belly-up', ''],
+  ['linger', 'idle', ''], ['linger', 'working', ''], ['linger', 'error', ''],
 ]
 
 const cellHtml = cells
@@ -37,8 +45,10 @@ const cellHtml = cells
     const pet = pets.find((p) => p.id === id)
     if (!pet) throw new Error(`预览里引用了没注册的宠物: ${id}`)
     const petClass = `pet-official ${state === 'sleeping' ? 'idle' : state}`
+    // 竖版宠物用 --pw-pet-w/--pw-pet-h 把根盒子改成它自己的尺寸（与插件运行时一致）
+    const boxVars = pet.box ? `;--pw-pet-w:${pet.box.w}px;--pw-pet-h:${pet.box.h}px` : ''
     return `<figure class="cell">
-  <div data-dsh-whale class="${rootState}" style="--pw-scale:2.1">
+  <div data-dsh-whale class="${rootState}" style="--pw-scale:2.1${boxVars}">
     <span class="dsh-whale-shadow"></span>
     <span class="dsh-whale-wake"></span>
     <div class="dsh-whale-dialog"></div>

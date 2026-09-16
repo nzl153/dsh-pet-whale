@@ -83,8 +83,10 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official .ribbon { animation: linger-ribbonFlutter 2.4s ease-in-out infinite; transform-origin: 13px 3.4px; }
 [data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 8.05px; }
 
-/* ===== 思考：凝神掐诀，光点上升 ===== */
+/* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.think .hand-seal { display: block !important; }
+[data-dsh-whale] .pet-official.think .hand-seal circle { animation: linger-sealGlow 1.6s ease-in-out infinite; transform-origin: 15.6px 10.5px; }
 [data-dsh-whale] .pet-official.think .bubble-blue { animation: linger-riseBlue 3.2s ease-out infinite; }
 [data-dsh-whale] .pet-official.think .bubble-blue.bb2 { animation-delay: 0.9s; }
 [data-dsh-whale] .pet-official.think .bubble-blue.bb3 { animation-delay: 1.8s; }
@@ -428,6 +430,10 @@ export const LINGER_PET_CSS = `
 @keyframes linger-formation {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+@keyframes linger-sealGlow {
+  0%,100% { transform: scale(.8); opacity: .5; }
+  50%     { transform: scale(1.5); opacity: 1; }
 }
 @keyframes linger-runePulse {
   0%,100% { transform: scale(1); opacity: .5; }

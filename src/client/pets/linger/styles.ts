@@ -375,12 +375,12 @@ export const LINGER_PET_CSS = `
 }
 /* 上臂外抬（庆祝/挥手用；光折前臂够不到头顶） */
 @keyframes linger-armRaiseL {
-  0%,100% { transform: rotate(46deg); }
-  50%     { transform: rotate(58deg); }
+  0%,100% { transform: rotate(20deg); }
+  50%     { transform: rotate(32deg); }
 }
 @keyframes linger-armRaiseR {
-  0%,100% { transform: rotate(-46deg); }
-  50%     { transform: rotate(-58deg); }
+  0%,100% { transform: rotate(-20deg); }
+  50%     { transform: rotate(-32deg); }
 }
 /* 开心：单手挥袖（上臂已抬） */
 @keyframes linger-forearmWave {
@@ -389,12 +389,12 @@ export const LINGER_PET_CSS = `
 }
 /* 庆祝：双臂上举 */
 @keyframes linger-forearmCheerL {
-  0%,100% { transform: rotate(-118deg); }
-  50%     { transform: rotate(-134deg); }
+  0%,100% { transform: rotate(-156deg); }
+  50%     { transform: rotate(-172deg); }
 }
 @keyframes linger-forearmCheerR {
-  0%,100% { transform: rotate(118deg); }
-  50%     { transform: rotate(134deg); }
+  0%,100% { transform: rotate(156deg); }
+  50%     { transform: rotate(172deg); }
 }
 /* 报错：双手护在身前发抖 */
 @keyframes linger-forearmTrembleL {
@@ -437,9 +437,10 @@ export const LINGER_PET_CSS = `
   30%     { transform: translateY(-1.2px) rotate(-0.8deg); }
   70%     { transform: translateY(0.4px) rotate(0.8deg); }
 }
+/* 御剑飞行：身体保持前倾（像踩在剑上），只带轻微起伏 */
 @keyframes linger-fly {
-  0%,100% { transform: translateY(0) rotate(-1.5deg); }
-  50%     { transform: translateY(-1.6px) rotate(1.5deg); }
+  0%,100% { transform: translateY(0) rotate(-6deg); }
+  50%     { transform: translateY(-1.8px) rotate(-3.4deg); }
 }
 @keyframes linger-flyDive {
   0%   { transform: translateY(0) rotate(0deg); }

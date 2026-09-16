@@ -1456,12 +1456,12 @@
 }
 /* 上臂外抬（庆祝/挥手用；光折前臂够不到头顶） */
 @keyframes linger-armRaiseL {
-  0%,100% { transform: rotate(46deg); }
-  50%     { transform: rotate(58deg); }
+  0%,100% { transform: rotate(20deg); }
+  50%     { transform: rotate(32deg); }
 }
 @keyframes linger-armRaiseR {
-  0%,100% { transform: rotate(-46deg); }
-  50%     { transform: rotate(-58deg); }
+  0%,100% { transform: rotate(-20deg); }
+  50%     { transform: rotate(-32deg); }
 }
 /* 开心：单手挥袖（上臂已抬） */
 @keyframes linger-forearmWave {
@@ -1470,12 +1470,12 @@
 }
 /* 庆祝：双臂上举 */
 @keyframes linger-forearmCheerL {
-  0%,100% { transform: rotate(-118deg); }
-  50%     { transform: rotate(-134deg); }
+  0%,100% { transform: rotate(-156deg); }
+  50%     { transform: rotate(-172deg); }
 }
 @keyframes linger-forearmCheerR {
-  0%,100% { transform: rotate(118deg); }
-  50%     { transform: rotate(134deg); }
+  0%,100% { transform: rotate(156deg); }
+  50%     { transform: rotate(172deg); }
 }
 /* 报错：双手护在身前发抖 */
 @keyframes linger-forearmTrembleL {
@@ -1518,9 +1518,10 @@
   30%     { transform: translateY(-1.2px) rotate(-0.8deg); }
   70%     { transform: translateY(0.4px) rotate(0.8deg); }
 }
+/* 御剑飞行：身体保持前倾（像踩在剑上），只带轻微起伏 */
 @keyframes linger-fly {
-  0%,100% { transform: translateY(0) rotate(-1.5deg); }
-  50%     { transform: translateY(-1.6px) rotate(1.5deg); }
+  0%,100% { transform: translateY(0) rotate(-6deg); }
+  50%     { transform: translateY(-1.8px) rotate(-3.4deg); }
 }
 @keyframes linger-flyDive {
   0%   { transform: translateY(0) rotate(0deg); }
@@ -2051,6 +2052,7 @@
               <path d="M16.0 23.2 C17.1 30.2 18.1 38.4 19.0 45.0 L17.0 45.7 C16.7 38.6 16.1 30.0 15.1 23.4 Z" fill="url(#lingBlue)"/>
               <path d="M6.9 44.6 C9.4 45.5 16.6 45.5 19.1 44.6 C19.2 44.9 19.2 45.1 19.2 45.3 C16.8 46.1 9.2 46.1 6.8 45.3 C6.8 45.1 6.85 44.9 6.9 44.6 Z" style="fill:var(--pw-body,#4D6BFE)"/>
               <path d="M13 23.8 L13 46.0" fill="none" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.1" opacity=".24"/>
+              <path d="M10.9 24.6 C10.3 31.4 9.7 38.6 9.5 45.0 M15.1 24.6 C15.7 31.4 16.3 38.6 16.5 45.0" fill="none" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.09" opacity=".16"/>
             </g>
 
             <!-- 浅蓝布鞋 -->
@@ -2061,7 +2063,9 @@
             <path d="M13 14.0 C10.4 14.0 8.6 15.4 8.3 17.8 L9.9 22.6 L16.1 22.6 L17.7 17.8 C17.4 15.4 15.6 14.0 13 14.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
             <path d="M11.0 14.4 L13 17.6 L15.0 14.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.2" stroke-linecap="round" opacity=".85"/>
             <!-- 蓝色外袍：开口一路开到腰带，白色交领整条露出 -->
-            <path fill-rule="evenodd" d="M13 15.2 C10.9 15.2 9.3 16.3 8.9 18.1 L7.0 26.4 C8.9 27.2 10.9 27.5 13 27.5 C15.1 27.5 17.1 27.2 19.0 26.4 L17.1 18.1 C16.7 16.3 15.1 15.2 13 15.2 Z M13 16.0 C14.0 16.0 14.9 16.3 15.6 16.8 L13 21.6 L10.4 16.8 C11.1 16.3 12.0 16.0 13 16.0 Z" fill="url(#lingBlue)"/>
+            <!-- 蓝外袍：窄肩带式（肩顶露白色的，不再像披肩），V 开口更高、下沿到腰 -->
+            <path fill-rule="evenodd" d="M9.7 15.0 C11.0 16.2 15.0 16.2 16.3 15.0 L17.5 17.6 L16.1 22.7 L9.9 22.7 L8.5 17.6 Z M13 15.7 C14.0 15.7 14.9 16.0 15.5 16.5 L13 19.9 L10.5 16.5 C11.1 16.0 12.0 15.7 13 15.7 Z" fill="url(#lingBlue)"/>
+            <path d="M9.7 15.2 C11.0 16.4 15.0 16.4 16.3 15.2" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.16" stroke-linecap="round" opacity=".8"/>
             <path d="M10.4 16.9 L13 21.8 L15.6 16.9" fill="none" style="stroke:var(--pw-robe,#F9FBFE)" stroke-width="0.3" stroke-linecap="round" opacity=".95"/>
             <path d="M10.1 17.2 L13 22.6 L15.9 17.2" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.15" stroke-linecap="round" opacity=".7"/>
 
@@ -2122,9 +2126,13 @@
             <!-- 鬓发（细，只到下颌） -->
             <path d="M8.6 6.2 C8.0 9.0 8.1 12.0 8.9 14.2 C9.7 14.3 10.3 13.6 10.4 12.8 C9.7 10.6 9.6 8.6 10.1 6.4 Z" fill="url(#lingHair)"/>
             <path d="M17.4 6.2 C18.0 9.0 17.9 12.0 17.1 14.2 C16.3 14.3 15.7 13.6 15.6 12.8 C16.3 10.6 16.4 8.6 15.9 6.4 Z" fill="url(#lingHair)"/>
-            <!-- 顶发 + 平顺齐刘海 -->
-            <path d="M13 1.9 C9.4 1.9 7.3 4.6 7.3 8.2 C8.7 6.6 10.7 6.0 13 6.0 C15.3 6.0 17.3 6.6 18.7 8.2 C18.7 4.6 16.6 1.9 13 1.9 Z" fill="url(#lingHair)"/>
-            <path d="M13 2.3 L13 5.9" fill="none" stroke="#5A5266" stroke-width="0.14" stroke-linecap="round" opacity=".7"/>
+            <!-- 顶发：外轮廓略宽于头（有体积），两侧自然垂到颧骨 -->
+            <path d="M13 1.4 C9.0 1.4 6.8 4.3 6.8 8.4 C6.8 9.7 7.0 10.8 7.4 11.6 L7.5 8.5 C7.5 5.7 9.7 4.0 13 4.0 C16.3 4.0 18.5 5.7 18.5 8.5 L18.6 11.6 C19.0 10.8 19.2 9.7 19.2 8.4 C19.2 4.3 17.0 1.4 13 1.4 Z" fill="url(#lingHair)"/>
+            <!-- 刘海：两束从中分向两侧扫下，发梢在颧骨处外翻（不再是锅盖边） -->
+            <path d="M13 3.3 C10.7 3.4 8.9 4.6 8.0 6.4 C7.8 7.0 7.9 7.7 8.2 8.2 C8.6 7.0 9.3 6.0 10.3 5.4 C11.2 6.6 12.0 7.1 13 7.1 C14.0 7.1 14.8 6.6 15.7 5.4 C16.7 6.0 17.4 7.0 17.8 8.2 C18.1 7.7 18.2 7.0 18.0 6.4 C17.1 4.6 15.3 3.4 13 3.3 Z" fill="url(#lingHair)"/>
+            <!-- 发丝高光（顶上不再是一块死黑） -->
+            <path d="M9.8 4.8 C11.2 4.0 14.8 4.0 16.2 4.8" fill="none" stroke="#6E6680" stroke-width="0.2" stroke-linecap="round" opacity=".55"/>
+            <path d="M13 2.6 L13 5.7" fill="none" stroke="#5A5266" stroke-width="0.14" stroke-linecap="round" opacity=".7"/>
             <!-- 双丫髻：小发环 + 蓝发绳 + 垂下的蓝丝带 -->
             <circle cx="9.3" cy="2.6" r="1.15" fill="url(#lingHair)"/>
             <circle cx="9.3" cy="2.55" r="0.5" fill="#4E4759"/>

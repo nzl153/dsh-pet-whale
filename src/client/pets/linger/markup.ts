@@ -60,6 +60,11 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <!-- 白色交领内衬（领口白色一路露到腰带） -->
             <path d="M13 14.0 C10.4 14.0 8.6 15.4 8.3 17.8 L9.9 22.6 L16.1 22.6 L17.7 17.8 C17.4 15.4 15.6 14.0 13 14.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
             <path d="M11.0 14.4 L13 17.6 L15.0 14.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.2" stroke-linecap="round" opacity=".85"/>
+            <!-- 颈洞：领口中间露出的一小段脖子 -->
+            <path d="M12.2 14.0 L13.8 14.0 L13 15.2 Z" fill="#EFCDB4"/>
+            <path d="M12.2 14.0 L13.8 14.0" fill="none" stroke="#D9AE90" stroke-width="0.12" stroke-linecap="round" opacity=".7"/>
+            <!-- 下巴投影：脖子与下巴的分界 -->
+            <path d="M11.7 13.5 C12.4 13.9 13.6 13.9 14.3 13.5" fill="none" stroke="#D9AE90" stroke-width="0.34" stroke-linecap="round" opacity=".45"/>
             <!-- 蓝色外袍：开口一路开到腰带，白色交领整条露出 -->
             <!-- 蓝外袍：窄肩带式（肩顶露白色的，不再像披肩），V 开口更高、下沿到腰 -->
             <path fill-rule="evenodd" d="M9.7 15.0 C11.0 16.2 15.0 16.2 16.3 15.0 L17.5 17.6 L16.1 22.7 L9.9 22.7 L8.5 17.6 Z M13 15.7 C14.0 15.7 14.9 16.0 15.5 16.5 L13 19.9 L10.5 16.5 C11.1 16.0 12.0 15.7 13 15.7 Z" fill="url(#lingBlue)"/>
@@ -116,11 +121,11 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
                 </g>
               </g>
             </g>
-            <!-- 脖子 -->
-            <rect x="12.4" y="12.4" width="1.2" height="2.2" rx="0.35" fill="#EFCDB4"/>
+            <!-- 脖子（领口会盖住下半段，靠下面的"颈洞"露出来） -->
+            <rect x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
 
-            <!-- 脸：颧骨最宽、下巴收成小圆（原来是正椭圆，显得下巴太宽） -->
-            <path d="M13 3.6 C10.4 3.6 8.6 5.4 8.6 8.1 C8.6 10.5 9.5 12.7 11.1 13.9 C11.7 14.3 12.3 14.5 13 14.5 C13.7 14.5 14.3 14.3 14.9 13.9 C16.5 12.7 17.4 10.5 17.4 8.1 C17.4 5.4 15.6 3.6 13 3.6 Z" fill="#F7E0CE"/>
+            <!-- 脸：圆一些、下巴短一点（原来上下拉得太长） -->
+            <path d="M13 4.2 C10.5 4.2 8.5 6.0 8.5 8.4 C8.5 10.6 9.4 12.5 11.0 13.4 C11.6 13.7 12.3 13.9 13 13.9 C13.7 13.9 14.4 13.7 15.0 13.4 C16.6 12.5 17.5 10.6 17.5 8.4 C17.5 6.0 15.5 4.2 13 4.2 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->
             <path d="M8.6 6.2 C8.0 9.0 8.1 12.0 8.9 14.2 C9.7 14.3 10.3 13.6 10.4 12.8 C9.7 10.6 9.6 8.6 10.1 6.4 Z" fill="url(#lingHair)"/>
             <path d="M17.4 6.2 C18.0 9.0 17.9 12.0 17.1 14.2 C16.3 14.3 15.7 13.6 15.6 12.8 C16.3 10.6 16.4 8.6 15.9 6.4 Z" fill="url(#lingHair)"/>

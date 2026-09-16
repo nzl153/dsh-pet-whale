@@ -56,26 +56,37 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <ellipse cx="11.4" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
             <ellipse cx="14.6" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
 
-            <!-- 手臂：袖子 + 袖口滚边 + 手是**一个整体**，动作绕肩部轴心 —— 只动手不动袖会很怪 -->
+            <!-- 手臂：上臂 + 前臂（肘为轴）+ 手。抬手 = 折前臂，不是整条手臂平移 -->
             <g class="arm" style="transform-origin: 9.4px 15.2px">
-              <path d="M9.0 14.2 C7.2 15.6 5.9 18.4 5.7 21.8 L5.6 30.2 C6.8 31.1 8.6 31.0 9.7 29.9 C9.9 26.0 10.3 19.6 10.8 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
-              <path d="M5.7 28.2 C6.9 29.0 8.5 28.8 9.6 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
-              <g class="hand">
-                <path d="M7.0 30.3 C6.2 30.6 5.9 31.3 6.1 32.0 C6.3 32.7 7.0 33.0 7.7 32.9 C8.4 32.8 8.8 32.3 8.8 31.6 C8.8 30.9 8.4 30.4 7.7 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-                <path d="M6.6 31.0 C6.1 30.7 5.7 30.7 5.5 31.0 C5.3 31.3 5.5 31.7 5.9 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-                <path d="M7.0 32.3 L7.0 33.0 M7.7 32.5 L7.7 33.2 M8.4 32.2 L8.4 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+              <!-- 上臂（贴身，基本不动） -->
+              <path d="M9.0 14.2 C7.2 15.6 6.2 18.0 6.0 20.2 L6.0 22.6 C7.3 23.4 9.1 23.2 10.2 22.1 C10.2 19.6 10.4 17.0 10.8 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+              <!-- 肘关节（盖住接缝） -->
+              <circle cx="7.9" cy="21.8" r="1.42" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2"/>
+              <!-- 前臂：绕肘转动（抬手=折袖，不是整条手臂平移） -->
+              <g class="forearm" style="transform-origin: 7.9px 21.8px">
+                <path d="M6.1 21.4 C5.9 25.0 5.7 28.0 5.7 30.2 C6.9 31.1 8.7 31.0 9.8 29.9 C9.9 27.2 10.0 24.2 10.2 21.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+                <path d="M5.7 28.2 C6.9 29.0 8.5 28.8 9.6 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
+                <g class="hand">
+                  <path d="M7.0 30.3 C6.2 30.6 5.9 31.3 6.1 32.0 C6.3 32.7 7.0 33.0 7.7 32.9 C8.4 32.8 8.8 32.3 8.8 31.6 C8.8 30.9 8.4 30.4 7.7 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                  <path d="M6.6 31.0 C6.1 30.7 5.7 30.7 5.5 31.0 C5.3 31.3 5.5 31.7 5.9 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                  <path d="M7.0 32.3 L7.0 33.0 M7.7 32.5 L7.7 33.2 M8.4 32.2 L8.4 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+                </g>
               </g>
             </g>
             <g class="arm" style="transform-origin: 16.6px 15.2px">
-              <path d="M17.0 14.2 C18.8 15.6 20.1 18.4 20.3 21.8 L20.4 30.2 C19.2 31.1 17.4 31.0 16.3 29.9 C16.1 26.0 15.7 19.6 15.2 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
-              <path d="M20.3 28.2 C19.1 29.0 17.5 28.8 16.4 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
-              <g class="hand">
-                <path d="M19.0 30.3 C19.8 30.6 20.1 31.3 19.9 32.0 C19.7 32.7 19.0 33.0 18.3 32.9 C17.6 32.8 17.2 32.3 17.2 31.6 C17.2 30.9 17.6 30.4 18.3 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-                <path d="M19.4 31.0 C19.9 30.7 20.3 30.7 20.5 31.0 C20.7 31.3 20.5 31.7 20.1 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-                <path d="M19.0 32.3 L19.0 33.0 M18.3 32.5 L18.3 33.2 M17.6 32.2 L17.6 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+              <!-- 上臂（贴身，基本不动） -->
+              <path d="M17.0 14.2 C18.8 15.6 19.8 18.0 20.0 20.2 L20.0 22.6 C18.7 23.4 16.9 23.2 15.8 22.1 C15.8 19.6 15.6 17.0 15.2 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+              <circle cx="18.1" cy="21.8" r="1.42" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2"/>
+              <g class="forearm" style="transform-origin: 18.1px 21.8px">
+                <path d="M19.9 21.4 C20.1 25.0 20.3 28.0 20.3 30.2 C19.1 31.1 17.3 31.0 16.2 29.9 C16.1 27.2 16.0 24.2 15.8 21.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+                <path d="M20.3 28.2 C19.1 29.0 17.5 28.8 16.4 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
+                <g class="hand">
+                  <path d="M19.0 30.3 C19.8 30.6 20.1 31.3 19.9 32.0 C19.7 32.7 19.0 33.0 18.3 32.9 C17.6 32.8 17.2 32.3 17.2 31.6 C17.2 30.9 17.6 30.4 18.3 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                  <path d="M19.4 31.0 C19.9 30.7 20.3 30.7 20.5 31.0 C20.7 31.3 20.5 31.7 20.1 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                  <path d="M19.0 32.3 L19.0 33.0 M18.3 32.5 L18.3 33.2 M17.6 32.2 L17.6 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+                </g>
               </g>
             </g>
-
             <!-- 白色交领内衬（领口白色一路露到腰带） -->
             <path d="M13 14.0 C10.4 14.0 8.6 15.4 8.3 17.8 L9.9 22.6 L16.1 22.6 L17.7 17.8 C17.4 15.4 15.6 14.0 13 14.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
             <path d="M11.0 14.4 L13 17.6 L15.0 14.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.2" stroke-linecap="round" opacity=".85"/>

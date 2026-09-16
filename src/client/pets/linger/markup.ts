@@ -56,6 +56,30 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <ellipse cx="11.4" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
             <ellipse cx="14.6" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
 
+            <!-- 白色交领内衬（领口白色一路露到腰带） -->
+            <path d="M13 14.0 C10.4 14.0 8.6 15.4 8.3 17.8 L9.9 22.6 L16.1 22.6 L17.7 17.8 C17.4 15.4 15.6 14.0 13 14.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+            <path d="M11.0 14.4 L13 17.6 L15.0 14.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.2" stroke-linecap="round" opacity=".85"/>
+            <!-- 蓝色外袍：开口一路开到腰带，白色交领整条露出 -->
+            <path fill-rule="evenodd" d="M13 15.2 C10.9 15.2 9.3 16.3 8.9 18.1 L7.0 26.4 C8.9 27.2 10.9 27.5 13 27.5 C15.1 27.5 17.1 27.2 19.0 26.4 L17.1 18.1 C16.7 16.3 15.1 15.2 13 15.2 Z M13 16.0 C14.0 16.0 14.9 16.3 15.6 16.8 L13 21.6 L10.4 16.8 C11.1 16.3 12.0 16.0 13 16.0 Z" fill="url(#lingBlue)"/>
+            <path d="M10.4 16.9 L13 21.8 L15.6 16.9" fill="none" style="stroke:var(--pw-robe,#F9FBFE)" stroke-width="0.3" stroke-linecap="round" opacity=".95"/>
+            <path d="M10.1 17.2 L13 22.6 L15.9 17.2" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.15" stroke-linecap="round" opacity=".7"/>
+
+            <!-- 红腰带（细）+ 打结 + 两条细长飘带 -->
+            <rect x="9.6" y="22.2" width="6.8" height="1.1" rx="0.3" style="fill:var(--pw-blush,#F0A0A0)"/>
+            <circle cx="13" cy="22.78" r="0.44" style="fill:var(--pw-blush,#F0A0A0)"/>
+            <path d="M12.95 22.83 C12.35 22.38 11.85 22.28 11.35 22.48" fill="none" style="stroke:var(--pw-blush,#F0A0A0)" stroke-width="0.28" stroke-linecap="round"/>
+            <path d="M13.05 22.83 C13.65 22.38 14.15 22.28 14.65 22.48" fill="none" style="stroke:var(--pw-blush,#F0A0A0)" stroke-width="0.28" stroke-linecap="round"/>
+            <g class="sash" style="transform-origin: 12.6px 22.9px">
+              <path d="M12.6 23.0 C12.0 27.4 11.9 32.0 12.3 36.4 C12.8 36.5 13.1 36.2 13.1 35.8 C12.8 31.8 12.9 27.4 13.3 23.0 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+            </g>
+            <g class="sash" style="transform-origin: 13.4px 22.9px">
+              <path d="M13.4 23.0 C13.9 27.4 14.0 31.8 13.7 35.8 C13.2 35.9 12.9 35.6 12.9 35.2 C13.2 31.6 13.1 27.2 12.8 23.0 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+            </g>
+
+            <!-- 肩前发：两条**细**发，直直垂到腰际（参考图就是这两条，不是一整片） -->
+            <path class="hair-front" style="transform-origin: 10.1px 13.0px" d="M10.4 12.8 C10.0 16.6 9.9 20.6 10.1 24.8 C10.6 25.0 11.0 24.7 11.1 24.2 C10.9 20.4 11.0 16.4 11.3 13.0 Z" fill="url(#lingHair)"/>
+            <path class="hair-front" style="transform-origin: 15.9px 13.0px" d="M15.6 12.8 C16.0 16.6 16.1 20.6 15.9 24.8 C15.4 25.0 15.0 24.7 14.9 24.2 C15.1 20.4 15.0 16.4 14.7 13.0 Z" fill="url(#lingHair)"/>
+
             <!-- 手臂：上臂 + 前臂（肘为轴）+ 手。抬手 = 折前臂，不是整条手臂平移 -->
             <g class="arm" style="transform-origin: 9.4px 15.2px">
               <!-- 上臂（贴身，基本不动） -->
@@ -87,30 +111,6 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
                 </g>
               </g>
             </g>
-            <!-- 白色交领内衬（领口白色一路露到腰带） -->
-            <path d="M13 14.0 C10.4 14.0 8.6 15.4 8.3 17.8 L9.9 22.6 L16.1 22.6 L17.7 17.8 C17.4 15.4 15.6 14.0 13 14.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
-            <path d="M11.0 14.4 L13 17.6 L15.0 14.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.2" stroke-linecap="round" opacity=".85"/>
-            <!-- 蓝色外袍：开口一路开到腰带，白色交领整条露出 -->
-            <path fill-rule="evenodd" d="M13 15.2 C10.9 15.2 9.3 16.3 8.9 18.1 L7.0 26.4 C8.9 27.2 10.9 27.5 13 27.5 C15.1 27.5 17.1 27.2 19.0 26.4 L17.1 18.1 C16.7 16.3 15.1 15.2 13 15.2 Z M13 16.0 C14.0 16.0 14.9 16.3 15.6 16.8 L13 21.6 L10.4 16.8 C11.1 16.3 12.0 16.0 13 16.0 Z" fill="url(#lingBlue)"/>
-            <path d="M10.4 16.9 L13 21.8 L15.6 16.9" fill="none" style="stroke:var(--pw-robe,#F9FBFE)" stroke-width="0.3" stroke-linecap="round" opacity=".95"/>
-            <path d="M10.1 17.2 L13 22.6 L15.9 17.2" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.15" stroke-linecap="round" opacity=".7"/>
-
-            <!-- 红腰带（细）+ 打结 + 两条细长飘带 -->
-            <rect x="9.6" y="22.2" width="6.8" height="1.1" rx="0.3" style="fill:var(--pw-blush,#F0A0A0)"/>
-            <circle cx="13" cy="22.78" r="0.44" style="fill:var(--pw-blush,#F0A0A0)"/>
-            <path d="M12.95 22.83 C12.35 22.38 11.85 22.28 11.35 22.48" fill="none" style="stroke:var(--pw-blush,#F0A0A0)" stroke-width="0.28" stroke-linecap="round"/>
-            <path d="M13.05 22.83 C13.65 22.38 14.15 22.28 14.65 22.48" fill="none" style="stroke:var(--pw-blush,#F0A0A0)" stroke-width="0.28" stroke-linecap="round"/>
-            <g class="sash" style="transform-origin: 12.6px 22.9px">
-              <path d="M12.6 23.0 C12.0 27.4 11.9 32.0 12.3 36.4 C12.8 36.5 13.1 36.2 13.1 35.8 C12.8 31.8 12.9 27.4 13.3 23.0 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
-            </g>
-            <g class="sash" style="transform-origin: 13.4px 22.9px">
-              <path d="M13.4 23.0 C13.9 27.4 14.0 31.8 13.7 35.8 C13.2 35.9 12.9 35.6 12.9 35.2 C13.2 31.6 13.1 27.2 12.8 23.0 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
-            </g>
-
-            <!-- 肩前发：两条**细**发，直直垂到腰际（参考图就是这两条，不是一整片） -->
-            <path class="hair-front" style="transform-origin: 10.1px 13.0px" d="M10.4 12.8 C10.0 16.6 9.9 20.6 10.1 24.8 C10.6 25.0 11.0 24.7 11.1 24.2 C10.9 20.4 11.0 16.4 11.3 13.0 Z" fill="url(#lingHair)"/>
-            <path class="hair-front" style="transform-origin: 15.9px 13.0px" d="M15.6 12.8 C16.0 16.6 16.1 20.6 15.9 24.8 C15.4 25.0 15.0 24.7 14.9 24.2 C15.1 20.4 15.0 16.4 14.7 13.0 Z" fill="url(#lingHair)"/>
-
             <!-- 脖子 -->
             <rect x="12.4" y="12.4" width="1.2" height="2.2" rx="0.35" fill="#EFCDB4"/>
 
@@ -169,9 +169,10 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
 
             <!-- 思考：双掌掐诀于胸前（手随手臂抬起，这里只画指间的灵光） -->
             <g class="hand-seal" style="display:none">
-              <circle cx="13" cy="21.2" r="0.5" style="fill:var(--pw-body-light,#8FB5FF)"/>
-              <circle cx="13" cy="21.2" r="1.25" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.16" opacity=".7"/>
-              <path d="M11.9 21.9 L11.5 22.4 M14.1 21.9 L14.5 22.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.14" stroke-linecap="round" opacity=".8"/>
+
+              <circle cx="14.4" cy="14.4" r="0.44" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <circle cx="14.4" cy="14.4" r="1.15" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.15" opacity=".7"/>
+              <path d="M13.5 15.1 L13.1 15.6 M15.3 15.1 L15.7 15.6" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.13" stroke-linecap="round" opacity=".8"/>
             </g>
 
             <!-- 施法失败的青筋 -->

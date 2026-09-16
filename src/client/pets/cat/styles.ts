@@ -83,7 +83,7 @@ export const CAT_PET_CSS = `
 
 /* ===== 报错：炸毛 + 叉叉眼 ===== */
 [data-dsh-whale] .pet-official.error { animation: cat-shake 0.5s ease-in-out infinite; }
-[data-dsh-whale] .pet-official.error .angry { display: block; animation: cat-angryJitter 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .angry { display: block !important; animation: cat-angryJitter 0.5s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.error .eye-group .eye,
 [data-dsh-whale] .pet-official.error .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale] .pet-official.error .eye-group .dizzy-eyes {

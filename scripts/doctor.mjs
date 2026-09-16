@@ -44,6 +44,9 @@ if (petIds.length === 0) bad('src/client/pets/ 下没有任何宠物目录')
 
 const registry = existsSync(join(petsDir, 'index.ts')) ? readFileSync(join(petsDir, 'index.ts'), 'utf8') : ''
 
+/** SVG 不在 pets/<id>/markup.ts 里的宠物（生成物），回落到它的源文件，好让检查同样覆盖它 */
+const MARKUP_FALLBACK = { whale: join(client, 'whale.ts') }
+
 // ---------- 1) BASE_CSS 里不能有宠物私有选择器 ----------
 const base = tpl(join(client, 'styles.ts'))
 // 宠物部件类名从各自的 SVG 里动态取，加新宠物不用改这里
@@ -94,6 +97,28 @@ for (const id of petIds) {
       if (name.startsWith('pw-')) problems.push(`styles.ts 定义了 pw-* 关键帧 ${name}（pw-* 属于 BASE_CSS）`)
       if (keyframeOwners.has(name)) problems.push(`关键帧 ${name} 与宠物 ${keyframeOwners.get(name)} 重名`)
       else keyframeOwners.set(name, id)
+    }
+    // 行内 display:none 的部件，样式表里要显示它就必须 !important —— 这正是"御剑的剑一直不出现"的原因
+    // 鲸鱼没有 pets/whale/markup.ts（SVG 是生成物），回落到 src/client/whale.ts 一起检查
+    const markupFile = existsSync(join(dir, 'markup.ts')) ? join(dir, 'markup.ts') : MARKUP_FALLBACK[id]
+    if (markupFile && existsSync(markupFile)) {
+      const markup = tpl(markupFile)
+      const hidden = new Set()
+      for (const m of markup.matchAll(/<[a-zA-Z][^>]*>/g)) {
+        const tag = m[0]
+        if (!/style="[^"]*display\s*:\s*none/.test(tag)) continue
+        const cls = /class="([^"]+)"/.exec(tag)
+        if (cls) for (const c of cls[1].split(/\s+/)) if (c) hidden.add(c)
+      }
+      for (const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        const [, selector, body] = rule
+        if (!/display\s*:/.test(body) || /!important/.test(body)) continue
+        for (const c of hidden) {
+          if (new RegExp(`\\.${c.replace(/[-]/g, '\\-')}\\b`).test(selector)) {
+            problems.push(`.${c} 在 SVG 里是行内 display:none，这里 ${selector.trim().slice(0, 40)} 的 display 少了 !important（永远压不过行内样式）`)
+          }
+        }
+      }
     }
   }
   if (problems.length === 0) ok(`宠物 ${id}：文件齐全、已注册、关键帧无冲突`)

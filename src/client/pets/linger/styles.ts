@@ -81,6 +81,8 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official .sash { animation: linger-sashFloat 3.0s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .sash + .sash { animation-delay: -1.1s; }
 [data-dsh-whale] .pet-official .ribbon { animation: linger-ribbonFlutter 2.4s ease-in-out infinite; transform-origin: 13px 3.4px; }
+[data-dsh-whale] .pet-official .hair-front { animation: linger-hairSway 3.8s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .hair-front + .hair-front { animation-delay: -1.5s; }
 [data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 8.05px; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
@@ -99,7 +101,12 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official.swimming-dive .body { animation: linger-flyDive 1.6s ease-in-out; }
 [data-dsh-whale] .pet-official.swimming .sword,
 [data-dsh-whale] .pet-official.swim-dive .sword,
-[data-dsh-whale] .pet-official.swimming-dive .sword { display: block; animation: linger-bladeFloat 1.1s ease-in-out infinite; transform-origin: 13px 32.5px; }
+[data-dsh-whale] .pet-official.swimming-dive .sword {
+  /* !important 必需：SVG 上写了行内 display:none，普通声明压不过它（这里踩过坑） */
+  display: block !important;
+  animation: linger-bladeFloat 1.1s ease-in-out infinite;
+  transform-origin: 13px 31.6px;
+}
 [data-dsh-whale] .pet-official.swimming .skirt { animation: linger-skirtTrail 1.1s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swimming .sash { animation: linger-sashTrail 0.9s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swim-dive .bubble-blue,
@@ -115,7 +122,7 @@ export const LINGER_PET_CSS = `
 
 /* ===== 报错：施法失败，符光乱窜 ===== */
 [data-dsh-whale] .pet-official.error { animation: linger-shake 0.5s ease-in-out infinite; }
-[data-dsh-whale] .pet-official.error .angry { display: block; animation: linger-angryJitter 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .angry { display: block !important; animation: linger-angryJitter 0.5s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.error .eye-group .eye,
 [data-dsh-whale] .pet-official.error .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale] .pet-official.error .eye-group .dizzy-eyes {
@@ -285,6 +292,10 @@ export const LINGER_PET_CSS = `
 @keyframes linger-ribbonFlutter {
   0%,100% { transform: rotate(-2deg); }
   50%     { transform: rotate(2.5deg); }
+}
+@keyframes linger-hairSway {
+  0%,100% { transform: rotate(-1.2deg); }
+  50%     { transform: rotate(1.6deg); }
 }
 @keyframes linger-blink {
   0%, 92%, 100% { transform: scaleY(1); }

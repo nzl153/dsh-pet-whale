@@ -127,11 +127,14 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <!-- 顶发：贴着头的帽子，不再高高鼓起（"中间少"） -->
             <path d="M13 3.0 C9.6 3.0 7.4 5.4 7.3 9.2 C7.3 10.4 7.5 11.4 7.9 12.2 L8.0 9.4 C8.0 6.6 10.1 4.8 13 4.8 C15.9 4.8 18.0 6.6 18.0 9.4 L18.1 12.2 C18.5 11.4 18.7 10.4 18.7 9.2 C18.6 5.4 16.4 3.0 13 3.0 Z" fill="url(#lingHair)"/>
             <!-- 刘海：中分——左右各一缕扫向颧骨，**中间露额头**（原来中间垂得最低，像一撮盖在额上） -->
-            <path d="M13 3.3 C11.4 3.4 9.8 4.3 8.9 5.9 C8.5 6.7 8.4 7.5 8.6 8.3 C9.0 7.1 9.7 6.1 10.6 5.5 C11.5 5.1 12.3 4.6 12.8 4.2 C12.9 3.9 13 3.6 13 3.3 Z" fill="url(#lingHair)"/>
-            <path d="M13 3.3 C14.6 3.4 16.2 4.3 17.1 5.9 C17.5 6.7 17.6 7.5 17.4 8.3 C17.0 7.1 16.3 6.1 15.4 5.5 C14.5 5.1 13.7 4.6 13.2 4.2 C13.1 3.9 13 3.6 13 3.3 Z" fill="url(#lingHair)"/>
+            <path d="M13 5.1 C12.5 6.2 11.9 7.5 11.4 8.9 C10.3 8.8 9.3 8.9 8.6 9.4 C8.1 8.3 8.0 6.9 8.5 6.0 C9.4 4.9 11.0 4.3 13 5.1 Z" fill="url(#lingHair)"/>
+            <path d="M13 5.1 C13.5 6.2 14.1 7.5 14.6 8.9 C15.7 8.8 16.7 8.9 17.4 9.4 C17.9 8.3 18.0 6.9 17.5 6.0 C16.6 4.9 15.0 4.3 13 5.1 Z" fill="url(#lingHair)"/>
+            <!-- 刘海里的两缕细发（参考图那种分缕感） -->
+            <path d="M11.9 5.8 C11.4 7.0 11.0 8.0 10.6 8.9" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".5"/>
+            <path d="M14.1 5.8 C14.6 7.0 15.0 8.0 15.4 8.9" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".5"/>
             <!-- 中分线（头顶中间是分缝，不堆头发） -->
-            <path d="M13 3.1 L12.95 5.6" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".8"/>
-            <path d="M11.6 3.6 C12.2 3.3 13.8 3.3 14.4 3.6" fill="none" stroke="#6E6680" stroke-width="0.14" stroke-linecap="round" opacity=".45"/>
+            <path d="M13 2.9 L13 5.3" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".8"/>
+            <path d="M11.6 3.5 C12.2 3.2 13.8 3.2 14.4 3.5" fill="none" stroke="#6E6680" stroke-width="0.14" stroke-linecap="round" opacity=".45"/>
             <!-- 双丫髻：**左右两侧**的大包子头（不在头顶中间） -->
             <circle cx="8.3" cy="4.4" r="1.5" fill="url(#lingHair)"/>
             <circle cx="8.3" cy="4.3" r="0.62" fill="#4E4759"/>

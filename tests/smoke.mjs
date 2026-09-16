@@ -504,7 +504,7 @@ clickMenu4('灵儿')
 const petStyle4 = window.document.getElementById('pet-whale-pet-style')
 check('切到灵儿：data-pet=linger', rootEl4?.getAttribute('data-pet') === 'linger')
 check(`灵儿用竖版容器 ⟨${rootEl4?.style.getPropertyValue('--pw-pet-w')}×${rootEl4?.style.getPropertyValue('--pw-pet-h')}⟩`,
-  rootEl4?.style.getPropertyValue('--pw-pet-w') === '104px' && rootEl4?.style.getPropertyValue('--pw-pet-h') === '140px')
+  rootEl4?.style.getPropertyValue('--pw-pet-w') === '87px' && rootEl4?.style.getPropertyValue('--pw-pet-h') === '160px')
 check('灵儿样式表已挂上', petStyle4?.textContent.includes('linger-breathe') === true)
 check(`切到灵儿的提示语是她的名字 ⟨${dialog4?.textContent ?? ''}⟩`, /灵儿/.test(dialog4?.textContent ?? ''))
 openAppearance4()

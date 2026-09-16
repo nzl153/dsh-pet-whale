@@ -11,12 +11,12 @@ export const LINGER_PET_CSS = `
 
 /* ===== 容器是竖盒子（index.ts 里 size: 104×140），这几处跟着改 ===== */
 [data-dsh-whale][data-pet="linger"] .dsh-whale-shadow {
-  bottom: calc(-7px * var(--pw-scale));
-  width: calc(58px * var(--pw-scale));
-  height: calc(11px * var(--pw-scale));
-  margin-left: calc(-29px * var(--pw-scale));
+  bottom: calc(-4px * var(--pw-scale));
+  width: calc(52px * var(--pw-scale));
+  height: calc(10px * var(--pw-scale));
+  margin-left: calc(-26px * var(--pw-scale));
 }
-[data-dsh-whale] .dsh-whale-zzz { left: 60%; top: 27px; }
+[data-dsh-whale] .dsh-whale-zzz { left: 60%; top: 22px; }
 /* 巡游时的光晕换成剑气青光 */
 [data-dsh-whale] .dsh-whale-wake {
   width: calc(120px * var(--pw-scale));
@@ -83,12 +83,12 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official .ribbon { animation: linger-ribbonFlutter 2.4s ease-in-out infinite; transform-origin: 13px 3.4px; }
 [data-dsh-whale] .pet-official .hair-front { animation: linger-hairSway 3.8s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .hair-front + .hair-front { animation-delay: -1.5s; }
-[data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 8.05px; }
+[data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 9.15px; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.think .hand-seal { display: block !important; }
-[data-dsh-whale] .pet-official.think .hand-seal circle { animation: linger-sealGlow 1.6s ease-in-out infinite; transform-origin: 15.6px 10.5px; }
+[data-dsh-whale] .pet-official.think .hand-seal circle { animation: linger-sealGlow 1.6s ease-in-out infinite; transform-origin: 15.7px 11.4px; }
 [data-dsh-whale] .pet-official.think .bubble-blue { animation: linger-riseBlue 3.2s ease-out infinite; }
 [data-dsh-whale] .pet-official.think .bubble-blue.bb2 { animation-delay: 0.9s; }
 [data-dsh-whale] .pet-official.think .bubble-blue.bb3 { animation-delay: 1.8s; }
@@ -105,7 +105,7 @@ export const LINGER_PET_CSS = `
   /* !important 必需：SVG 上写了行内 display:none，普通声明压不过它（这里踩过坑） */
   display: block !important;
   animation: linger-bladeFloat 1.1s ease-in-out infinite;
-  transform-origin: 13px 33.9px;
+  transform-origin: 13px 47px;
 }
 [data-dsh-whale] .pet-official.swimming .skirt { animation: linger-skirtTrail 1.1s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swimming .sash { animation: linger-sashTrail 0.9s ease-in-out infinite; }
@@ -127,7 +127,7 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official.error .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale] .pet-official.error .eye-group .dizzy-eyes {
   display: inline !important;
-  transform-origin: 13px 8.05px;
+  transform-origin: 13px 9.15px;
   animation: linger-dizzyShake 0.4s ease-in-out infinite alternate;
 }
 
@@ -148,7 +148,7 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official.dizzy .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale] .pet-official.dizzy .eye-group .dizzy-eyes {
   display: inline !important;
-  transform-origin: 13px 8.05px;
+  transform-origin: 13px 9.15px;
   animation: linger-dizzyShake 0.35s ease-in-out infinite alternate;
 }
 
@@ -158,7 +158,7 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale].dragging .pet-official.shaken .eye-group .caught-eyes { display: none !important; }
 [data-dsh-whale] .pet-official.shaken .eye-group .dizzy-eyes {
   display: inline !important;
-  transform-origin: 13px 8.05px;
+  transform-origin: 13px 9.15px;
   animation: linger-dizzyShake 0.22s ease-in-out infinite alternate;
 }
 [data-dsh-whale]:not(.dragging) .pet-official.shaken { animation: linger-dizzyWobble 0.7s ease-in-out 2 !important; }
@@ -244,8 +244,8 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official:hover .blush { opacity: .78; }
 
 /* 符文与法阵的动画 */
-[data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 31px; }
-[data-dsh-whale] .tap-k2 { animation: linger-runePulse 1.4s ease-in-out infinite; transform-origin: 13px 31px; }
+[data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 44px; }
+[data-dsh-whale] .tap-k2 { animation: linger-runePulse 1.4s ease-in-out infinite; transform-origin: 13px 44px; }
 [data-dsh-whale] .code-fx1 { animation: linger-runeFloat1 1.6s ease-out infinite; }
 [data-dsh-whale] .code-fx2 { animation: linger-runeFloat2 1.6s ease-out 0.7s infinite; }
 

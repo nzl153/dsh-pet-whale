@@ -30,7 +30,7 @@ const pets = [
     id: 'linger',
     html: tpl(join(client, 'pets', 'linger', 'markup.ts')),
     css: tpl(join(client, 'pets', 'linger', 'styles.ts')),
-    box: { w: 104, h: 140 },
+    box: { w: 87, h: 160 },
   },
 ]
 

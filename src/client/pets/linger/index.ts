@@ -13,5 +13,5 @@ export const lingerPet: PetModule = {
   html: LINGER_HTML,
   css: LINGER_PET_CSS,
   text: LINGER_TEXT,
-  size: { w: 104, h: 140 },
+  size: { w: 87, h: 160 },
 }

@@ -1,7 +1,7 @@
 // 多宠物静态预览：把 BASE_CSS + 每只宠物的 CSS/SVG 抽出来，铺成"宠物 × 状态"网格，
 // 生成仓库根目录的 pet-preview.html，浏览器直接打开即可（不需要装进 DSH）。
 //
-// 用法：node scripts/preview-pets.mjs
+// 用法：node scripts/preview-pets.mjs [--scale=3]     （默认 2.1×；挑造型细节时用 3~4×）
 // 换宠物/加宠物后重跑一次即可；截图命令见 docs/MULTI-PET.md。
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const client = join(root, 'src', 'client')
+/** 每格放大倍率，--scale=3 可覆盖（挑细节用） */
+const SCALE = Number(process.argv.find((a) => a.startsWith('--scale='))?.slice('--scale='.length)) || 2.1
 
 /** 取文件里唯一那个模板字符串的内容（这些文件都只有一个 `export const X = \`…\``）。 */
 const tpl = (file) => {
@@ -37,10 +39,16 @@ const cells = [
   ['whale', 'idle', ''], ['whale', 'working', ''], ['whale', 'celebrate', ''],
   ['cat', 'idle', ''], ['cat', 'working', ''], ['cat', 'celebrate', ''],
   ['cat', 'error', ''], ['cat', 'sleeping', ''], ['cat', 'belly-up', ''],
-  ['linger', 'idle', ''], ['linger', 'working', ''], ['linger', 'error', ''],
+  // 灵儿：多给几个状态，方便对着参考图挑造型
+  ['linger', 'idle', ''], ['linger', 'think', ''], ['linger', 'working', ''], ['linger', 'celebrate', ''],
+  ['linger', 'error', ''], ['linger', 'sleeping', ''], ['linger', 'belly-up', ''], ['linger', 'swimming', 'swimming'],
 ]
 
-const cellHtml = cells
+/** --only=<宠物 id>：只画这一只（挑细节时用），默认全都画 */
+const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
+const shownCells = ONLY ? cells.filter(([id]) => id === ONLY) : cells
+
+const cellHtml = shownCells
   .map(([id, state, rootState]) => {
     const pet = pets.find((p) => p.id === id)
     if (!pet) throw new Error(`预览里引用了没注册的宠物: ${id}`)
@@ -48,7 +56,7 @@ const cellHtml = cells
     // 竖版宠物用 --pw-pet-w/--pw-pet-h 把根盒子改成它自己的尺寸（与插件运行时一致）
     const boxVars = pet.box ? `;--pw-pet-w:${pet.box.w}px;--pw-pet-h:${pet.box.h}px` : ''
     return `<figure class="cell">
-  <div data-dsh-whale class="${rootState}" style="--pw-scale:2.1${boxVars}">
+  <div data-dsh-whale class="${rootState}" style="--pw-scale:${SCALE}${boxVars}">
     <span class="dsh-whale-shadow"></span>
     <span class="dsh-whale-wake"></span>
     <div class="dsh-whale-dialog"></div>
@@ -79,4 +87,4 @@ body { margin: 0; background: #F7F2E6; font-family: -apple-system, "Segoe UI", "
 <body><div id="stage">${cellHtml}</div></body></html>`
 
 writeFileSync(join(root, 'pet-preview.html'), html, 'utf8')
-console.log(`已生成 ${join(root, 'pet-preview.html')}（${pets.length} 只宠物 × ${cells.length} 个格子）`)
+console.log(`已生成 ${join(root, 'pet-preview.html')}（${pets.length} 只宠物 × ${shownCells.length} 个格子，${SCALE}×）`)

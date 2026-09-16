@@ -1352,7 +1352,7 @@
 [data-dsh-whale].sleeping .pet-official .pupil-highlight { opacity: 0 !important; }
 
 /* 悬停：腮红加深 */
-[data-dsh-whale] .pet-official:hover .blush { opacity: .78; }
+[data-dsh-whale] .pet-official:hover .blush { opacity: .55; }
 
 /* 符文与法阵的动画 */
 [data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 44px; }
@@ -2121,8 +2121,8 @@
             <!-- 脖子 -->
             <rect x="12.4" y="12.4" width="1.2" height="2.2" rx="0.35" fill="#EFCDB4"/>
 
-            <!-- 脸 -->
-            <ellipse cx="13" cy="8.6" rx="4.4" ry="5.0" fill="#F7E0CE"/>
+            <!-- 脸：颧骨最宽、下巴收成小圆（原来是正椭圆，显得下巴太宽） -->
+            <path d="M13 3.6 C10.4 3.6 8.6 5.4 8.6 8.1 C8.6 10.5 9.5 12.7 11.1 13.9 C11.7 14.3 12.3 14.5 13 14.5 C13.7 14.5 14.3 14.3 14.9 13.9 C16.5 12.7 17.4 10.5 17.4 8.1 C17.4 5.4 15.6 3.6 13 3.6 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->
             <path d="M8.6 6.2 C8.0 9.0 8.1 12.0 8.9 14.2 C9.7 14.3 10.3 13.6 10.4 12.8 C9.7 10.6 9.6 8.6 10.1 6.4 Z" fill="url(#lingHair)"/>
             <path d="M17.4 6.2 C18.0 9.0 17.9 12.0 17.1 14.2 C16.3 14.3 15.7 13.6 15.6 12.8 C16.3 10.6 16.4 8.6 15.9 6.4 Z" fill="url(#lingHair)"/>
@@ -2179,8 +2179,8 @@
                 <path d="M15.7 8.1 L14.1 8.7"/>
               </g>
             </g>
-            <ellipse class="blush" cx="9.8" cy="11.0" rx="0.76" ry="0.4" style="fill:var(--pw-blush,#F0A0A0)" opacity=".36"/>
-            <ellipse class="blush" cx="16.2" cy="11.0" rx="0.76" ry="0.4" style="fill:var(--pw-blush,#F0A0A0)" opacity=".36"/>
+            <ellipse class="blush" cx="9.9" cy="10.9" rx="0.66" ry="0.34" style="fill:var(--pw-blush,#F0A0A0)" opacity=".24"/>
+            <ellipse class="blush" cx="16.1" cy="10.9" rx="0.66" ry="0.34" style="fill:var(--pw-blush,#F0A0A0)" opacity=".24"/>
             <path d="M12.72 11.45 Q13 11.78 13.28 11.45" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.17" stroke-linecap="round" opacity=".75"/>
 
             <!-- 思考：双掌掐诀于胸前（手随手臂抬起，这里只画指间的灵光） -->

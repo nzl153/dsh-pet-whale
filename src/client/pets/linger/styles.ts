@@ -271,7 +271,7 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale].sleeping .pet-official .pupil-highlight { opacity: 0 !important; }
 
 /* 悬停：腮红加深 */
-[data-dsh-whale] .pet-official:hover .blush { opacity: .78; }
+[data-dsh-whale] .pet-official:hover .blush { opacity: .55; }
 
 /* 符文与法阵的动画 */
 [data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 44px; }

@@ -105,7 +105,7 @@ export const LINGER_PET_CSS = `
   /* !important 必需：SVG 上写了行内 display:none，普通声明压不过它（这里踩过坑） */
   display: block !important;
   animation: linger-bladeFloat 1.1s ease-in-out infinite;
-  transform-origin: 13px 31.6px;
+  transform-origin: 13px 33.9px;
 }
 [data-dsh-whale] .pet-official.swimming .skirt { animation: linger-skirtTrail 1.1s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swimming .sash { animation: linger-sashTrail 0.9s ease-in-out infinite; }
@@ -244,8 +244,8 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official:hover .blush { opacity: .78; }
 
 /* 符文与法阵的动画 */
-[data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 27.4px; }
-[data-dsh-whale] .tap-k2 { animation: linger-runePulse 1.4s ease-in-out infinite; transform-origin: 13px 27.4px; }
+[data-dsh-whale] .tap-k1 { animation: linger-formation 6s linear infinite; transform-origin: 13px 31px; }
+[data-dsh-whale] .tap-k2 { animation: linger-runePulse 1.4s ease-in-out infinite; transform-origin: 13px 31px; }
 [data-dsh-whale] .code-fx1 { animation: linger-runeFloat1 1.6s ease-out infinite; }
 [data-dsh-whale] .code-fx2 { animation: linger-runeFloat2 1.6s ease-out 0.7s infinite; }
 

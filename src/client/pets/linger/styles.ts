@@ -75,7 +75,7 @@ export const LINGER_PET_CSS = `
   background: rgba(255,255,255,.85);
 }
 
-/* ===== 待机：呼吸 + 裙摆与披帛飘 + 长发微动 ===== */
+/* ===== 待机：呼吸 + 裙摆与披帛飘 + 长发微动 + 手轻摆 ===== */
 [data-dsh-whale] .pet-official .body { animation: linger-breathe 3.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .skirt { animation: linger-skirtSway 3.8s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .sash { animation: linger-sashFloat 3.0s ease-in-out infinite; }
@@ -84,6 +84,9 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official .hair-front { animation: linger-hairSway 3.8s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .hair-front + .hair-front { animation-delay: -1.5s; }
 [data-dsh-whale] .pet-official .eye-group { animation: linger-blink 4.8s ease-in-out infinite; transform-origin: 13px 9.15px; }
+/* 手：待机时轻轻前后摆（宽度 ±0.35 单位，看得见但不夸张） */
+[data-dsh-whale] .pet-official .hand { animation: linger-handSway 3.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .hand + .hand { animation-delay: -1.7s; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
@@ -119,6 +122,8 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale] .pet-official.working .code-particle { display: block !important; }
 [data-dsh-whale] .pet-official.working .skirt { animation: linger-skirtSway 1.6s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.working .sash { animation: linger-sashFloat 1.4s ease-in-out infinite; }
+/* 施法时双手抬起画诀 */
+[data-dsh-whale] .pet-official.working .hand { animation: linger-handCast 1.0s ease-in-out infinite; }
 
 /* ===== 报错：施法失败，符光乱窜 ===== */
 [data-dsh-whale] .pet-official.error { animation: linger-shake 0.5s ease-in-out infinite; }
@@ -136,8 +141,9 @@ export const LINGER_PET_CSS = `
 [data-dsh-whale].sleeping .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale].sleeping .eye-group .sleep-eyes { display: inline !important; }
 
-/* ===== 开心：轻跃 ===== */
+/* ===== 开心：轻跃（手也跟着扬起来） ===== */
 [data-dsh-whale] .pet-official.joy { animation: linger-joyHop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.joy .hand { animation: linger-handUp 0.9s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.joy .eye-group .eye,
 [data-dsh-whale] .pet-official.joy .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale] .pet-official.joy .eye-group .sleep-eyes { display: inline !important; }
@@ -196,6 +202,7 @@ export const LINGER_PET_CSS = `
   animation: linger-petal 1.2s cubic-bezier(0.2, 0.8, 0.35, 1);
 }
 [data-dsh-whale] .pet-official.celebrate { animation: linger-leap 1.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .hand { animation: linger-handUp 1.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
 [data-dsh-whale] .pet-official.celebrate .starL { animation: linger-starSpin 1.2s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .starR { animation: linger-starSpin 1.2s ease-in-out 0.3s infinite; }
@@ -296,6 +303,19 @@ export const LINGER_PET_CSS = `
 @keyframes linger-hairSway {
   0%,100% { transform: rotate(-1.2deg); }
   50%     { transform: rotate(1.6deg); }
+}
+/* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
+@keyframes linger-handSway {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-0.35px) rotate(3.2deg); }
+}
+@keyframes linger-handCast {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-1.9px) rotate(-9deg); }
+}
+@keyframes linger-handUp {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-2.3px) rotate(11deg); }
 }
 @keyframes linger-blink {
   0%, 92%, 100% { transform: scaleY(1); }

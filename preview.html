@@ -1545,10 +1545,10 @@
   70%  { transform: translateY(1px) rotate(-4deg) scale(1, 1); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-/* 剑：随人一起升空，剑头抬起并与身体前倾同向（像在水面上滑行/爬升） */
+/* 剑现在在 .body 里面，升空与前倾由身体带；这里只保留"剑头微抬 + 轻微浮动" */
 @keyframes linger-bladeFloat {
-  0%,100% { transform: translateY(-5px) rotate(11deg); }
-  50%     { transform: translateY(-6.8px) rotate(8deg); }
+  0%,100% { transform: translateY(0) rotate(9deg); }
+  50%     { transform: translateY(-1.5px) rotate(6deg); }
 }
 @keyframes linger-skirtTrail {
   0%,100% { transform: rotate(-8deg) scaleX(1.07); }
@@ -2083,7 +2083,7 @@
             <path d="M12.2 14.0 L13.8 14.0 L13 15.2 Z" fill="#EFCDB4"/>
             <path d="M12.2 14.0 L13.8 14.0" fill="none" stroke="#D9AE90" stroke-width="0.12" stroke-linecap="round" opacity=".7"/>
             <!-- 下巴投影：脖子与下巴的分界 -->
-            <path d="M11.7 13.5 C12.4 13.9 13.6 13.9 14.3 13.5" fill="none" stroke="#D9AE90" stroke-width="0.34" stroke-linecap="round" opacity=".45"/>
+            <path d="M11.6 12.4 C12.4 12.8 13.6 12.8 14.4 12.4" fill="none" stroke="#D9AE90" stroke-width="0.34" stroke-linecap="round" opacity=".45"/>
             <!-- 蓝色外袍：开口一路开到腰带，白色交领整条露出 -->
             <!-- 蓝外袍：窄肩带式（肩顶露白色的，不再像披肩），V 开口更高、下沿到腰 -->
             <path fill-rule="evenodd" d="M9.7 15.0 C11.0 16.2 15.0 16.2 16.3 15.0 L17.5 17.6 L16.1 22.7 L9.9 22.7 L8.5 17.6 Z M13 15.7 C14.0 15.7 14.9 16.0 15.5 16.5 L13 19.9 L10.5 16.5 C11.1 16.0 12.0 15.7 13 15.7 Z" fill="url(#lingBlue)"/>
@@ -2143,6 +2143,8 @@
             <!-- 脖子（领口会盖住下半段，靠下面的"颈洞"露出来） -->
             <rect x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
 
+            <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子 -->
+            <g class="head" transform="translate(0 -1.2)">
             <!-- 脸：圆一些、下巴短一点（原来上下拉得太长） -->
             <path d="M13 4.2 C10.5 4.2 8.5 6.0 8.5 8.4 C8.5 10.6 9.4 12.5 11.0 13.4 C11.6 13.7 12.3 13.9 13 13.9 C13.7 13.9 14.4 13.7 15.0 13.4 C16.6 12.5 17.5 10.6 17.5 8.4 C17.5 6.0 15.5 4.2 13 4.2 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->
@@ -2233,6 +2235,19 @@
               <path class="spout-stream" d="M9.7 2.1 Q8.9 1.5 9.9 0.9" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-linecap="round" opacity=".85"/>
               <path class="spout-stream" d="M16.3 2.1 Q17.1 1.5 16.1 0.9" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-linecap="round" opacity=".85"/>
             </g>
+
+          <!-- 御剑：整把剑横在脚下，两端探出裙外 -->
+          <g class="sword" style="display:none">
+            <ellipse cx="13" cy="47.0" rx="9.6" ry="1.4" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".3"/>
+            <path d="M1.0 46.2 L0.1 46.9 L1.0 47.6 Z" fill="#DCEFFF" stroke="#5A6B7A" stroke-width="0.12" stroke-linejoin="round"/>
+            <path d="M1.0 46.2 L22.4 45.1 L23.0 46.5 L1.0 47.6 Z" fill="url(#lingBlade)" stroke="#5A6B7A" stroke-width="0.18" stroke-linejoin="round"/>
+            <path d="M1.4 46.45 L22.2 45.4" fill="none" stroke="#FFFFFF" stroke-width="0.28" opacity=".95"/>
+            <path d="M1.2 44.8 L6.4 45.7" fill="none" stroke="#DFF3FF" stroke-width="0.22" stroke-linecap="round" opacity=".9"/>
+            <path d="M1.0 48.0 L5.6 47.3" fill="none" stroke="#DFF3FF" stroke-width="0.2" stroke-linecap="round" opacity=".8"/>
+            <path d="M22.3 44.4 L22.9 47.2 L23.6 47.2 L23.1 44.4 Z" fill="#C9A76A" stroke="#8A6F3E" stroke-width="0.1" stroke-linejoin="round"/>
+            <path d="M23.4 45.2 L25.3 45.1 L25.4 46.7 L23.5 46.8 Z" fill="#6B5A46"/>
+            <path d="M25.2 45.2 L25.8 45.2 L25.9 46.7 L25.3 46.7 Z" fill="#C9A76A"/>
+          </g>
           </g>
 
           <!-- 灵光符文（working 时浮起） -->
@@ -2254,18 +2269,6 @@
             </g>
           </g>
 
-          <!-- 御剑：整把剑横在脚下，两端探出裙外 -->
-          <g class="sword" style="display:none">
-            <ellipse cx="13" cy="47.0" rx="9.6" ry="1.4" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".3"/>
-            <path d="M1.0 46.2 L0.1 46.9 L1.0 47.6 Z" fill="#DCEFFF" stroke="#5A6B7A" stroke-width="0.12" stroke-linejoin="round"/>
-            <path d="M1.0 46.2 L22.4 45.1 L23.0 46.5 L1.0 47.6 Z" fill="url(#lingBlade)" stroke="#5A6B7A" stroke-width="0.18" stroke-linejoin="round"/>
-            <path d="M1.4 46.45 L22.2 45.4" fill="none" stroke="#FFFFFF" stroke-width="0.28" opacity=".95"/>
-            <path d="M1.2 44.8 L6.4 45.7" fill="none" stroke="#DFF3FF" stroke-width="0.22" stroke-linecap="round" opacity=".9"/>
-            <path d="M1.0 48.0 L5.6 47.3" fill="none" stroke="#DFF3FF" stroke-width="0.2" stroke-linecap="round" opacity=".8"/>
-            <path d="M22.3 44.4 L22.9 47.2 L23.6 47.2 L23.1 44.4 Z" fill="#C9A76A" stroke="#8A6F3E" stroke-width="0.1" stroke-linejoin="round"/>
-            <path d="M23.4 45.2 L25.3 45.1 L25.4 46.7 L23.5 46.8 Z" fill="#6B5A46"/>
-            <path d="M25.2 45.2 L25.8 45.2 L25.9 46.7 L25.3 46.7 Z" fill="#C9A76A"/>
-          </g>
         </svg>
         <span class="bubble"></span>
         <span class="bubble b2"></span>

@@ -464,10 +464,10 @@ export const LINGER_PET_CSS = `
   70%  { transform: translateY(1px) rotate(-4deg) scale(1, 1); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-/* 剑：随人一起升空，剑头抬起并与身体前倾同向（像在水面上滑行/爬升） */
+/* 剑现在在 .body 里面，升空与前倾由身体带；这里只保留"剑头微抬 + 轻微浮动" */
 @keyframes linger-bladeFloat {
-  0%,100% { transform: translateY(-5px) rotate(11deg); }
-  50%     { transform: translateY(-6.8px) rotate(8deg); }
+  0%,100% { transform: translateY(0) rotate(9deg); }
+  50%     { transform: translateY(-1.5px) rotate(6deg); }
 }
 @keyframes linger-skirtTrail {
   0%,100% { transform: rotate(-8deg) scaleX(1.07); }

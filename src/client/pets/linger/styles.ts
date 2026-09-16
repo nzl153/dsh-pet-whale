@@ -112,6 +112,11 @@ export const LINGER_PET_CSS = `
 /* 御剑：手臂向后掠 */
 [data-dsh-whale] .pet-official.swimming .forearm { animation: linger-forearmTrailL 1.1s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swimming .arm + .arm .forearm { animation: linger-forearmTrailR 1.1s ease-in-out infinite; }
+/* 腾空：收起地面阴影，否则看着像站在地上 */
+[data-dsh-whale].swimming .dsh-whale-shadow { opacity: 0; }
+/* 腾空时脚下的光晕更亮一点，强调"离地" */
+[data-dsh-whale].swimming .dsh-whale-wake { opacity: 1; }
+
 [data-dsh-whale] .pet-official.swimming .sword,
 [data-dsh-whale] .pet-official.swim-dive .sword,
 [data-dsh-whale] .pet-official.swimming-dive .sword {
@@ -442,10 +447,11 @@ export const LINGER_PET_CSS = `
   30%     { transform: translateY(-1.2px) rotate(-0.8deg); }
   70%     { transform: translateY(0.4px) rotate(0.8deg); }
 }
-/* 御剑飞行：大幅前倾、身体带起伏（不再是"直挺挺站在剑上"） */
+/* 御剑飞行：整体**升空**（人抬高 5~7 单位）+ 前倾 15° + 起伏。
+   剑在同一个坐标系里也抬同样高度，两者才不会脱开。 */
 @keyframes linger-fly {
-  0%,100% { transform: translateY(0) rotate(-15deg); }
-  50%     { transform: translateY(-2.2px) rotate(-12deg); }
+  0%,100% { transform: translateY(-5px) rotate(-15deg); }
+  50%     { transform: translateY(-7px) rotate(-12deg); }
 }
 /* 长发与裙摆被风向后带 */
 @keyframes linger-hairTrail {
@@ -458,10 +464,10 @@ export const LINGER_PET_CSS = `
   70%  { transform: translateY(1px) rotate(-4deg) scale(1, 1); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-/* 剑：剑头微微抬起（正角度=尖端上扬） */
+/* 剑：随人一起升空，剑头抬起并与身体前倾同向（像在水面上滑行/爬升） */
 @keyframes linger-bladeFloat {
-  0%,100% { transform: translateY(0) rotate(7deg); }
-  50%     { transform: translateY(-1.6px) rotate(4.5deg); }
+  0%,100% { transform: translateY(-5px) rotate(11deg); }
+  50%     { transform: translateY(-6.8px) rotate(8deg); }
 }
 @keyframes linger-skirtTrail {
   0%,100% { transform: rotate(-8deg) scaleX(1.07); }

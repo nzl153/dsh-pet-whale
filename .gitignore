@@ -2,6 +2,10 @@
 node_modules/
 *.dspatch.bak
 
+# 本地预览产物（scripts/preview-pets.mjs 生成）
+pet-preview.html
+pet-preview*.png
+
 # 参考素材（whale-girl 的 GIF 仅本地查看用，不随仓库分发）
 ref-whale-girl/
 

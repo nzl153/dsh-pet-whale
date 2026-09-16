@@ -4,12 +4,12 @@
 import type { Context } from '@deepseek-ai/cordis'
 import type { ISessions, SessionFace } from '@deepseek-ai/dsh-api-session-controller/client'
 import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
-import { WHALE_HTML } from './whale'
-import { WHALE_CSS } from './styles'
+import { BASE_CSS } from './styles'
 import { WhaleSounds } from './sounds'
 import { WhaleDriver, type WhaleSnapshot, type WhaleState } from './state'
 import { PALETTES, applyPalette, loadPaletteId, paletteOf, savePaletteId } from './palettes'
-import { detectBrowserLocale, getStrings, paletteName, type PetLocale, type PetStrings } from './i18n'
+import { PETS, loadPetId, petOf, savePetId, type PetModule } from './pets'
+import { detectBrowserLocale, getStrings, paletteName, petName, type PetLocale, type PetStrings } from './i18n'
 import { WhaleSwimmer } from './swim'
 
 // 官方 client 通道的服务闸：等 sessions / locale / uiConversation 服务就绪后再 apply。
@@ -93,35 +93,79 @@ export function apply(ctx: Context): () => void {
   // 双挂载防护：先清掉旧实例
   document.querySelectorAll('[data-dsh-whale]').forEach((el) => el.remove())
   document.getElementById('pet-whale-style')?.remove()
+  document.getElementById('pet-whale-pet-style')?.remove()
 
   // ===== 样式 =====
+  // 两张表：BASE_CSS 常驻（与宠物无关的 UI + 全部 keyframes）；
+  // petStyle 只装"当前宠物"的私有样式，切宠物时整段替换 → 两只宠物的选择器与动画永不共存。
   const style = document.createElement('style')
   style.id = 'pet-whale-style'
-  style.textContent = WHALE_CSS
+  style.textContent = BASE_CSS
   document.head.appendChild(style)
+
+  const petStyle = document.createElement('style')
+  petStyle.id = 'pet-whale-pet-style'
+  document.head.appendChild(petStyle)
 
 
     // ===== 语言 =====
     const localeService = (ctx as unknown as { locale?: LocaleLike }).locale
     let locale: PetLocale = localeService?.getLocale().active === 'en' ? 'en' : detectBrowserLocale()
     let strings: PetStrings = getStrings(locale)
+
+  // ===== 宠物 =====
+  // 当前宠物决定 .pet-official 塞哪段 SVG、挂哪张私有样式表；选择记在 localStorage。
+  let activePet: PetModule = petOf(loadPetId())
+  /** 宠物显示名：i18n 优先，缺了就用 PetModule 自带的名字 */
+  const petDisplayName = (p: PetModule): string => petName(locale, p.id, locale === 'en' ? p.name.en : p.name.zh)
+
   // ===== DOM =====
   const root = document.createElement('div')
   root.setAttribute('data-dsh-whale', '')
+  root.dataset.pet = activePet.id
   root.innerHTML = `
     <span class="dsh-whale-shadow"></span>
     <span class="dsh-whale-wake"></span>
     <div class="dsh-whale-dialog"></div>
     <span class="dsh-whale-snack">🐟</span>
     <span class="dsh-whale-zzz">Zzz...</span>
-    <div class="pet-official idle" role="img" aria-label="${strings.aria.pet}">${WHALE_HTML}</div>
+    <div class="pet-official idle" role="img" aria-label="${strings.aria.petName(petDisplayName(activePet))}">${activePet.html}</div>
     <div class="dsh-whale-menu" role="menu"></div>
   `
   const dialog = root.querySelector<HTMLElement>('.dsh-whale-dialog')!
   const snack = root.querySelector<HTMLElement>('.dsh-whale-snack')!
+  // 容器本身永不重建，只有它的 innerHTML 随宠物切换 → 容器上的状态 class 原地保留
   const pet = root.querySelector<HTMLElement>('.pet-official')!
   const menu = root.querySelector<HTMLElement>('.dsh-whale-menu')!
-  const pupil = pet.querySelector<SVGCircleElement>('.pupil-highlight')
+  /**
+   * 追光瞳孔：唯一被 JS 直接引用的 SVG 部件。切换宠物会重建 innerHTML，
+   * 所以按需现取而不是缓存元素引用（代价只是一次 querySelector）。
+   */
+  const petPupil = (): SVGCircleElement | null =>
+    pet.querySelector<SVGCircleElement>(activePet.pupilSelector ?? '.pupil-highlight')
+
+  /**
+   * 切换宠物：换内联 SVG + 换宠物私有样式表 + 同步容器尺寸变量。
+   * 不碰状态 class，所以新宠物立刻按当前状态动起来，不需要重放状态机。
+   */
+  const applyPet = (id: string): void => {
+    const next = petOf(id)
+    activePet = next
+    savePetId(next.id)
+    root.dataset.pet = next.id
+    if (next.size) {
+      root.style.setProperty('--pw-pet-w', `${next.size.w}px`)
+      root.style.setProperty('--pw-pet-h', `${next.size.h}px`)
+    } else {
+      // 回落到 BASE_CSS 里的默认盒
+      root.style.removeProperty('--pw-pet-w')
+      root.style.removeProperty('--pw-pet-h')
+    }
+    pet.innerHTML = next.html
+    pet.setAttribute('aria-label', strings.aria.petName(petDisplayName(next)))
+    petStyle.textContent = next.css
+  }
+  applyPet(activePet.id)
 
   // ===== 大小 =====
   const SCALE_KEY = 'pet-whale:scale'
@@ -1083,6 +1127,31 @@ export function apply(ctx: Context): () => void {
       }
 
       if (mode === 'appearance') {
+        // 宠物选择：色板对所有宠物通用，所以先选宠物、再挑配色
+        const petTitle = document.createElement('div')
+        petTitle.className = 'pw-panel-section-title'
+        petTitle.textContent = strings.panel.pet
+        menu.appendChild(petTitle)
+        for (const p of PETS) {
+          const name = petDisplayName(p)
+          const petBtn = document.createElement('button')
+          petBtn.type = 'button'
+          petBtn.className = 'pw-palette-btn'
+          // 当前项打勾，跟插件里其它开关的写法保持一致
+          petBtn.appendChild(document.createTextNode(`${p.icon} ${name}${p.id === activePet.id ? ' ✅' : ''}`))
+          petBtn.addEventListener('click', () => {
+            closeMenu()
+            if (p.id === activePet.id) return
+            applyPet(p.id)
+            showDialog(strings.feedback.petApplied(name))
+            sounds.play('bubble')
+          })
+          menu.appendChild(petBtn)
+        }
+        const colorTitle = document.createElement('div')
+        colorTitle.className = 'pw-panel-section-title'
+        colorTitle.textContent = strings.panel.colors
+        menu.appendChild(colorTitle)
         for (const p of PALETTES) {
           const btn = document.createElement('button')
           btn.type = 'button'
@@ -1309,6 +1378,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     idleMicroTimer = undefined
   }
   const microLook = () => {
+    const pupil = petPupil()
     if (pupil === null) return
     const dx = Math.random() * 0.4 - 0.2
     const dy = Math.random() * 0.3 - 0.15
@@ -1619,7 +1689,9 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     markActive()
     // 躲避判定自带守卫，且不能被下面追光的 rAF 节流挡掉，所以放在 early-return 之前
     maybeAvoid(e)
-    if (pupil === null || eyeRaf !== 0) return
+    if (eyeRaf !== 0) return
+    const pupil = petPupil()
+    if (pupil === null) return
     eyeRaf = window.requestAnimationFrame(() => {
       eyeRaf = 0
       const rect = pet.getBoundingClientRect()
@@ -1846,7 +1918,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
       if (locale === nextLocale) return
       locale = nextLocale
       strings = getStrings(locale)
-      pet.setAttribute('aria-label', strings.aria.pet)
+      pet.setAttribute('aria-label', strings.aria.petName(petDisplayName(activePet)))
       if (mini !== null) mini.setAttribute('aria-label', strings.aria.mini)
       syncMiniState(visualState)
       if (menu.classList.contains('open')) {
@@ -1911,6 +1983,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     removeMini()
     root.remove()
     style.remove()
+    petStyle.remove()
   }
   quitWhale = dispose
   return dispose

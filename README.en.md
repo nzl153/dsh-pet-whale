@@ -28,6 +28,7 @@ The repository's [preview.html](preview.html) is the same page and can be opened
 | Idle micro-movements | Random swimming, looking around, and bubble blowing |
 | Error care | Click the whale during error state to copy the error text |
 | Skins | 7 built-in palettes (default Theme Blue), extensible by adding one line in `src/client/palettes.ts` |
+| Multiple pets | Right-click → "Appearance → 🐾 Pet" to switch between the whale and a cat; the choice persists. Each pet ships its own SVG and its own animation stylesheet so they never interfere, while palettes and size stay shared. Adding a pet = one new folder under `src/client/pets/<id>/` plus one registry line — see [docs/MULTI-PET.md](docs/MULTI-PET.md) |
 | Hide/recall | Hide to a small 🐳 button; state persists across refresh |
 | Scheduled hide | Hide after 1 hour or every day at 22:00 |
 | Free swimming | Toggle "Swim" to let the whale roam the page along cubic Bezier paths, with banking, adaptive flipping, depth dives, wake ripples, and splashes; it yields while the agent is busy, and the preference is persisted |
@@ -90,6 +91,9 @@ pnpm verify:hmr    # verify local repo <-> running DSH HMR wiring
 ## Development
 
 - `src/client/palettes.ts` — palette extension point. Add one line for a new skin.
+- `src/client/pets/` — pet extension point. A pet is one folder plus one line in `pets/index.ts`;
+  `pets/cat/` is the minimal example to copy.
+- `scripts/preview-pets.mjs` — static multi-pet preview page (`pnpm preview`).
 - `scripts/extract-whale.mjs` — sync the V2 SVG from `preview.html` into `src/client/whale.ts`.
 - `scripts/verify-live.mjs` — one-click live verification after restart.
 - State source (dsh 0.1.5): session lifecycle comes from the `ctx.sessions` snapshot

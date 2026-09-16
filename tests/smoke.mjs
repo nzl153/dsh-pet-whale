@@ -422,6 +422,43 @@ pet2?.dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true, cancelabl
 check('形影不离档双击翻肚皮', pet2?.classList.contains('belly-up') === true)
 check('翻肚皮说了话', /肚皮|放松/.test(dialog2?.textContent ?? ''))
 dispose2()
+check('dispose 移除宠物样式表', window.document.getElementById('pet-whale-pet-style') === null)
+
+// ===== 多宠物：切换 / 样式表隔离 / 记忆 =====
+window.localStorage.removeItem('pet-whale:pet')
+const dispose3 = exports_.apply(ctx)
+const rootEl3 = window.document.querySelector('[data-dsh-whale]')
+const pet3 = rootEl3?.querySelector('.pet-official')
+const menu3 = rootEl3?.querySelector('.dsh-whale-menu')
+const petStyle3 = window.document.getElementById('pet-whale-pet-style')
+check('默认宠物是鲸鱼', rootEl3?.getAttribute('data-pet') === 'whale')
+check('鲸鱼宠物样式表已挂上', petStyle3?.textContent.includes('pw-qbob') === true)
+
+const clickMenu3 = (label) => {
+  ;[...(menu3?.querySelectorAll('button') ?? [])].find((b) => b.textContent.includes(label))
+    ?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+}
+pet3?.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 200 }))
+clickMenu3('更多设置')
+clickMenu3('外观')
+const catBtn = [...(menu3?.querySelectorAll('button') ?? [])].find((b) => b.textContent.includes('小猫'))
+check('外观面板里有宠物选项', catBtn !== undefined)
+catBtn?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+check('切到小猫：data-pet=cat', rootEl3?.getAttribute('data-pet') === 'cat')
+check('切到小猫：SVG 换成猫', pet3?.innerHTML.includes('catGrad') === true)
+check('切到小猫：私有样式表整段替换', petStyle3?.textContent.includes('cat-breathe') === true)
+check('切到小猫：鲸鱼的动画规则不再存在', petStyle3?.textContent.includes('pw-qbob') === false)
+check('切到小猫：容器状态类原地保留', pet3?.classList.contains('idle') === true)
+check('宠物选择已落盘', window.localStorage.getItem('pet-whale:pet') === 'cat')
+
+dispose3()
+const dispose4 = exports_.apply(ctx)
+const rootEl4 = window.document.querySelector('[data-dsh-whale]')
+const pet4 = rootEl4?.querySelector('.pet-official')
+check('重挂后仍是小猫（记忆生效）', rootEl4?.getAttribute('data-pet') === 'cat')
+check('重挂后鲸鱼样式没有回插', window.document.getElementById('pet-whale-pet-style')?.textContent.includes('pw-qbob') === false)
+check('小猫与鲸鱼共用同一套色板变量', rootEl4?.style.getPropertyValue('--pw-scale') !== null && pet4 !== null)
+dispose4()
 
 // dispose
 check('dispose 移除容器', window.document.querySelector('[data-dsh-whale]') === null)

@@ -64,7 +64,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node tests/smoke.mjs",
     "verify:hmr": "node scripts/verify-hmr.mjs",
-    "extract": "node scripts/extract-whale.mjs"
+    "extract": "node scripts/extract-whale.mjs",
+    "preview": "node scripts/preview-pets.mjs"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",

@@ -34,6 +34,10 @@ export interface PetStrings {
   panel: {
     title: string
     appearance: string
+    /** 外观面板里的「宠物」分组标题 */
+    pet: string
+    /** 外观面板里的「配色」分组标题 */
+    colors: string
     behavior: string
     stats: string
     statsCompleted: (n: number) => string
@@ -65,6 +69,8 @@ export interface PetStrings {
     close: string
     back: string
   }
+  /** 宠物名字：id → 该语言下的名字；缺失时回落到 PetModule.name（与 palette 同样的回退策略） */
+  pet: Record<string, string>
   palette: Record<string, string>
   feedback: {
     squish: string
@@ -72,6 +78,7 @@ export interface PetStrings {
     feed: string
     headpat: string
     paletteApplied: (name: string) => string
+    petApplied: (name: string) => string
     pretendOn: string
     pretendOff: string
     tickerOn: string
@@ -121,7 +128,8 @@ export interface PetStrings {
     bodyDone: string
   }
   aria: {
-    pet: string
+    /** 桌宠的 aria-label，参数是当前宠物的名字 */
+    petName: (name: string) => string
     mini: string
     miniTitle: (state: string) => string
   }
@@ -193,6 +201,8 @@ const zh: PetStrings = {
   panel: {
     title: '更多设置',
     appearance: '外观',
+    pet: '🐾 宠物',
+    colors: '🎨 配色',
     behavior: '行为',
     stats: '陪伴记录',
     statsCompleted: (n) => `🏆 已完成回合：${n}`,
@@ -218,6 +228,10 @@ const zh: PetStrings = {
     close: '⏹ 关闭桌宠',
     back: '← 返回',
   },
+  pet: {
+    whale: '小鲸鱼',
+    cat: '小猫',
+  },
   palette: {
     terracotta: '陶土',
     ocean: '深海蓝',
@@ -233,6 +247,7 @@ const zh: PetStrings = {
     feed: '嚼嚼嚼... 获得小鱼干能量！美味~ 🐟',
     headpat: '被摸摸头啦~ 暖洋洋的超开心 🥰',
     paletteApplied: (name) => `换上新皮肤「${name}」~ 🎨`,
+    petApplied: (name) => `换成${name}啦~ 🐾`,
     pretendOn: '进入假装工作模式，开始表演敲代码 ⌨️💼',
     pretendOff: '下班！恢复真实状态~',
     tickerOn: '思考链已开启：思考时会在我头顶滚动 🧠',
@@ -325,7 +340,7 @@ const zh: PetStrings = {
     bodyDone: '这一轮跑完啦，回来看看吧',
   },
   aria: {
-    pet: '桌宠小鲸鱼',
+    petName: (name) => `桌宠${name}`,
     mini: '显示桌宠小鲸鱼',
     miniTitle: (state) => `桌宠小鲸鱼（${state}）· 点我召回，可拖拽移动`,
   },
@@ -397,6 +412,8 @@ const en: PetStrings = {
   panel: {
     title: 'More Settings',
     appearance: 'Appearance',
+    pet: '🐾 Pet',
+    colors: '🎨 Colors',
     behavior: 'Behavior',
     stats: 'Companion Stats',
     statsCompleted: (n) => `🏆 Completed Turns: ${n}`,
@@ -422,6 +439,10 @@ const en: PetStrings = {
     close: '⏹ Close pet',
     back: '← Back',
   },
+  pet: {
+    whale: 'Whale',
+    cat: 'Cat',
+  },
   palette: {
     terracotta: 'Terracotta',
     ocean: 'Ocean Blue',
@@ -437,6 +458,7 @@ const en: PetStrings = {
     feed: 'Munch munch... fish snack energy! Yummy~ 🐟',
     headpat: 'Headpat received~ warm and happy 🥰',
     paletteApplied: (name) => `New skin applied: ${name}~ 🎨`,
+    petApplied: (name) => `Now playing as ${name}~ 🐾`,
     pretendOn: 'Entering pretend-work mode, time to type ⌨️💼',
     pretendOff: 'Off duty! Back to real state~',
     tickerOn: 'Think ticker enabled: thoughts will scroll above me 🧠',
@@ -529,7 +551,7 @@ const en: PetStrings = {
     bodyDone: 'This round finished. Come take a look',
   },
   aria: {
-    pet: 'Desktop pet whale',
+    petName: (name) => `Desktop pet ${name}`,
     mini: 'Show desktop pet whale',
     miniTitle: (state) => `Desktop whale (${state}) · Click to recall, draggable`,
   },
@@ -554,4 +576,9 @@ export function getStrings(locale: PetLocale): PetStrings {
 
 export function paletteName(locale: PetLocale, id: string, fallback: string): string {
   return getStrings(locale).palette[id] ?? fallback
+}
+
+/** 宠物名字：i18n 里没写就回落到 PetModule 自带的名字，加新宠物不必立刻补文案。 */
+export function petName(locale: PetLocale, id: string, fallback: string): string {
+  return getStrings(locale).pet[id] ?? fallback
 }

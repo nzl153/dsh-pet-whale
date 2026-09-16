@@ -33,6 +33,7 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 | idle 小动作 | idle 久了会随机游动、左右张望、吐泡泡，不再只是打瞌睡 |
 | 错误关怀 | error 状态下点击鲸鱼或右键「📋 复制错误信息」，直接把错误文本复制到剪贴板 |
 | 换肤 | 7 套预设色板（默认**主题蓝**）：主题蓝 / 陶土 / 深海蓝 / 抹茶绿 / 樱粉 / 墨灰 / 夜黑；夜黑为深色皮肤示例（眼睛自动反白）。扩展只需在 `src/client/palettes.ts` 加一行 |
+| 多宠物 | 右键 →「外观 → 🐾 宠物」在**小鲸鱼 / 小猫**之间切换，选择持久化。每只宠物自带 SVG 与独立动画样式表，互不干扰；色板与大小对任何宠物通用。加一只新宠物 = 新建 `src/client/pets/<id>/` 一个目录 + 注册一行，详见 [docs/MULTI-PET.md](docs/MULTI-PET.md) |
 | 隐藏/召回 | 右键菜单「🙈 隐藏到右下角」收起桌宠，右下角出现 🐳 小按钮，点击召回；隐藏状态跨刷新记忆，隐藏期间自动静音、不说话 |
 | 小按钮状态 | 隐藏时小按钮随 agent 状态变色呼吸：idle 蓝 / think 深蓝 / working 橙 / celebrate 绿 / error 红 |
 | 小按钮拖拽 | 小按钮可拖拽移动，位置用 localStorage 记忆 |
@@ -89,9 +90,25 @@ pnpm test        # jsdom 冒烟测试（状态机 / 交互 / 换肤 / 清理）
 pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 ```
 
+## 多宠物 / 自定义宠物
+
+外形是可插拔的：每只宠物 = `src/client/pets/<id>/` 里的一个 `PetModule`（内联 SVG + 独立样式表），
+在 `src/client/pets/index.ts` 注册一行就出现在右键菜单的「外观 → 🐾 宠物」里。
+运行时挂两张样式表——公共的 `BASE_CSS` 常驻，**当前宠物那张整段替换**——所以两只宠物的
+选择器与 keyframes 永不共存，互不干扰。行为逻辑（状态机、拖拽、游动、粒子、菜单、统计）与宠物无关。
+
+完整的接入步骤、状态 class 契约表、三条约定（上色只用 CSS 变量 / keyframes 用自己的前缀 /
+容器比例）和调试截图方法见 **[docs/MULTI-PET.md](docs/MULTI-PET.md)**。
+
+```sh
+pnpm preview      # 生成 pet-preview.html：所有宠物 × 多状态铺成一张网格，浏览器直接打开
+```
+
 ## 开发
 
 - `src/client/palettes.ts` — 色板扩展点。加一行就是一个新皮肤；`eye`/`pupil` 字段用于深色皮肤的"眼睛反白"
+- `src/client/pets/` — 宠物扩展点。加一只宠物 = 一个目录 + `pets/index.ts` 一行；`pets/cat/` 是可照抄的最小范例
+- `scripts/preview-pets.mjs` — 多宠物静态预览页（`pnpm preview`），画新宠物时用它调手感
 - `scripts/extract-whale.mjs` — 从 `preview.html` 同步 V2 SVG（含 CSS 变量替换），改完模板重跑 `pnpm extract`
 - `scripts/verify-live.mjs` — 重启后的一键线上验证（boot 清单 / bundle 下载 / 注册格式）
 - 状态来源（dsh 0.1.5）：会话生命周期取自 `ctx.sessions` 的会话快照（`running` / `lastAgentError` / `openError`）；

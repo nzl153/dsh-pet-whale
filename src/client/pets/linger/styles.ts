@@ -87,6 +87,9 @@ export const LINGER_PET_CSS = `
 /* 手：待机时轻轻前后摆（宽度 ±0.35 单位，看得见但不夸张） */
 [data-dsh-whale] .pet-official .arm { animation: linger-armSwayL 4.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .arm + .arm { animation: linger-armSwayR 4.4s ease-in-out infinite; }
+/* 空闲姿态 = 抱臂（垂手不好看）：左前臂横在上、右前臂垫在里，带轻微呼吸起伏 */
+[data-dsh-whale] .pet-official .forearm { animation: linger-forearmHugL 4.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .arm + .arm .forearm { animation: linger-forearmHugR 4.4s ease-in-out infinite; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
@@ -152,6 +155,7 @@ export const LINGER_PET_CSS = `
 
 /* ===== 开心：轻跃（手也跟着扬起来） ===== */
 [data-dsh-whale] .pet-official.joy { animation: linger-joyHop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.joy .arm { animation: linger-armRaiseL 0.9s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.joy .forearm { animation: linger-forearmWave 0.9s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.joy .eye-group .eye,
 [data-dsh-whale] .pet-official.joy .eye-group .pupil-highlight { opacity: 0 !important; }
@@ -211,6 +215,8 @@ export const LINGER_PET_CSS = `
   animation: linger-petal 1.2s cubic-bezier(0.2, 0.8, 0.35, 1);
 }
 [data-dsh-whale] .pet-official.celebrate { animation: linger-leap 1.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .arm { animation: linger-armRaiseL 1.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .arm + .arm { animation: linger-armRaiseR 1.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .forearm { animation: linger-forearmCheerL 1.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .arm + .arm .forearm { animation: linger-forearmCheerR 1.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
@@ -228,8 +234,8 @@ export const LINGER_PET_CSS = `
 
 /* ===== 等待输入 / 失落 ===== */
 [data-dsh-whale] .pet-official.wait { animation: linger-wait 1.2s ease-in-out infinite; }
-[data-dsh-whale] .pet-official.wait .forearm { animation: linger-forearmCrossL 2.4s ease-in-out infinite; }
-[data-dsh-whale] .pet-official.wait .arm + .arm .forearm { animation: linger-forearmCrossR 2.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.wait .forearm { animation: linger-forearmMeetL 2.6s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.wait .arm + .arm .forearm { animation: linger-forearmMeetR 2.6s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.wait .bubble-blue { display: block; animation: linger-riseBlue 1.2s ease-out infinite; }
 [data-dsh-whale] .pet-official.disappointed { animation: linger-disappointed 2.6s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.disappointed .forearm { animation: linger-forearmDroopL 2.6s ease-in-out infinite; }
@@ -249,6 +255,9 @@ export const LINGER_PET_CSS = `
   transform: scaleX(-1) rotate(5deg) scale(1.04, 0.96) !important;
 }
 [data-dsh-whale].dragging .pet-official .body { animation: none !important; }
+/* 被拎起来时手臂垂下（收起来的抱臂不合物理） */
+[data-dsh-whale].dragging .pet-official .forearm { animation: linger-forearmDroopL 1.6s ease-in-out infinite; }
+[data-dsh-whale].dragging .pet-official .arm + .arm .forearm { animation: linger-forearmDroopR 1.6s ease-in-out infinite; }
 [data-dsh-whale].dragging .eye-group .eye,
 [data-dsh-whale].dragging .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale].dragging .eye-group .caught-eyes { display: inline !important; }
@@ -321,80 +330,98 @@ export const LINGER_PET_CSS = `
 /* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
 /* 手臂：绕肩摆动 / 掐指（抬起并收袖）/ 施法 / 上扬。左右分开写，因为"抬起"要朝身体内侧。
    注：手臂是刚体（没有肘），"抬到胸前"用 translate + scale 收短袖子，而不是硬转一个大角度。 */
-/* 手臂：整条手臂只轻摆；手势一律折**前臂**（绕肘）。各状态手势不同，避免千篇一律"双手抱胸"。
-   角度约定（前臂从自然下垂起算，顺时针为正）：外摆上扬 ~±140°、抬手至胸 ~±118°、
-   双手交叠于腹前 ~±95°、单手掐指于颔下（右手）+145°、画诀 60~75° 往复 */
+/* 手臂关键帧。几何：肘在 y20.6，前臂约 6 单位（手在胯侧 y26.6），肘下另有一截袖尾。
+   角度（前臂从自然下垂起算，顺时针为正）：抱臂 右+98°/左-120°、拱手 左-76°/右+76°、
+   掐指（右手）+144°、腰前画符 ±30~42°、上举 ±150~168°、挥袖 +120~140°、护身 ±112~120° */
 @keyframes linger-armSwayL {
   0%,100% { transform: rotate(0deg); }
-  50%     { transform: rotate(-1.6deg); }
+  50%     { transform: rotate(-1.5deg); }
 }
 @keyframes linger-armSwayR {
   0%,100% { transform: rotate(0deg); }
-  50%     { transform: rotate(1.6deg); }
+  50%     { transform: rotate(1.5deg); }
 }
-/* 思考：只有右手抬到颔下掐指 */
+/* 空闲：抱臂（左前臂横压在上，右前臂垫在内） */
+@keyframes linger-forearmHugL {
+  0%,100% { transform: rotate(-122deg); }
+  50%     { transform: rotate(-117deg); }
+}
+@keyframes linger-forearmHugR {
+  0%,100% { transform: rotate(96deg); }
+  50%     { transform: rotate(101deg); }
+}
+/* 等待：拱手于腹前（双手在身前合拢，位置比抱臂低） */
+@keyframes linger-forearmMeetL {
+  0%,100% { transform: rotate(-74deg); }
+  50%     { transform: rotate(-80deg); }
+}
+@keyframes linger-forearmMeetR {
+  0%,100% { transform: rotate(74deg); }
+  50%     { transform: rotate(80deg); }
+}
+/* 思考：只有右手抬到颔下掐指（左手保持抱臂） */
 @keyframes linger-forearmChin {
   0%,100% { transform: rotate(138deg); }
-  50%     { transform: rotate(147deg); }
+  50%     { transform: rotate(148deg); }
 }
-/* 施法：双手各执一诀，袖口画符（左右不同相位） */
+/* 施法：双手在腰前执诀画符，左右不同相位 */
 @keyframes linger-forearmCastL {
-  0%,100% { transform: rotate(-62deg); }
-  50%     { transform: rotate(-78deg); }
+  0%,100% { transform: rotate(-30deg); }
+  50%     { transform: rotate(-44deg); }
 }
 @keyframes linger-forearmCastR {
-  0%,100% { transform: rotate(62deg); }
-  50%     { transform: rotate(78deg); }
+  0%,100% { transform: rotate(30deg); }
+  50%     { transform: rotate(44deg); }
 }
-/* 开心：单手挥袖 */
+/* 上臂外抬（庆祝/挥手用；光折前臂够不到头顶） */
+@keyframes linger-armRaiseL {
+  0%,100% { transform: rotate(46deg); }
+  50%     { transform: rotate(58deg); }
+}
+@keyframes linger-armRaiseR {
+  0%,100% { transform: rotate(-46deg); }
+  50%     { transform: rotate(-58deg); }
+}
+/* 开心：单手挥袖（上臂已抬） */
 @keyframes linger-forearmWave {
-  0%,100% { transform: rotate(104deg); }
-  50%     { transform: rotate(126deg); }
+  0%,100% { transform: rotate(96deg); }
+  50%     { transform: rotate(122deg); }
 }
-/* 庆祝：双臂上举（外摆） */
+/* 庆祝：双臂上举 */
 @keyframes linger-forearmCheerL {
-  0%,100% { transform: rotate(132deg); }
-  50%     { transform: rotate(146deg); }
+  0%,100% { transform: rotate(-118deg); }
+  50%     { transform: rotate(-134deg); }
 }
 @keyframes linger-forearmCheerR {
-  0%,100% { transform: rotate(-132deg); }
-  50%     { transform: rotate(-146deg); }
+  0%,100% { transform: rotate(118deg); }
+  50%     { transform: rotate(134deg); }
 }
 /* 报错：双手护在身前发抖 */
 @keyframes linger-forearmTrembleL {
-  0%,100% { transform: rotate(-94deg); }
-  50%     { transform: rotate(-86deg); }
+  0%,100% { transform: rotate(-112deg); }
+  50%     { transform: rotate(-120deg); }
 }
 @keyframes linger-forearmTrembleR {
-  0%,100% { transform: rotate(94deg); }
-  50%     { transform: rotate(86deg); }
+  0%,100% { transform: rotate(112deg); }
+  50%     { transform: rotate(120deg); }
 }
-/* 等待：双手交叠在腹前 */
-@keyframes linger-forearmCrossL {
-  0%,100% { transform: rotate(-92deg); }
-  50%     { transform: rotate(-97deg); }
-}
-@keyframes linger-forearmCrossR {
-  0%,100% { transform: rotate(92deg); }
-  50%     { transform: rotate(97deg); }
-}
-/* 失落：手微微前垂 */
+/* 失落 / 拖拽：手自然垂（略前倾） */
 @keyframes linger-forearmDroopL {
-  0%,100% { transform: rotate(-8deg); }
-  50%     { transform: rotate(-14deg); }
+  0%,100% { transform: rotate(-10deg); }
+  50%     { transform: rotate(-17deg); }
 }
 @keyframes linger-forearmDroopR {
-  0%,100% { transform: rotate(8deg); }
-  50%     { transform: rotate(14deg); }
+  0%,100% { transform: rotate(10deg); }
+  50%     { transform: rotate(17deg); }
 }
 /* 御剑：手臂向后掠（衣袖迎风） */
 @keyframes linger-forearmTrailL {
-  0%,100% { transform: rotate(22deg); }
-  50%     { transform: rotate(34deg); }
+  0%,100% { transform: rotate(-18deg); }
+  50%     { transform: rotate(-30deg); }
 }
 @keyframes linger-forearmTrailR {
-  0%,100% { transform: rotate(-22deg); }
-  50%     { transform: rotate(-34deg); }
+  0%,100% { transform: rotate(18deg); }
+  50%     { transform: rotate(30deg); }
 }
 @keyframes linger-blink {
   0%, 92%, 100% { transform: scaleY(1); }

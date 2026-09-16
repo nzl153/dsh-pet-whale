@@ -39,9 +39,9 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
           </defs>
 
           <g class="body">
-            <!-- 及臀后发（最底层） -->
-            <path class="hair" d="M8.1 5.6 C5.9 12.2 5.5 20.4 6.4 28.6 C6.5 30.2 7.5 30.9 8.7 30.5 C7.9 21.8 8.4 13.2 9.7 6.8 Z" fill="url(#lingHair)"/>
-            <path class="hair" d="M17.9 5.6 C20.1 12.2 20.5 20.4 19.6 28.6 C19.5 30.2 18.5 30.9 17.3 30.5 C18.1 21.8 17.6 13.2 16.3 6.8 Z" fill="url(#lingHair)"/>
+            <!-- 及臀后发（最底层，贴身不铺开） -->
+            <path class="hair" d="M9.0 5.8 C8.1 12.2 7.9 20.4 8.5 28.4 C8.7 29.4 9.3 29.8 9.9 29.4 C9.4 21.4 9.7 13.2 10.4 7.0 Z" fill="url(#lingHair)"/>
+            <path class="hair" d="M17.0 5.8 C17.9 12.2 18.1 20.4 17.5 28.4 C17.3 29.4 16.7 29.8 16.1 29.4 C16.6 21.4 16.3 13.2 15.6 7.0 Z" fill="url(#lingHair)"/>
 
             <!-- 长裙：白为主 + 蓝侧片 + 蓝裙摆滚边 -->
             <g class="skirt" style="transform-origin: 13px 23px">
@@ -56,21 +56,24 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <ellipse cx="11.4" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
             <ellipse cx="14.6" cy="46.9" rx="1.05" ry="0.44" style="fill:var(--pw-body,#4D6BFE)"/>
 
-            <!-- 白色大广袖：垂到腿侧，袖口蓝滚边、袖下露手 -->
-            <path d="M9.0 14.2 C7.2 15.6 5.9 18.4 5.7 21.8 L5.6 30.2 C6.8 31.1 8.6 31.0 9.7 29.9 C9.9 26.0 10.3 19.6 10.8 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
-            <path d="M17.0 14.2 C18.8 15.6 20.1 18.4 20.3 21.8 L20.4 30.2 C19.2 31.1 17.4 31.0 16.3 29.9 C16.1 26.0 15.7 19.6 15.2 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
-            <path d="M5.7 28.2 C6.9 29.0 8.5 28.8 9.6 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
-            <path d="M20.3 28.2 C19.1 29.0 17.5 28.8 16.4 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
-            <!-- 手：从袖口下露出的掌心（有形状、带拇指与指缝，才看得出是手） -->
-            <g class="hand" style="transform-origin: 7.6px 30.4px">
-              <path d="M7.0 30.3 C6.2 30.6 5.9 31.3 6.1 32.0 C6.3 32.7 7.0 33.0 7.7 32.9 C8.4 32.8 8.8 32.3 8.8 31.6 C8.8 30.9 8.4 30.4 7.7 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-              <path d="M6.6 31.0 C6.1 30.7 5.7 30.7 5.5 31.0 C5.3 31.3 5.5 31.7 5.9 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-              <path d="M7.0 32.3 L7.0 33.0 M7.7 32.5 L7.7 33.2 M8.4 32.2 L8.4 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+            <!-- 手臂：袖子 + 袖口滚边 + 手是**一个整体**，动作绕肩部轴心 —— 只动手不动袖会很怪 -->
+            <g class="arm" style="transform-origin: 9.4px 15.2px">
+              <path d="M9.0 14.2 C7.2 15.6 5.9 18.4 5.7 21.8 L5.6 30.2 C6.8 31.1 8.6 31.0 9.7 29.9 C9.9 26.0 10.3 19.6 10.8 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+              <path d="M5.7 28.2 C6.9 29.0 8.5 28.8 9.6 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
+              <g class="hand">
+                <path d="M7.0 30.3 C6.2 30.6 5.9 31.3 6.1 32.0 C6.3 32.7 7.0 33.0 7.7 32.9 C8.4 32.8 8.8 32.3 8.8 31.6 C8.8 30.9 8.4 30.4 7.7 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                <path d="M6.6 31.0 C6.1 30.7 5.7 30.7 5.5 31.0 C5.3 31.3 5.5 31.7 5.9 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                <path d="M7.0 32.3 L7.0 33.0 M7.7 32.5 L7.7 33.2 M8.4 32.2 L8.4 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+              </g>
             </g>
-            <g class="hand" style="transform-origin: 18.4px 30.4px">
-              <path d="M19.0 30.3 C19.8 30.6 20.1 31.3 19.9 32.0 C19.7 32.7 19.0 33.0 18.3 32.9 C17.6 32.8 17.2 32.3 17.2 31.6 C17.2 30.9 17.6 30.4 18.3 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-              <path d="M19.4 31.0 C19.9 30.7 20.3 30.7 20.5 31.0 C20.7 31.3 20.5 31.7 20.1 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
-              <path d="M19.0 32.3 L19.0 33.0 M18.3 32.5 L18.3 33.2 M17.6 32.2 L17.6 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+            <g class="arm" style="transform-origin: 16.6px 15.2px">
+              <path d="M17.0 14.2 C18.8 15.6 20.1 18.4 20.3 21.8 L20.4 30.2 C19.2 31.1 17.4 31.0 16.3 29.9 C16.1 26.0 15.7 19.6 15.2 16.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
+              <path d="M20.3 28.2 C19.1 29.0 17.5 28.8 16.4 27.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.46" stroke-linecap="round"/>
+              <g class="hand">
+                <path d="M19.0 30.3 C19.8 30.6 20.1 31.3 19.9 32.0 C19.7 32.7 19.0 33.0 18.3 32.9 C17.6 32.8 17.2 32.3 17.2 31.6 C17.2 30.9 17.6 30.4 18.3 30.3 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                <path d="M19.4 31.0 C19.9 30.7 20.3 30.7 20.5 31.0 C20.7 31.3 20.5 31.7 20.1 31.8" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.1"/>
+                <path d="M19.0 32.3 L19.0 33.0 M18.3 32.5 L18.3 33.2 M17.6 32.2 L17.6 32.9" fill="none" stroke="#E8C4A8" stroke-width="0.09" stroke-linecap="round"/>
+              </g>
             </g>
 
             <!-- 白色交领内衬（领口白色一路露到腰带） -->
@@ -93,18 +96,18 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               <path d="M13.4 23.0 C13.9 27.4 14.0 31.8 13.7 35.8 C13.2 35.9 12.9 35.6 12.9 35.2 C13.2 31.6 13.1 27.2 12.8 23.0 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
             </g>
 
-            <!-- 肩前发：搭在肩头、垂到腰际 -->
-            <path class="hair-front" style="transform-origin: 9.6px 13.2px" d="M9.7 13.0 C9.0 16.8 8.8 21.0 9.2 25.0 C10.1 25.4 10.9 24.9 11.2 23.8 C10.9 19.8 11.1 16.2 11.6 13.2 Z" fill="url(#lingHair)"/>
-            <path class="hair-front" style="transform-origin: 16.4px 13.2px" d="M16.3 13.0 C17.0 16.8 17.2 21.0 16.8 25.0 C15.9 25.4 15.1 24.9 14.8 23.8 C15.1 19.8 14.9 16.2 14.4 13.2 Z" fill="url(#lingHair)"/>
+            <!-- 肩前发：两条**细**发，直直垂到腰际（参考图就是这两条，不是一整片） -->
+            <path class="hair-front" style="transform-origin: 10.1px 13.0px" d="M10.4 12.8 C10.0 16.6 9.9 20.6 10.1 24.8 C10.6 25.0 11.0 24.7 11.1 24.2 C10.9 20.4 11.0 16.4 11.3 13.0 Z" fill="url(#lingHair)"/>
+            <path class="hair-front" style="transform-origin: 15.9px 13.0px" d="M15.6 12.8 C16.0 16.6 16.1 20.6 15.9 24.8 C15.4 25.0 15.0 24.7 14.9 24.2 C15.1 20.4 15.0 16.4 14.7 13.0 Z" fill="url(#lingHair)"/>
 
             <!-- 脖子 -->
             <rect x="12.4" y="12.4" width="1.2" height="2.2" rx="0.35" fill="#EFCDB4"/>
 
             <!-- 脸 -->
             <ellipse cx="13" cy="8.6" rx="4.4" ry="5.0" fill="#F7E0CE"/>
-            <!-- 鬓发 -->
-            <path d="M8.4 6.2 C7.6 9.4 7.7 12.8 8.7 15.2 C9.7 15.3 10.5 14.5 10.6 13.5 C9.8 10.9 9.7 8.7 10.2 6.4 Z" fill="url(#lingHair)"/>
-            <path d="M17.6 6.2 C18.4 9.4 18.3 12.8 17.3 15.2 C16.3 15.3 15.5 14.5 15.4 13.5 C16.2 10.9 16.3 8.7 15.8 6.4 Z" fill="url(#lingHair)"/>
+            <!-- 鬓发（细，只到下颌） -->
+            <path d="M8.6 6.2 C8.0 9.0 8.1 12.0 8.9 14.2 C9.7 14.3 10.3 13.6 10.4 12.8 C9.7 10.6 9.6 8.6 10.1 6.4 Z" fill="url(#lingHair)"/>
+            <path d="M17.4 6.2 C18.0 9.0 17.9 12.0 17.1 14.2 C16.3 14.3 15.7 13.6 15.6 12.8 C16.3 10.6 16.4 8.6 15.9 6.4 Z" fill="url(#lingHair)"/>
             <!-- 顶发 + 平顺齐刘海 -->
             <path d="M13 1.9 C9.4 1.9 7.3 4.6 7.3 8.2 C8.7 6.6 10.7 6.0 13 6.0 C15.3 6.0 17.3 6.6 18.7 8.2 C18.7 4.6 16.6 1.9 13 1.9 Z" fill="url(#lingHair)"/>
             <path d="M13 2.3 L13 5.9" fill="none" stroke="#5A5266" stroke-width="0.14" stroke-linecap="round" opacity=".7"/>
@@ -153,11 +156,11 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <ellipse class="blush" cx="16.2" cy="11.0" rx="0.76" ry="0.4" style="fill:var(--pw-blush,#F0A0A0)" opacity=".36"/>
             <path d="M12.72 11.45 Q13 11.78 13.28 11.45" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.17" stroke-linecap="round" opacity=".75"/>
 
-            <!-- 思考：抬手掐指（默认隐藏，think 时显示） -->
+            <!-- 思考：双掌掐诀于胸前（手随手臂抬起，这里只画指间的灵光） -->
             <g class="hand-seal" style="display:none">
-              <path d="M13.5 12.3 C14.5 12.4 15.2 13.2 15.2 14.2 C14.3 14.5 13.4 14.1 13.0 13.2 Z" fill="#F7E0CE" stroke="#E3BFA4" stroke-width="0.12"/>
-              <path d="M14.2 11.9 L14.5 12.6 M14.9 12.1 L14.6 12.7" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.14" stroke-linecap="round" opacity=".5"/>
-              <circle cx="15.7" cy="11.4" r="0.28" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <circle cx="13" cy="21.2" r="0.5" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <circle cx="13" cy="21.2" r="1.25" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.16" opacity=".7"/>
+              <path d="M11.9 21.9 L11.5 22.4 M14.1 21.9 L14.5 22.4" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.14" stroke-linecap="round" opacity=".8"/>
             </g>
 
             <!-- 施法失败的青筋 -->

@@ -1157,7 +1157,10 @@
 }
 
 /* ===== 待机：呼吸 + 裙摆与披帛飘 + 长发微动 + 手轻摆 ===== */
-[data-dsh-whale] .pet-official .body { animation: linger-breathe 3.4s ease-in-out infinite; }
+/* 重要：SVG 子元素默认 transform-box:view-box，即以**整个画布中心**为旋转轴心。
+   所以凡是对 .body 做的旋转/缩放，都必须把轴心显式放到脚下，否则人会绕着画面中心转
+   （御剑前倾时脚会离开剑，看着就是"歪了"）。 */
+[data-dsh-whale] .pet-official .body { transform-origin: 13px 46.5px; animation: linger-breathe 3.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .skirt { animation: linger-skirtSway 3.8s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .sash { animation: linger-sashFloat 3.0s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .sash + .sash { animation-delay: -1.1s; }

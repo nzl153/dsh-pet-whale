@@ -119,6 +119,8 @@ export const LINGER_PET_CSS = `
 }
 [data-dsh-whale] .pet-official.swimming .skirt { animation: linger-skirtTrail 1.1s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.swimming .sash { animation: linger-sashTrail 0.9s ease-in-out infinite; }
+/* 长发向后飘（头为轴心） */
+[data-dsh-whale] .pet-official.swimming .hair { animation: linger-hairTrail 1.1s ease-in-out infinite; transform-origin: 13px 7px; }
 [data-dsh-whale] .pet-official.swim-dive .bubble-blue,
 [data-dsh-whale] .pet-official.swimming-dive .bubble-blue { display: block; animation: linger-riseBlue 1.2s ease-out infinite; }
 
@@ -414,14 +416,14 @@ export const LINGER_PET_CSS = `
   0%,100% { transform: rotate(10deg); }
   50%     { transform: rotate(17deg); }
 }
-/* 御剑：手臂向后掠（衣袖迎风） */
+/* 御剑：左手向后掠、右手前伸掐诀（导向），不对称才像在飞 */
 @keyframes linger-forearmTrailL {
-  0%,100% { transform: rotate(-18deg); }
-  50%     { transform: rotate(-30deg); }
+  0%,100% { transform: rotate(-36deg); }
+  50%     { transform: rotate(-46deg); }
 }
 @keyframes linger-forearmTrailR {
-  0%,100% { transform: rotate(18deg); }
-  50%     { transform: rotate(30deg); }
+  0%,100% { transform: rotate(50deg); }
+  50%     { transform: rotate(60deg); }
 }
 @keyframes linger-blink {
   0%, 92%, 100% { transform: scaleY(1); }
@@ -437,10 +439,15 @@ export const LINGER_PET_CSS = `
   30%     { transform: translateY(-1.2px) rotate(-0.8deg); }
   70%     { transform: translateY(0.4px) rotate(0.8deg); }
 }
-/* 御剑飞行：身体保持前倾（像踩在剑上），只带轻微起伏 */
+/* 御剑飞行：大幅前倾、身体带起伏（不再是"直挺挺站在剑上"） */
 @keyframes linger-fly {
-  0%,100% { transform: translateY(0) rotate(-6deg); }
-  50%     { transform: translateY(-1.8px) rotate(-3.4deg); }
+  0%,100% { transform: translateY(0) rotate(-15deg); }
+  50%     { transform: translateY(-2.2px) rotate(-12deg); }
+}
+/* 长发与裙摆被风向后带 */
+@keyframes linger-hairTrail {
+  0%,100% { transform: rotate(5deg); }
+  50%     { transform: rotate(11deg); }
 }
 @keyframes linger-flyDive {
   0%   { transform: translateY(0) rotate(0deg); }
@@ -448,13 +455,14 @@ export const LINGER_PET_CSS = `
   70%  { transform: translateY(1px) rotate(-4deg) scale(1, 1); }
   100% { transform: translateY(0) rotate(0deg); }
 }
+/* 剑：剑头微微抬起（正角度=尖端上扬） */
 @keyframes linger-bladeFloat {
-  0%,100% { transform: translateY(0) rotate(-3deg); }
-  50%     { transform: translateY(-1.8px) rotate(3deg); }
+  0%,100% { transform: translateY(0) rotate(7deg); }
+  50%     { transform: translateY(-1.6px) rotate(4.5deg); }
 }
 @keyframes linger-skirtTrail {
-  0%,100% { transform: rotate(-3deg) scaleX(1.05); }
-  50%     { transform: rotate(2deg) scaleX(1.08); }
+  0%,100% { transform: rotate(-8deg) scaleX(1.07); }
+  50%     { transform: rotate(-14deg) scaleX(1.11); }
 }
 @keyframes linger-sashTrail {
   0%,100% { transform: rotate(-8deg) translateX(-0.6px); }

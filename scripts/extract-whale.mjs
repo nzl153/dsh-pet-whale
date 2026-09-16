@@ -1,7 +1,8 @@
 // 从 preview.html 抽取 V2（官方轮廓版）鲸鱼 DOM，生成 src/client/whale.ts。
-// 用法：node scripts/extract-whale.mjs
+// 用法：node scripts/extract-whale.mjs [--check]
+//   --check 只比较不写（供 pnpm doctor 用）
 // 修改预览模板后重跑一次即可同步插件。
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -44,11 +45,20 @@ if (inner.includes('`') || inner.includes('${')) {
   throw new Error('抽取内容含模板字符串冲突字符，需要转义')
 }
 
-writeFileSync(
-  join(root, 'src', 'client', 'whale.ts'),
+const outPath = join(root, 'src', 'client', 'whale.ts')
+const next =
   `// 由 scripts/extract-whale.mjs 从 preview.html 自动生成，勿手改。\n` +
-    `// 改预览模板后重跑：node scripts/extract-whale.mjs\n` +
-    `export const WHALE_HTML = \`${inner}\`\n`,
-  'utf8',
-)
+  `// 改预览模板后重跑：node scripts/extract-whale.mjs\n` +
+  `export const WHALE_HTML = \`${inner}\`\n`
+
+// --check：只比较不写，供 pnpm pet:doctor 用来发现"preview.html 与 whale.ts 漂移"
+// 两侧都归一化行尾再比：preview.html 是 CRLF，而 git 里存的是 LF（core.autocrlf=true）
+if (process.argv.includes('--check')) {
+  const cur = existsSync(outPath) ? readFileSync(outPath, 'utf8') : ''
+  const same = cur.replace(/\r\n/g, '\n') === next.replace(/\r\n/g, '\n')
+  console.log(same ? 'OK  whale.ts 与 preview.html 的 V2 一致' : 'DIFF  whale.ts 与 preview.html 的 V2 不一致（跑 node scripts/extract-whale.mjs 重新生成）')
+  process.exit(same ? 0 : 1)
+}
+
+writeFileSync(outPath, next, 'utf8')
 console.log(`whale.ts 生成完成：${inner.length} 字符`)

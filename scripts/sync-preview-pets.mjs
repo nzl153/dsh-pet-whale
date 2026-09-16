@@ -90,7 +90,9 @@ const pets = PET_DIRS.map((id) => {
 let html = readFileSync(PREVIEW, 'utf8')
 // 仓库是 core.autocrlf=true，工作区里的 preview.html 是 CRLF；锚点与插入内容都要跟着走
 const EOL = html.includes('\r\n') ? '\r\n' : '\n'
-const eol = (s) => s.split('\n').join(EOL)
+// 先把所有行尾归一成 \n 再按目标行尾拼接：源文件可能是 CRLF（git autocrlf 检出），
+// 直接 split('\n').join('\r\n') 会产出 \r\r\n
+const eol = (s) => s.split(/\r?\n/).join(EOL)
 
 /**
  * 有标记就**原地**替换标记之间的内容（位置稳定，反复运行字节级一致）；
@@ -145,6 +147,14 @@ const modeBtnBlock = pets
   .map((p) => `    <button data-m="${p.id}">${p.icon} ${p.nameZh}</button>`)
   .join('\n')
 html = upsert(html, 'pet-mode-buttons', modeBtnBlock, '<button data-m="v2" class="active">官方轮廓版</button>')
+
+// --check：只比较不写，供 pnpm doctor 用来发现"preview.html 的注入区过期"
+if (process.argv.includes('--check')) {
+  const cur = readFileSync(PREVIEW, 'utf8')
+  const same = cur.replace(/\r\n/g, '\n') === html.replace(/\r\n/g, '\n')
+  console.log(same ? 'OK  preview.html 的宠物注入区是最新的' : 'DIFF  preview.html 的宠物注入区过期（跑 pnpm sync:preview 重新生成）')
+  process.exit(same ? 0 : 1)
+}
 
 writeFileSync(PREVIEW, html, 'utf8')
 console.log(`已同步 ${pets.length} 只宠物到 preview.html：${pets.map((p) => p.id).join(', ')}`)

@@ -101,6 +101,9 @@ pnpm verify:hmr    # verify local repo <-> running DSH HMR wiring
 - `scripts/preview-pets.mjs` — generated check sheet (`pnpm preview`): every pet × every state in one grid.
 - `scripts/extract-whale.mjs` — sync the V2 SVG from `preview.html` into `src/client/whale.ts`
   (run `git diff src/client/whale.ts` afterwards to confirm nothing else moved).
+- `scripts/doctor.mjs` — fork health check (`pnpm pet:doctor`): base CSS free of pet rules, pets registered,
+  preview page and `whale.ts` in sync, build artifact fresh. Run it after merging upstream.
+- Merging upstream updates into this fork: see [docs/UPSTREAM-SYNC.md](docs/UPSTREAM-SYNC.md).
 - `scripts/verify-live.mjs` — one-click live verification after restart.
 - State source (dsh 0.1.5): session lifecycle comes from the `ctx.sessions` snapshot
   (`running` / `lastAgentError` / `openError`); `partial` / `runningCalls` / `turnEnds` come from the

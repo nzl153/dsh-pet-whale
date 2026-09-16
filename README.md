@@ -103,7 +103,11 @@ pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 ```sh
 pnpm preview      # 生成 pet-preview.html：所有宠物 × 多状态铺成一张网格，浏览器直接打开
 pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在也能切宠物：?pet=cat）
+pnpm pet:doctor   # 体检：样式切分、宠物注册、预览页同步、构建产物新鲜度（只读）
 ```
+
+改造过之后，**上游更新了怎么合进来**（merge 流程、冲突对照表、回滚）见
+**[docs/UPSTREAM-SYNC.md](docs/UPSTREAM-SYNC.md)**。
 
 ## 开发
 
@@ -113,6 +117,7 @@ pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在�
 - `preview.html` — 手写交互预览台（切宠物/状态、投喂、翻滚、追光、巡游）；V1/V2 是鲸鱼的设计稿，也是 `extract-whale.mjs` 的抽取源，其余宠物由 `pnpm sync:preview` 注入
 - `scripts/preview-pets.mjs` — 自动生成的检查台（`pnpm preview`）：所有宠物 × 全部状态铺成网格
 - `scripts/extract-whale.mjs` — 从 `preview.html` 同步 V2 SVG（含 CSS 变量替换），改完模板重跑 `pnpm extract`（跑完用 `git diff src/client/whale.ts` 确认没有意外变化）
+- `scripts/doctor.mjs` — 改造体检（`pnpm pet:doctor`）：BASE_CSS 是否混进宠物规则、宠物是否注册、预览页与 `whale.ts` 是否同步、产物是否过期；合并上游后跑它
 - `scripts/verify-live.mjs` — 重启后的一键线上验证（boot 清单 / bundle 下载 / 注册格式）
 - 状态来源（dsh 0.1.5）：会话生命周期取自 `ctx.sessions` 的会话快照（`running` / `lastAgentError` / `openError`）；
   `partial` / `runningCalls` / `turnEnds` 取自 `ctx.uiConversation` 的 chat 投影（`ChatSnapshot.legacy`）。

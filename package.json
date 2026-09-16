@@ -65,6 +65,7 @@
     "test": "node tests/smoke.mjs",
     "verify:hmr": "node scripts/verify-hmr.mjs",
     "extract": "node scripts/extract-whale.mjs",
+    "pet:doctor": "node scripts/doctor.mjs",
     "sync:preview": "node scripts/sync-preview-pets.mjs",
     "preview": "node scripts/preview-pets.mjs"
   },

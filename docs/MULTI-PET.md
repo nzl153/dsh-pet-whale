@@ -254,3 +254,9 @@ git checkout main                 # 或 git checkout 1.1.0 对应的 tag
 pnpm build
 dsh plugin --profile web add pet-whale@1.1.0   # 换回 registry 版本
 ```
+
+## 上游更新了怎么办
+
+本仓库是本地改造版。上游有新提交时的合并流程、冲突对照表、体检命令（`pnpm pet:doctor`）
+和回滚步骤写在 **[UPSTREAM-SYNC.md](UPSTREAM-SYNC.md)**。记住一条就够：合完先跑 `pnpm pet:doctor`，
+它会告诉你样式切分有没有被破坏、预览页和 `whale.ts` 是否需要重新生成。

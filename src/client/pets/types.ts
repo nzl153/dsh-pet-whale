@@ -9,6 +9,8 @@
 //    再加宠物前缀，但 @keyframes 必须用自己的前缀（鲸鱼是 pw-，它已在 BASE_CSS 里）。
 // 3) 上色只走 CSS 变量 --pw-body / --pw-body-light / --pw-body-dark / --pw-blush /
 //    --pw-eye / --pw-pupil，这样 palettes.ts 的色板对所有宠物自动生效。
+import type { PetTextOverrides } from '../i18n'
+
 export interface PetModule {
   /** 稳定 id：i18n 文案键、localStorage（pet-whale:pet）、菜单去重都用它 */
   id: string
@@ -20,6 +22,12 @@ export interface PetModule {
   html: string
   /** 宠物独占样式：部件外观 + 各状态动画 + 自己的 keyframes */
   css: string
+  /**
+   * 可选：这只宠物专属的文案覆盖。
+   * i18n.ts 的基准文案是鲸鱼口吻（"正在深潜检索知识库""游一游"）——换了宠物就该换说法，
+   * 猫不会深潜。只写要改的条目，台词池（string[]）必须整组替换。见 pets/cat/text.ts。
+   */
+  text?: { zh?: PetTextOverrides; en?: PetTextOverrides }
   /**
    * 可选：容器尺寸（未缩放的 CSS px），默认 137×101（鲸鱼的盒子）。
    * viewBox 长宽比与默认盒差异较大时用它校正，避免留白影响贴边/水花位置。

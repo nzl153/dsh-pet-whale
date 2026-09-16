@@ -714,6 +714,374 @@
     .pw-water-ripple, .pw-stream-bubble, .pw-splash-drop, .pw-drag-drip, .pw-confetti { display: none !important; }
   }
 </style>
+<!-- pet-css:begin -->
+<style id="pet-cat-css">
+/* 由 scripts/sync-preview-pets.mjs 生成，勿手改（改 src/client/pets/cat/styles.ts） */
+
+/* ===== 泡泡（庆祝 + 点击）：HTML span，绝对定位在 .pet-official 上 ===== */
+[data-dsh-whale] .bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: rgba(232,217,188,.9);
+  border: 1px solid rgba(46,42,36,.15);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-dsh-whale] .bubble::after {
+  content: "";
+  position: absolute;
+  left: 1.4px;
+  top: 1.4px;
+  width: 2.2px;
+  height: 2.2px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+}
+[data-dsh-whale] .bubble.show { animation: cat-rise 0.9s ease-out forwards; }
+
+/* 深潜蓝泡 */
+[data-dsh-whale] .bubble-blue {
+  position: absolute;
+  left: 50%;
+  bottom: 4.5px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3.2px;
+  border-radius: 50%;
+  background: rgba(168,200,232,.78);
+  border: 1px solid rgba(96,138,190,.4);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-dsh-whale] .bubble-blue::after {
+  content: "";
+  position: absolute;
+  left: 1.4px;
+  top: 1.4px;
+  width: 1.8px;
+  height: 1.8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.85);
+}
+
+/* ===== 待机 ===== */
+[data-dsh-whale] .pet-official .body { animation: cat-breathe 3.6s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .tail { animation: cat-tailSway 3.2s ease-in-out infinite; }
+[data-dsh-whale] .pet-official .eye-group { animation: cat-blink 4.6s ease-in-out infinite; transform-origin: 13px 5.95px; }
+
+/* ===== 思考：蹲低 + 盯屏幕，蓝泡上浮 ===== */
+[data-dsh-whale] .pet-official.think { animation: cat-crouch 3.4s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.think .bubble-blue { animation: cat-riseBlue 3.2s ease-out infinite; }
+[data-dsh-whale] .pet-official.think .bubble-blue.bb2 { animation-delay: 0.9s; }
+[data-dsh-whale] .pet-official.think .bubble-blue.bb3 { animation-delay: 1.8s; }
+[data-dsh-whale] .pet-official.think .pupil-highlight { animation: cat-pupilGaze 2s ease-in-out infinite alternate; }
+
+/* 游动（自主巡游） */
+[data-dsh-whale] .pet-official.swim-dive,
+[data-dsh-whale] .pet-official.swimming-dive { animation: cat-crouch 1.6s ease-in-out; filter: drop-shadow(0 6px 14px rgba(53, 80, 201, 0.28)); }
+[data-dsh-whale] .pet-official.swim-dive .bubble-blue,
+[data-dsh-whale] .pet-official.swimming-dive .bubble-blue { display: block; animation: cat-riseBlue 1.2s ease-out infinite; }
+[data-dsh-whale] .pet-official.swimming .body { animation: cat-swimBody 0.85s ease-in-out infinite alternate; }
+
+/* ===== 工作：敲键盘 + 代码粒子 ===== */
+[data-dsh-whale] .pet-official.working { animation: cat-workWiggle 0.9s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.working .body { animation: none; }
+[data-dsh-whale] .pet-official.working .keyboard-unit { display: block !important; }
+[data-dsh-whale] .pet-official.working .code-particle { display: block !important; }
+
+/* ===== 报错：炸毛 + 叉叉眼 ===== */
+[data-dsh-whale] .pet-official.error { animation: cat-shake 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .angry { display: block; animation: cat-angryJitter 0.5s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.error .eye-group .eye,
+[data-dsh-whale] .pet-official.error .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.error .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 5.95px;
+  animation: cat-dizzyShake 0.4s ease-in-out infinite alternate;
+}
+
+/* ===== 休眠：月牙眼 ===== */
+[data-dsh-whale].sleeping .eye-group .eye,
+[data-dsh-whale].sleeping .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale].sleeping .eye-group .sleep-eyes { display: inline !important; }
+
+/* ===== 开心 ===== */
+[data-dsh-whale] .pet-official.joy { animation: cat-joyHop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.joy .eye-group .eye,
+[data-dsh-whale] .pet-official.joy .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.joy .eye-group .sleep-eyes { display: inline !important; }
+
+/* ===== 戳晕 ===== */
+[data-dsh-whale] .pet-official.dizzy { animation: cat-dizzyWobble 0.8s ease-in-out !important; }
+[data-dsh-whale] .pet-official.dizzy .eye-group .eye,
+[data-dsh-whale] .pet-official.dizzy .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.dizzy .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 5.95px;
+  animation: cat-dizzyShake 0.35s ease-in-out infinite alternate;
+}
+
+/* ===== 甩晕 ===== */
+[data-dsh-whale] .pet-official.shaken .eye-group .eye,
+[data-dsh-whale] .pet-official.shaken .eye-group .pupil-highlight { opacity: 0 !important; }
+/* 正晕着比被抓住更该被看见，所以压过拖拽的勾勾眼 */
+[data-dsh-whale].dragging .pet-official.shaken .eye-group .caught-eyes { display: none !important; }
+[data-dsh-whale] .pet-official.shaken .eye-group .dizzy-eyes {
+  display: inline !important;
+  transform-origin: 13px 5.95px;
+  animation: cat-dizzyShake 0.22s ease-in-out infinite alternate;
+}
+/* 松手后才摇身体：拖拽态给 .pet-official 上了 !important 的 transform，动画压不过 */
+[data-dsh-whale]:not(.dragging) .pet-official.shaken { animation: cat-dizzyWobble 0.7s ease-in-out 2 !important; }
+
+/* ===== 翻肚皮（双击的专属反应） ===== */
+[data-dsh-whale] .pet-official.belly-up { animation: cat-bellyUp 2s cubic-bezier(0.34, 1.4, 0.64, 1) !important; }
+[data-dsh-whale] .pet-official.belly-up .eye-group .eye,
+[data-dsh-whale] .pet-official.belly-up .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.belly-up .eye-group .sleep-eyes { display: inline !important; }
+
+/* ===== 贴边挤扁 ===== */
+[data-dsh-whale].edge-left .pet-official .body,
+[data-dsh-whale].edge-right .pet-official .body,
+[data-dsh-whale].dragging.edge-left .pet-official .body,
+[data-dsh-whale].dragging.edge-right .pet-official .body {
+  transform-origin: 50% 50%;
+  animation: cat-squeeze 0.35s ease-out forwards !important;
+}
+
+/* 拖着不动又不耐烦 */
+[data-dsh-whale].dragging .pet-official.impatient .body { animation: cat-impatientSway 0.9s ease-in-out infinite !important; }
+
+/* 连戳中段：侧身躲 */
+[data-dsh-whale] .pet-official.annoyed { animation: cat-annoyedDodge 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) !important; }
+
+/* 连戳过头：扭头吊眉 */
+[data-dsh-whale] .pet-official.sulking { animation: cat-sulkTurn 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) forwards !important; }
+[data-dsh-whale] .pet-official.sulking .eye-group .angry-eyes { display: inline !important; }
+
+/* ===== 欢迎态 / 庆祝 ===== */
+[data-dsh-whale] .pet-official.welcome { animation: cat-leap 1.2s ease-in-out !important; }
+[data-dsh-whale] .pet-official.welcome .stars { display: block !important; }
+[data-dsh-whale] .pet-official.welcome .spout-group {
+  display: inline !important;
+  transform-origin: 13px 1.6px;
+  animation: cat-puff 1.1s cubic-bezier(0.2, 0.8, 0.35, 1);
+}
+[data-dsh-whale] .pet-official.celebrate { animation: cat-leap 1.4s ease-in-out infinite; }
+/* 星星在 SVG 里是内联 display:none，这里必须 !important 才压得住（鲸鱼那张表漏了它） */
+[data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
+[data-dsh-whale] .pet-official.celebrate .starL { animation: cat-starSpin 1.2s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.celebrate .starR { animation: cat-starSpin 1.2s ease-in-out 0.3s infinite; }
+[data-dsh-whale] .pet-official.celebrate .bubble { animation: cat-rise 1.2s ease-out 0.3s infinite; }
+[data-dsh-whale] .pet-official.celebrate .bubble.b2 { animation-delay: 0.7s; }
+[data-dsh-whale] .pet-official.celebrate .bubble.b3 { animation-delay: 1.05s; }
+[data-dsh-whale] .pet-official.celebrate .spout-group,
+[data-dsh-whale] .pet-official.spouting .spout-group {
+  display: inline !important;
+  transform-origin: 13px 1.6px;
+  animation: cat-puff 1.3s cubic-bezier(0.2, 0.8, 0.35, 1) infinite;
+}
+
+/* ===== 等待输入 / 失落 ===== */
+[data-dsh-whale] .pet-official.wait { animation: cat-wait 1.2s ease-in-out infinite; }
+[data-dsh-whale] .pet-official.wait .bubble-blue { display: block; animation: cat-riseBlue 1.2s ease-out infinite; }
+[data-dsh-whale] .pet-official.disappointed { animation: cat-disappointed 2.6s ease-in-out infinite; }
+
+/* 双击翻滚特技 */
+[data-dsh-whale] .pet-official.rolling { animation: cat-rollTrick 0.65s cubic-bezier(0.34, 1.4, 0.64, 1) !important; }
+
+/* 点击挤压回弹：作用在 SVG 上，不干扰位置 */
+[data-dsh-whale] .pet-official.squish svg { animation: cat-squish 0.42s cubic-bezier(0.25, 1.4, 0.5, 1); }
+
+/* ===== 拖拽中：暂停状态动画 + 斜拉变形 ===== */
+[data-dsh-whale].dragging .pet-official {
+  animation: none !important;
+  transform: scaleX(1) rotate(-5deg) scale(1.04, 0.96) !important;
+}
+[data-dsh-whale].dragging[data-facing="right"] .pet-official {
+  transform: scaleX(-1) rotate(5deg) scale(1.04, 0.96) !important;
+}
+[data-dsh-whale].dragging .pet-official .body { animation: none !important; }
+
+/* 被抓/拖拽：勾勾眼（>_<） */
+[data-dsh-whale].dragging .eye-group .eye,
+[data-dsh-whale].dragging .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale].dragging .eye-group .caught-eyes { display: inline !important; }
+[data-dsh-whale].dragging .eye-group .caught-eyes path { stroke: var(--pw-eye, #2E2A24) !important; stroke-width: 0.34 !important; }
+
+/* 打瞌睡：耳朵趴下、身体起伏 */
+[data-dsh-whale].sleeping .pet-official .body { animation: cat-sleepBob 4s ease-in-out infinite !important; }
+[data-dsh-whale].sleeping .pet-official .tail { animation: none !important; }
+[data-dsh-whale].sleeping .pet-official .eye-group { transform: scaleY(0.08) !important; }
+[data-dsh-whale].sleeping .pet-official .pupil-highlight { opacity: 0 !important; }
+
+/* 悬停：腮红加深 */
+[data-dsh-whale] .pet-official:hover .cat-blush { opacity: .72; }
+
+/* 键盘与代码粒子 */
+[data-dsh-whale] .tap-k1 { animation: cat-keyTap1 0.16s ease-in-out infinite alternate; }
+[data-dsh-whale] .tap-k2 { animation: cat-keyTap2 0.18s ease-in-out 0.08s infinite alternate; }
+[data-dsh-whale] .code-fx1 { animation: cat-codeFloat1 1.2s ease-out infinite; }
+[data-dsh-whale] .code-fx2 { animation: cat-codeFloat2 1.2s ease-out 0.6s infinite; }
+
+/* ===== keyframes（cat- 前缀） ===== */
+@keyframes cat-breathe {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  50%     { transform: translateY(-1.4px) scale(1.012, .988); }
+}
+@keyframes cat-tailSway {
+  0%,100% { transform: rotate(0deg); }
+  50%     { transform: rotate(11deg); }
+}
+@keyframes cat-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%, 97%      { transform: scaleY(0.12); }
+}
+@keyframes cat-crouch {
+  0%,100% { transform: translateY(0) rotate(0deg) scale(1, 1); opacity: 1; }
+  35%     { transform: translateY(2.2px) rotate(-2deg) scale(1.02, .97); opacity: .92; }
+  65%     { transform: translateY(1.2px) rotate(1.4deg) scale(.99, 1.02); opacity: .96; }
+}
+@keyframes cat-workWiggle {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  25%     { transform: translateX(-1.2px) rotate(-1.2deg); }
+  75%     { transform: translateX(1.2px) rotate(1.2deg); }
+}
+@keyframes cat-swimBody {
+  0%   { transform: translateY(0) rotate(-2deg); }
+  100% { transform: translateY(-2px) rotate(2deg); }
+}
+@keyframes cat-pupilGaze {
+  0%   { transform: translate(-0.25px, -0.25px); }
+  100% { transform: translate(0.35px, -0.45px); }
+}
+@keyframes cat-shake {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  25%     { transform: translateX(-1.1px) rotate(-1.6deg); }
+  75%     { transform: translateX(1.1px) rotate(1.6deg); }
+}
+@keyframes cat-angryJitter {
+  0%,100% { transform: translate(0, 0); }
+  50%     { transform: translate(0.5px, -0.4px); }
+}
+@keyframes cat-dizzyShake {
+  0%   { transform: rotate(-6deg) scale(1); }
+  100% { transform: rotate(6deg) scale(1.06); }
+}
+@keyframes cat-dizzyWobble {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-7deg); }
+  45%  { transform: rotate(6deg); }
+  70%  { transform: rotate(-4deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes cat-joyHop {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  25%     { transform: translateY(-7px) scale(.98, 1.05); }
+  55%     { transform: translateY(1px) scale(1.05, .95); }
+  75%     { transform: translateY(-2.5px) scale(.995, 1.01); }
+}
+@keyframes cat-bellyUp {
+  0%   { transform: rotate(0deg) translateY(0); }
+  30%  { transform: rotate(-90deg) translateY(-5px); }
+  55%  { transform: rotate(-160deg) translateY(3px); }
+  75%  { transform: rotate(-160deg) translateY(3px); }
+  100% { transform: rotate(-360deg) translateY(0); }
+}
+@keyframes cat-squeeze {
+  0%   { transform: scaleX(1) scaleY(1); }
+  40%  { transform: scaleX(.62) scaleY(1.08); }
+  100% { transform: scaleX(.68) scaleY(1.06); }
+}
+@keyframes cat-impatientSway {
+  0%,100% { transform: rotate(-2.5deg); }
+  50%     { transform: rotate(2.5deg); }
+}
+@keyframes cat-annoyedDodge {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  35%     { transform: translateX(4px) rotate(4deg); }
+  70%     { transform: translateX(-1.5px) rotate(-2deg); }
+}
+@keyframes cat-sulkTurn {
+  0%   { transform: translateX(0) rotate(0deg); }
+  100% { transform: translateX(1.5px) rotate(7deg); }
+}
+@keyframes cat-leap {
+  0%,100% { transform: translateY(0) rotate(0deg) scale(1, 1); }
+  14%     { transform: translateY(-16px) rotate(-5deg) scale(.97, 1.05); }
+  36%     { transform: translateY(1px) rotate(3deg) scale(1.07, .9); }
+  58%     { transform: translateY(-7px) rotate(-2deg) scale(.99, 1.02); }
+  78%     { transform: translateY(0) rotate(1deg) scale(1.02, .98); }
+}
+@keyframes cat-puff {
+  0%   { transform: translateY(3px) scale(.55); opacity: 0; }
+  30%  { transform: translateY(0) scale(1); opacity: .95; }
+  100% { transform: translateY(-7px) scale(1.15); opacity: 0; }
+}
+@keyframes cat-starSpin {
+  0%,100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50%     { transform: scale(1.3) rotate(20deg); opacity: .6; }
+}
+@keyframes cat-rise {
+  0%   { transform: translateY(0) scale(.55); opacity: 0; }
+  25%  { opacity: .95; }
+  100% { transform: translateY(-34px) scale(1); opacity: 0; }
+}
+@keyframes cat-riseBlue {
+  0%   { transform: translateY(0) scale(.55); opacity: 0; }
+  25%  { opacity: .9; }
+  100% { transform: translateY(-30px) scale(1); opacity: 0; }
+}
+@keyframes cat-wait {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%     { transform: translateY(-1.5px) rotate(-1.5deg); }
+}
+@keyframes cat-disappointed {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  35%     { transform: translateY(1.8px) scale(1.03, .96); }
+  70%     { transform: translateY(1.2px) scale(1.02, .975); }
+}
+@keyframes cat-rollTrick {
+  0%   { transform: translateY(0) rotate(0deg) scale(1, 1); }
+  30%  { transform: translateY(-12px) rotate(-120deg) scale(1.06, .94); }
+  70%  { transform: translateY(-7px) rotate(-260deg) scale(.96, 1.04); }
+  100% { transform: translateY(0) rotate(-360deg) scale(1, 1); }
+}
+@keyframes cat-squish {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.11, .86); }
+  70%  { transform: scale(.96, 1.05); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes cat-sleepBob {
+  0%,100% { transform: translateY(0) scale(1, 1); }
+  50%     { transform: translateY(1.6px) scale(1.02, .975); }
+}
+@keyframes cat-keyTap1 {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(0.42px); }
+}
+@keyframes cat-keyTap2 {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(0.42px); }
+}
+@keyframes cat-codeFloat1 {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  30%  { opacity: 0.95; }
+  100% { transform: translateY(-13px) translateX(-4px) scale(1); opacity: 0; }
+}
+@keyframes cat-codeFloat2 {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  30%  { opacity: 0.95; }
+  100% { transform: translateY(-14px) translateX(3px) scale(1.05); opacity: 0; }
+}
+</style>
+<!-- pet-css:end -->
 </head>
 <body>
   <div class="pw-particle-layer" id="previewParticleLayer"></div>
@@ -844,6 +1212,11 @@
               <g class="sleep-eyes" style="display:none" fill="none" stroke="#2E2A24" stroke-width="0.8" stroke-linecap="round">
                 <path d="M4.6 6.1 Q5.6 4.9 6.6 6.1"/>
               </g>
+              <!-- 闹脾气：不闭眼，靠一道吊眉表达怒气。眉朝鼻尖（左）压低。
+                   这么小的尺寸里闭眼画什么都糊成一团，睁眼 + 眉才读得出来。 -->
+              <g class="angry-eyes" style="display:none" fill="none" stroke="#2E2A24" stroke-linecap="round">
+                <path d="M4.15 4.35 L6.75 3.35" stroke-width="0.42"/>
+              </g>
               <!-- 报错晕眩叉叉眼（×_×） -->
               <g class="dizzy-eyes" style="display:none" fill="none" stroke="#2E2A24" stroke-width="0.75" stroke-linecap="round">
                 <path d="M4.7 4.8 L6.4 6.5 M6.4 4.8 L4.7 6.5"/>
@@ -920,6 +1293,142 @@
         <span class="bubble-blue bb2"></span>
         <span class="bubble-blue bb3"></span>
       </div>
+<!-- pet-nodes:begin -->
+      <div data-dsh-whale id="pet-cat" data-preview-pet="cat" style="display:none">
+        <!-- 由 scripts/sync-preview-pets.mjs 生成，勿手改（改 src/client/pets/cat/markup.ts） -->
+        <div class="pet-official idle"><svg viewBox="0 0 26 19" aria-hidden="true">
+          <defs>
+            <linearGradient id="catGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color:var(--pw-body-light,#8FB5FF)"/>
+              <stop offset="0.55" style="stop-color:var(--pw-body,#4D6BFE)"/>
+              <stop offset="1" style="stop-color:var(--pw-body-dark,#3550C9)"/>
+            </linearGradient>
+          </defs>
+
+          <g class="body">
+            <!-- 尾巴：挂在右边，绕着屁股摆 -->
+            <path class="tail" d="M17.9 16.2 C21.2 16.5 22.9 13.9 21.3 11.5" fill="none" stroke="url(#catGrad)" stroke-width="1.5" stroke-linecap="round" style="transform-origin: 17.9px 16.2px"/>
+
+            <!-- 耳朵（画在头后面） -->
+            <path d="M10.6 3.4 L9.6 0.5 L12.6 1.9 Z" fill="url(#catGrad)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.26" stroke-linejoin="round"/>
+            <path d="M15.4 3.4 L16.4 0.5 L13.4 1.9 Z" fill="url(#catGrad)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.26" stroke-linejoin="round"/>
+            <path d="M10.8 2.9 L10.2 1.3 L11.7 2.05 Z" fill="var(--pw-blush,#F0A0A0)" opacity=".8"/>
+            <path d="M15.2 2.9 L15.8 1.3 L14.3 2.05 Z" fill="var(--pw-blush,#F0A0A0)" opacity=".8"/>
+
+            <!-- 坐姿身体：肩窄臀宽 -->
+            <path d="M13 8.4 C10.4 8.4 8.6 10.2 8.0 13.0 C7.5 15.2 8.0 17.1 8.9 17.5 L17.1 17.5 C18.0 17.1 18.5 15.2 18.0 13.0 C17.4 10.2 15.6 8.4 13 8.4 Z" fill="url(#catGrad)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.28" stroke-linejoin="round"/>
+            <!-- 胸口浅色 -->
+            <ellipse cx="13" cy="14.2" rx="3.5" ry="2.9" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".45"/>
+            <!-- 前爪 -->
+            <ellipse cx="10.9" cy="17.25" rx="1.5" ry="0.68" style="fill:var(--pw-body-light,#8FB5FF)"/>
+            <ellipse cx="15.1" cy="17.25" rx="1.5" ry="0.68" style="fill:var(--pw-body-light,#8FB5FF)"/>
+
+            <!-- 头 -->
+            <circle cx="13" cy="6.3" r="4.35" fill="url(#catGrad)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.28"/>
+            <!-- 口鼻区 -->
+            <ellipse cx="13" cy="8.0" rx="2.0" ry="1.3" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".8"/>
+            <path d="M12.62 7.33 L13.38 7.33 L13.0 7.76 Z" style="fill:var(--pw-eye,#2E2A24)"/>
+            <path d="M13 7.76 C13 8.32 12.55 8.56 12.16 8.42 M13 7.76 C13 8.32 13.45 8.56 13.84 8.42" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.16" stroke-linecap="round"/>
+            <!-- 胡须 -->
+            <g style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.11" stroke-linecap="round" opacity=".45" fill="none">
+              <path d="M10.4 7.7 L7.6 7.25"/>
+              <path d="M10.4 8.15 L7.7 8.2"/>
+              <path d="M10.5 8.6 L7.9 9.05"/>
+              <path d="M15.6 7.7 L18.4 7.25"/>
+              <path d="M15.6 8.15 L18.3 8.2"/>
+              <path d="M15.5 8.6 L18.1 9.05"/>
+            </g>
+            <!-- 腮红 -->
+            <ellipse class="cat-blush" cx="10.05" cy="8.1" rx="0.85" ry="0.48" style="fill:var(--pw-blush,#F0A0A0)" opacity=".45"/>
+            <ellipse class="cat-blush" cx="15.95" cy="8.1" rx="0.85" ry="0.48" style="fill:var(--pw-blush,#F0A0A0)" opacity=".45"/>
+
+            <!-- 眼睛：正常 / 被抓 / 眯笑 / 晕眩 / 吊眉 -->
+            <g class="eye-group">
+              <ellipse class="eye" cx="11.25" cy="5.95" rx="0.92" ry="1.15" style="fill:var(--pw-eye,#2E2A24)"/>
+              <ellipse class="eye" cx="14.75" cy="5.95" rx="0.92" ry="1.15" style="fill:var(--pw-eye,#2E2A24)"/>
+              <g class="pupil-highlight">
+                <circle cx="11.5" cy="5.55" r="0.33" style="fill:var(--pw-pupil,#FBF8F0)"/>
+                <circle cx="15.0" cy="5.55" r="0.33" style="fill:var(--pw-pupil,#FBF8F0)"/>
+              </g>
+              <g class="caught-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.34" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.55 5.45 L11.6 5.98 L10.55 6.5"/>
+                <path d="M15.45 5.45 L14.4 5.98 L15.45 6.5"/>
+              </g>
+              <g class="sleep-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.3" stroke-linecap="round">
+                <path d="M10.4 6.12 Q11.25 5.35 12.1 6.12"/>
+                <path d="M13.9 6.12 Q14.75 5.35 15.6 6.12"/>
+              </g>
+              <g class="dizzy-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.26" stroke-linecap="round">
+                <path d="M10.7 5.45 L11.8 6.55 M11.8 5.45 L10.7 6.55"/>
+                <path d="M14.2 5.45 L15.3 6.55 M15.3 5.45 L14.2 6.55"/>
+              </g>
+              <g class="angry-eyes" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.3" stroke-linecap="round">
+                <path d="M10.35 4.85 L12.05 5.5"/>
+                <path d="M15.65 4.85 L13.95 5.5"/>
+              </g>
+            </g>
+
+            <!-- 闹脾气的青筋 -->
+            <g class="angry" style="display:none;stroke:var(--pw-eye,#2E2A24)" fill="none" stroke-width="0.26" stroke-linecap="round">
+              <path d="M18.95 2.5 L19.6 3.9"/>
+              <path d="M20.15 3.2 L20.8 4.6"/>
+            </g>
+
+            <!-- 星星 -->
+            <g class="stars" style="display:none">
+              <path class="starL" d="M6.4 1.6 L6.68 2.32 L7.4 2.6 L6.68 2.88 L6.4 3.6 L6.12 2.88 L5.4 2.6 L6.12 2.32 Z" fill="#E8C56B" style="transform-origin: 6.4px 2.6px"/>
+              <path class="starR" d="M19.6 1.2 L19.88 1.92 L20.6 2.2 L19.88 2.48 L19.6 3.2 L19.32 2.48 L18.6 2.2 L19.32 1.92 Z" fill="#E8C56B" style="transform-origin: 19.6px 2.2px"/>
+            </g>
+
+            <!-- 兴奋的小喷气 -->
+            <g class="spout-group" style="display:none">
+              <circle class="spout-drop" cx="11.5" cy="0.95" r="0.32" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <circle class="spout-drop" cx="13.0" cy="0.4" r="0.42" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <circle class="spout-drop" cx="14.5" cy="0.95" r="0.32" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <path class="spout-stream" d="M11.2 2.1 Q10.6 1.5 11.4 1.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.28" stroke-linecap="round" opacity=".85"/>
+              <path class="spout-stream" d="M14.8 2.1 Q15.4 1.5 14.6 1.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.28" stroke-linecap="round" opacity=".85"/>
+            </g>
+          </g>
+
+          <!-- 代码粒子 -->
+          <g class="code-particle" style="display:none">
+            <text x="4.2" y="12.2" font-size="1.6" style="fill:var(--pw-body,#4D6BFE)" font-weight="bold" font-family="monospace" class="code-fx1">&lt;/&gt;</text>
+            <text x="18.6" y="11.4" font-size="1.4" style="fill:var(--pw-body,#4D6BFE)" font-weight="bold" font-family="monospace" class="code-fx2">{;}</text>
+          </g>
+
+          <!-- 小键盘 + 两只敲键的爪子 -->
+          <g class="keyboard-unit" style="display:none">
+            <ellipse cx="13" cy="17.7" rx="5.4" ry="1.05" fill="rgba(46,42,36,0.18)"/>
+            <path d="M8.4 15.45 L17.6 15.25 L18.3 17.0 L7.8 17.2 Z" fill="#2E2A24" stroke="#5F2E15" stroke-width="0.2" stroke-linejoin="round"/>
+            <path d="M8.6 15.45 L17.4 15.3 L18.0 16.85 L8.0 17.0 Z" fill="#484139"/>
+            <g class="tap-k1">
+              <rect x="8.7" y="15.65" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="10.15" y="15.6" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="11.6" y="15.55" width="0.9" height="0.6" rx="0.14" style="fill:var(--pw-body-light,#8FB5FF)"/>
+              <rect x="13.05" y="15.5" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="14.5" y="15.5" width="0.9" height="0.6" rx="0.14" fill="#E8D9BC"/>
+              <rect x="15.95" y="15.5" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <ellipse cx="10.5" cy="15.95" rx="1.05" ry="0.6" style="fill:var(--pw-body-light,#8FB5FF)"/>
+            </g>
+            <g class="tap-k2">
+              <rect x="8.9" y="16.5" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="10.35" y="16.45" width="0.9" height="0.6" rx="0.14" fill="#E8D9BC"/>
+              <rect x="11.8" y="16.4" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="13.25" y="16.35" width="0.9" height="0.6" rx="0.14" style="fill:var(--pw-blush,#F0A0A0)"/>
+              <rect x="14.7" y="16.35" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <rect x="16.15" y="16.3" width="0.9" height="0.6" rx="0.14" fill="#F7F2E6"/>
+              <ellipse cx="15.5" cy="16.8" rx="1.05" ry="0.6" style="fill:var(--pw-body-light,#8FB5FF)"/>
+            </g>
+          </g>
+        </svg>
+        <span class="bubble"></span>
+        <span class="bubble b2"></span>
+        <span class="bubble b3"></span>
+        <span class="bubble-blue"></span>
+        <span class="bubble-blue bb2"></span>
+        <span class="bubble-blue bb3"></span></div>
+      </div>
+<!-- pet-nodes:end -->
     </div>
   </div>
 
@@ -934,6 +1443,10 @@
   <div class="mode-switch" id="modeSwitch">
     <button data-m="v1">Q 版圆润</button>
     <button data-m="v2" class="active">官方轮廓版</button>
+<!-- pet-mode-buttons:begin -->
+    <button data-m="cat">🐱 小猫</button>
+<!-- pet-mode-buttons:end -->
+    <!-- 其余宠物按钮由 scripts/sync-preview-pets.mjs 注入（文案来自 __PET_UI__） -->
   </div>
 
   <div class="controls" id="controls">
@@ -950,7 +1463,175 @@
 
   <p class="hint" id="hintText">提示：单击小鲸鱼触发加权撒娇/翻滚/晕乎互动；双击 360° 翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。</p>
 
+<!-- pet-ui-data:begin -->
+<script id="pet-ui-data">
+  // 由 scripts/sync-preview-pets.mjs 生成：宠物模块清单 + 该宠物的文案覆盖
+  window.__PET_MODULES__ = [
+  {
+    "id": "cat",
+    "baseClass": "pet-official"
+  }
+];
+  window.__PET_UI__ = {
+  "cat": {
+    "zh": {
+      "modeLabels": {
+        "cat": "🐱 小猫"
+      },
+      "title": "🐱 桌宠小猫 · 预览",
+      "hint": "提示：单击小猫触发撒娇/翻滚/晕乎互动；双击翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。",
+      "status": {
+        "idle": [
+          "小猫趴在这儿呢~ 点我可以戳戳哦 🐱",
+          "今天有什么新任务？我盯着屏幕呢 👀",
+          "甩甩尾巴，随时可以开工！",
+          "（在原地踩了踩奶）"
+        ],
+        "think": [
+          "正盯着屏幕梳理线索... 🔍",
+          "让我想想这一步该怎么走…",
+          "尾巴尖轻轻抽动，脑子在转 🧠",
+          "趴在键盘边等你说完"
+        ],
+        "working": [
+          "认真敲代码中！⚡",
+          "爪子噼里啪啦按着键盘 ⌨️",
+          "正在调用 Agent 工具执行任务！"
+        ],
+        "celebrate": [
+          "太棒啦！任务圆满搞定~ 🎉",
+          "测试全绿，可以舔爪子收工了 ✨",
+          "（开心地打了个滚）"
+        ],
+        "error": [
+          "炸毛了！正在发抖求救 🙀",
+          "捕获到一个异常，正在尝试自愈...",
+          "呜——毛都竖起来了 >_\u003c"
+        ],
+        "wait": [
+          "主人，这里需要你确认一下 🙋",
+          "等你拍板呢，我先把进度停在这里~",
+          "歪头看你：要不要继续？ ✋"
+        ],
+        "disappointed": [
+          "呜... 刚刚没发挥好，耳朵都耷拉了 🥺",
+          "失败是成功之母，我再缓缓~",
+          "下次一定会更好的..."
+        ]
+      },
+      "poke": [
+        "呼噜呼噜~ 戳到软软的肚子啦！",
+        "好痒呀~ 哈哈哈 (≧▽≦)",
+        "猫猫活力 +10！继续加油~",
+        "甩甩尾巴，心情超棒 ✨"
+      ],
+      "welcomeText": "欢迎回来，今天也一起加油吧！🐱✨",
+      "pokeDizzy": [
+        "哎呀，轻轻戳嘛，有点小晕乎 @-@",
+        "晕头转向了... 别戳太用力呀 🥺",
+        "晃晃脑袋，差点被戳倒啦 ~"
+      ],
+      "joy": [
+        "呼噜呼噜，最喜欢主人啦~ 🥰",
+        "好开心！能量充满啦~ ✨",
+        "（用脑袋蹭了蹭你）💖",
+        "尾巴翘得高高的，心情极佳 🐱"
+      ],
+      "feedText": "嚼嚼嚼... 小鱼干真好吃！美味~ 🐟",
+      "rollText": "打个滚给你看！(≧∇≦)ﾉ ✨",
+      "sleepText": "呼噜噜... 蜷成一团，做小鱼干的梦 (Zzz) 💤",
+      "swimQuotes": [
+        "溜达一圈，活动一下~ 🐱",
+        "换个角度看主人 ✨",
+        "巡视领地中，一切正常 👑",
+        "踮着脚走，不打扰你 🐾",
+        "尾巴竖起来，心情不错 🐱"
+      ],
+      "swimOnMsg": "巡逻模式已开启，我会自己到处溜达 🐱🐾",
+      "swimOffMsg": "巡逻模式已关闭，我乖乖待命~"
+    },
+    "en": {
+      "modeLabels": {
+        "cat": "🐱 Cat"
+      },
+      "title": "🐱 Desktop Pet Cat · Preview",
+      "hint": "Tip: click the cat for pokes/rolls; double-click to roll; move the mouse to follow; it naps when idle.",
+      "status": {
+        "idle": [
+          "Cat on standby~ Click me for a poke! 🐱",
+          "Any new tasks today? I am watching the screen 👀",
+          "Swishing my tail, ready to go!",
+          "(kneading the spot I am sitting on)"
+        ],
+        "think": [
+          "Staring at the screen, sorting out the clues... 🔍",
+          "Let me think about how to approach this…",
+          "Tail tip twitching — the brain is working 🧠",
+          "Sitting by the keyboard, waiting for you to finish"
+        ],
+        "working": [
+          "Typing code seriously! ⚡",
+          "Paws clattering on the keyboard ⌨️",
+          "Calling agent tools to get things done!"
+        ],
+        "celebrate": [
+          "Yay! Task completed~ 🎉",
+          "All tests green — time to groom my paws ✨",
+          "(happily rolls over)"
+        ],
+        "error": [
+          "Fur standing on end! Shaking for help 🙀",
+          "Caught an exception, trying to self-heal...",
+          "Mrrp — my fur is all puffed up >_\u003c"
+        ],
+        "wait": [
+          "Hey, I need your confirmation here 🙋",
+          "Waiting for your call—I will hold right here~",
+          "Tilting my head: shall we continue? ✋"
+        ],
+        "disappointed": [
+          "Aww... that did not go well, my ears are drooping 🥺",
+          "Failure is the mother of success, give me a moment~",
+          "I will do better next time..."
+        ]
+      },
+      "poke": [
+        "Purr purr~ you poked my soft belly!",
+        "So ticklish~ hahaha (≧▽≦)",
+        "Cat energy +10! Keep going~",
+        "Tail swish, feeling great ✨"
+      ],
+      "welcomeText": "Welcome back, let us do our best today too! 🐱✨",
+      "pokeDizzy": [
+        "Hey, gentle pokes please, I am a bit dizzy @-@",
+        "Everything is spinning... not so hard 🥺",
+        "Shaking my head, almost got knocked over ~"
+      ],
+      "joy": [
+        "Purr purr, you are my favorite~ 🥰",
+        "So happy! Fully charged~ ✨",
+        "(headbutts you) 💖",
+        "Tail held high, in a great mood 🐱"
+      ],
+      "feedText": "Munch munch... this dried fish is great! Yummy~ 🐟",
+      "rollText": "A roll just for you! (≧∇≦)ﾉ ✨",
+      "sleepText": "Purr... curled up, dreaming of dried fish (Zzz) 💤",
+      "swimQuotes": [
+        "Taking a stroll, stretching my legs~ 🐱",
+        "A different angle on you ✨",
+        "Patrolling my territory, all clear 👑",
+        "Walking on tiptoes so I do not disturb you 🐾",
+        "Tail up, feeling good 🐱"
+      ],
+      "swimOnMsg": "Patrol mode on — I will wander around on my own 🐱🐾",
+      "swimOffMsg": "Patrol mode off, I will stay put~"
+    }
+  }
+};
+</script>
+<!-- pet-ui-data:end -->
 <script>
+
   const pet = document.getElementById('pet');
   const pet2 = document.getElementById('pet2');
   const stage = document.getElementById('stage');
@@ -975,6 +1656,30 @@
   let isSleeping = false;
   let idleTimer = null;
   let currentLang = 'zh';
+
+  // ===== 多宠物 =====
+  // V1/V2 是手写的鲸鱼设计稿；其余宠物由 scripts/sync-preview-pets.mjs 注入，
+  // 形如 <div data-dsh-whale id="pet-cat"><div class="pet-official">…</div></div>
+  // （外层只管显示/隐藏，内层才是承接状态 class 的宠物本体）。
+  const petEntries = () => [
+    { id: 'v1', box: pet, node: pet },
+    { id: 'v2', box: pet2, node: pet2 },
+    ...(window.__PET_MODULES__ || []).map((m) => {
+      const box = document.getElementById('pet-' + m.id);
+      return { id: m.id, box, node: box ? box.querySelector('.pet-official') : null };
+    }),
+  ].filter((e) => e.box && e.node);
+  const allPets = () => petEntries().map((e) => e.node);
+  const activeEntry = () => petEntries().find((e) => e.box.style.display !== 'none') || petEntries()[1];
+  const activePetEl = () => activeEntry().node;
+  const activePetId = () => activeEntry().id;
+  /** 当前宠物的文案：预览页自带字典 + 该宠物的覆盖（鲸鱼没有覆盖，就用自带字典） */
+  function petDict() {
+    const base = i18n[currentLang];
+    const over = ((window.__PET_UI__ || {})[activePetId()] || {})[currentLang];
+    if (!over) return base;
+    return { ...base, ...over, status: { ...base.status, ...(over.status || {}) } };
+  }
 
   // ===== 国际化字典 =====
   const i18n = {
@@ -1236,7 +1941,7 @@
     const s = loadStats();
     const start = new Date(s.firstDate).getTime();
     const days = Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1);
-    const dict = i18n[currentLang].stats;
+    const dict = petDict().stats;
     statsBar.innerHTML = `
       <span class="stats-chip">${dict.completed(s.completedRounds)}</span>
       <span class="stats-chip">${dict.interactions(s.interactionCount)}</span>
@@ -1248,7 +1953,7 @@
   function applyLanguage(lang) {
     currentLang = lang;
     try { localStorage.setItem('pet-whale:lang', lang); } catch(e) {}
-    const dict = i18n[lang];
+    const dict = petDict();
     document.getElementById('pageTitle').textContent = dict.title;
     document.getElementById('pageSub').textContent = dict.sub;
     langBtn.textContent = dict.langBtn;
@@ -1262,7 +1967,11 @@
     document.getElementById('hintText').textContent = dict.hint;
 
     modeBtns.forEach(b => {
-      b.textContent = b.dataset.m === 'v1' ? dict.modeV1 : dict.modeV2;
+      const m = b.dataset.m;
+      // V1/V2 是鲸鱼的手写稿；注入的宠物用自己的图标+名字（来自 __PET_UI__）
+      b.textContent = m === 'v1' ? dict.modeV1
+        : m === 'v2' ? dict.modeV2
+        : ((dict.modeLabels || {})[m] || b.textContent);
     });
 
     buttons.forEach(b => {
@@ -1384,7 +2093,7 @@
   soundBtn.addEventListener('click', () => {
     isSoundOn = !isSoundOn;
     soundBtn.classList.toggle('active', isSoundOn);
-    soundBtn.textContent = isSoundOn ? i18n[currentLang].soundOn : i18n[currentLang].soundOff;
+    soundBtn.textContent = isSoundOn ? petDict().soundOn : petDict().soundOff;
     if (isSoundOn) playSound('bubble');
   });
 
@@ -1400,12 +2109,12 @@
     if (isSleeping) {
       isSleeping = false;
       stage.classList.remove('sleep-mode');
-      [pet, pet2].forEach(p => {
+      allPets().forEach(p => {
         p.classList.remove('sleeping');
         p.classList.add('spouting');
         setTimeout(() => p.classList.remove('spouting'), 1400);
       });
-      showDialog(i18n[currentLang].wakeText);
+      showDialog(petDict().wakeText);
       playSound('bubble');
     }
     if (currentState === 'idle') {
@@ -1413,8 +2122,8 @@
         if (currentState === 'idle') {
           isSleeping = true;
           stage.classList.add('sleep-mode');
-          [pet, pet2].forEach(p => p.classList.add('sleeping'));
-          showDialog(i18n[currentLang].sleepText);
+          allPets().forEach(p => p.classList.add('sleeping'));
+          showDialog(petDict().sleepText);
         }
       }, 20000);
     }
@@ -1425,14 +2134,13 @@
     currentState = s;
     isSleeping = false;
     stage.classList.remove('sleep-mode');
-    [pet, pet2].forEach(p => p.classList.remove('sleeping', 'joy', 'dizzy', 'welcome'));
+    allPets().forEach(p => p.classList.remove('sleeping', 'joy', 'dizzy', 'welcome'));
     resetInactivityTimer();
 
-    pet.className = 'pet ' + s;
-    pet2.className = 'pet-official ' + s;
+    petEntries().forEach(e => { e.node.className = (e.id === 'v1' ? 'pet ' : 'pet-official ') + s; });
     buttons.forEach(b => b.classList.toggle('active', b.dataset.s === s));
     
-    const dict = i18n[currentLang];
+    const dict = petDict();
     const list = dict.status[s] || dict.status.idle;
     showDialog(pick(list));
 
@@ -1440,7 +2148,7 @@
     else if (s === 'celebrate') {
       playSound('celebrate');
       recordCelebrate();
-      const activePet = pet.style.display !== 'none' ? pet : pet2;
+      const activePet = activePetEl();
       const rect = activePet.getBoundingClientRect();
       spawnPreviewConfetti(rect.left + rect.width / 2, rect.top + rect.height * 0.4, 24);
     } else if (s === 'error') {
@@ -1453,11 +2161,15 @@
   buttons.forEach(b => b.addEventListener('click', () => setState(b.dataset.s)));
 
   function setMode(m) {
-    pet.style.display = m === 'v1' ? '' : 'none';
-    pet2.style.display = m === 'v2' ? '' : 'none';
+    petEntries().forEach(e => { e.box.style.display = e.id === m ? '' : 'none'; });
     modeBtns.forEach(b => b.classList.toggle('active', b.dataset.m === m));
     playSound('bubble');
     resetInactivityTimer();
+    // 换了宠物，标题/提示/台词一起换（鲸鱼沿用手写字典，其它宠物用注入的覆盖）
+    const dict = petDict();
+    document.getElementById('pageTitle').textContent = dict.title;
+    document.getElementById('hintText').textContent = dict.hint;
+    showDialog(pick(dict.status[currentState] || dict.status.idle));
   }
   modeBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
 
@@ -1481,14 +2193,14 @@
     void el.offsetWidth;
     el.classList.add('squish');
     setTimeout(() => el.classList.remove('squish'), 450);
-    showDialog(pick(i18n[currentLang].poke));
+    showDialog(pick(petDict().poke));
   }
 
   function triggerRoll(el) {
     resetInactivityTimer();
     recordInteraction();
     playSound('trick');
-    showDialog(i18n[currentLang].rollText);
+    showDialog(petDict().rollText);
     el.classList.remove('rolling', 'spouting', 'dizzy', 'joy');
     void el.offsetWidth;
     el.classList.add('rolling', 'spouting');
@@ -1508,7 +2220,7 @@
     el.classList.remove('joy', 'squish', 'dizzy');
     void el.offsetWidth;
     el.classList.add('joy');
-    showDialog(pick(i18n[currentLang].joy));
+    showDialog(pick(petDict().joy));
     setTimeout(() => el.classList.remove('joy'), 1100);
   }
 
@@ -1519,7 +2231,7 @@
     el.classList.remove('dizzy', 'squish', 'joy');
     void el.offsetWidth;
     el.classList.add('dizzy');
-    showDialog(pick(i18n[currentLang].pokeDizzy));
+    showDialog(pick(petDict().pokeDizzy));
     setTimeout(() => el.classList.remove('dizzy'), 900);
   }
 
@@ -1529,7 +2241,7 @@
     el.classList.remove('welcome', 'spouting');
     void el.offsetWidth;
     el.classList.add('welcome', 'spouting');
-    showDialog(i18n[currentLang].welcomeText);
+    showDialog(petDict().welcomeText);
     setTimeout(() => el.classList.remove('welcome', 'spouting'), 1200);
   }
 
@@ -1544,10 +2256,10 @@
     }
   }
 
-  pet.addEventListener('click', () => handlePetClick(pet));
-  pet2.addEventListener('click', () => handlePetClick(pet2));
-  pet.addEventListener('dblclick', () => triggerRoll(pet));
-  pet2.addEventListener('dblclick', () => triggerRoll(pet2));
+  petEntries().forEach(e => {
+    e.node.addEventListener('click', () => handlePetClick(e.node));
+    e.node.addEventListener('dblclick', () => triggerRoll(e.node));
+  });
 
   feedBtn.addEventListener('click', () => {
     resetInactivityTimer();
@@ -1555,22 +2267,22 @@
     void snackFish.offsetWidth;
     snackFish.classList.add('drop');
     playSound('snack');
-    showDialog(i18n[currentLang].feedText);
+    showDialog(petDict().feedText);
     setTimeout(() => {
-      triggerJoy(pet.style.display !== 'none' ? pet : pet2);
+      triggerJoy(activePetEl());
     }, 600);
   });
 
   trickBtn.addEventListener('click', () => {
-    triggerRoll(pet.style.display !== 'none' ? pet : pet2);
+    triggerRoll(activePetEl());
   });
 
   petBtn.addEventListener('click', () => {
-    triggerJoy(pet.style.display !== 'none' ? pet : pet2);
+    triggerJoy(activePetEl());
   });
 
   welcomeBtn.addEventListener('click', () => {
-    triggerWelcome(pet.style.display !== 'none' ? pet : pet2);
+    triggerWelcome(activePetEl());
   });
 
   // ===== 眼神追光 =====
@@ -1590,12 +2302,14 @@
       p1.style.transform = `translate(${dx1}px, ${dy1}px)`;
     }
 
-    const p2 = pet2.querySelector('.pupil-highlight');
-    if (p2) {
-      const dx2 = Math.max(-0.18, Math.min(0.18, (e.clientX - cx) / 500));
-      const dy2 = Math.max(-0.15, Math.min(0.15, (e.clientY - cy) / 450));
-      p2.style.transform = `translate(${dx2}px, ${dy2}px)`;
-    }
+    // V2 与注入的宠物（小猫等）坐标尺度一致；V1 上面单独处理
+    petEntries().filter(e => e.id !== 'v1').forEach(e => {
+      const p = e.node.querySelector('.pupil-highlight');
+      if (!p) return;
+      const dx = Math.max(-0.18, Math.min(0.18, (e.clientX - cx) / 500));
+      const dy = Math.max(-0.15, Math.min(0.15, (e.clientY - cy) / 450));
+      p.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
   });
 
   // ===== 自主游泳动效系统 =====
@@ -1621,7 +2335,7 @@
     clearTimeout(swimTimer);
     swimTimer = null;
     clearPreviewParticles();
-    [pet, pet2].forEach(p => {
+    allPets().forEach(p => {
       p.classList.remove('swimming', 'swimming-dive');
       p.style.opacity = '1';
       p.style.transform = `scaleX(${swimFacing === 'left' ? 1 : -1}) rotate(0deg)`;
@@ -1639,7 +2353,7 @@
 
   function startPreviewSwimSession() {
     stopSwim();
-    const activePet = pet.style.display !== 'none' ? pet : pet2;
+    const activePet = activePetEl();
     swimMode = Math.random() < 0.25 ? 'dive' : 'cruise';
     
     const bounds = document.body.classList.contains('desktop-mode') 
@@ -1674,13 +2388,13 @@
     lastSwimBubble = swimStartTime;
     hasSplashedThisSession = false;
 
-    [pet, pet2].forEach(p => {
+    allPets().forEach(p => {
       p.classList.add('swimming');
       if (swimMode === 'dive') p.classList.add('swimming-dive');
     });
 
     if (Math.random() < 0.3) {
-      showDialog(pick(i18n[currentLang].swimQuotes));
+      showDialog(pick(petDict().swimQuotes));
     }
 
     swimRaf = requestAnimationFrame(stepPreviewSwim);
@@ -1724,14 +2438,14 @@
     const sx = (swimFacing === 'left' ? 1 : -1) * depthScale;
     const sy = depthScale;
 
-    [pet, pet2].forEach(p => {
+    allPets().forEach(p => {
       p.dataset.swimX = curX.toFixed(2);
       p.dataset.swimY = curY.toFixed(2);
       p.style.transform = `translate(${curX.toFixed(2)}px, ${curY.toFixed(2)}px) scale(${sx}, ${sy}) rotate(${pitch.toFixed(2)}deg)`;
       p.style.opacity = depthOpacity.toFixed(3);
     });
 
-    const activePet = pet.style.display !== 'none' ? pet : pet2;
+    const activePet = activePetEl();
     const rect = activePet.getBoundingClientRect();
     const tailX = swimFacing === 'left' ? rect.right - 28 : rect.left + 28;
     const tailY = rect.top + rect.height * 0.55;
@@ -1762,7 +2476,7 @@
       swimRaf = requestAnimationFrame(stepPreviewSwim);
     } else {
       swimRaf = 0;
-      [pet, pet2].forEach(p => {
+      allPets().forEach(p => {
         p.classList.remove('swimming', 'swimming-dive');
         p.style.opacity = '1';
         p.style.transform = `translate(${swimTargetPos.x.toFixed(2)}px, ${swimTargetPos.y.toFixed(2)}px) scaleX(${swimFacing === 'left' ? 1 : -1}) rotate(0deg)`;
@@ -1909,19 +2623,19 @@
   swimBtn.addEventListener('click', () => {
     isSwimOn = !isSwimOn;
     swimBtn.classList.toggle('active', isSwimOn);
-    swimBtn.textContent = isSwimOn ? i18n[currentLang].swimOn : i18n[currentLang].swimOff;
+    swimBtn.textContent = isSwimOn ? petDict().swimOn : petDict().swimOff;
     if (isSwimOn) {
       schedulePreviewSwim(800);
-      showDialog(i18n[currentLang].swimOnMsg);
+      showDialog(petDict().swimOnMsg);
       playSound('bubble');
     } else {
       stopSwim();
-      [pet, pet2].forEach(p => {
+      allPets().forEach(p => {
         p.dataset.swimX = '0';
         p.dataset.swimY = '0';
         p.style.transform = '';
       });
-      showDialog(i18n[currentLang].swimOffMsg);
+      showDialog(petDict().swimOffMsg);
     }
   });
 
@@ -1932,6 +2646,14 @@
   } catch(e) {}
   applyLanguage(currentLang);
   resetInactivityTimer();
+  // 支持 ?pet=cat 直接打开某只宠物（截图/分享用）；认不出的值保持默认 V2
+  try {
+    const want = new URLSearchParams(location.search).get('pet');
+    if (want && petEntries().some(e => e.id === want)) {
+      const btn = [...modeBtns].find(b => b.dataset.m === want);
+      if (btn) btn.click();
+    }
+  } catch(e) {}
 </script>
 </body>
 </html>

@@ -559,6 +559,36 @@ const en: PetStrings = {
 
 export const PET_LOCALES: readonly PetLocale[] = ['zh', 'en']
 
+/**
+ * 宠物文案覆盖的深偏类型：对象逐层可选，**函数与数组整体替换**。
+ * 台词池（string[]）必须整组换掉而不是逐条合并，否则猫会混进鲸鱼的句子。
+ */
+export type DeepPartial<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends readonly unknown[]
+    ? T
+    : T extends object
+      ? { [K in keyof T]?: DeepPartial<T[K]> }
+      : T
+
+/** 一只宠物可以只覆盖它想改的文案（见 pets/cat/text.ts） */
+export type PetTextOverrides = DeepPartial<PetStrings>
+
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+
+/** 把宠物覆盖合并到基准文案上：对象递归，其余（数组/函数/字符串）整体替换。 */
+function mergeStrings<T>(base: T, overrides: DeepPartial<T> | undefined): T {
+  if (!overrides) return base
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) }
+  for (const [key, value] of Object.entries(overrides as Record<string, unknown>)) {
+    if (value === undefined) continue
+    const current = (base as Record<string, unknown>)[key]
+    out[key] = isPlainObject(current) && isPlainObject(value) ? mergeStrings(current, value as never) : value
+  }
+  return out as T
+}
+
 /** 根据浏览器语言返回支持的语言，未命中默认 zh。 */
 export function detectBrowserLocale(): PetLocale {
   if (typeof navigator === 'undefined') return 'zh'
@@ -570,8 +600,14 @@ export function detectBrowserLocale(): PetLocale {
   return 'zh'
 }
 
-export function getStrings(locale: PetLocale): PetStrings {
-  return locale === 'en' ? en : zh
+/**
+ * 取当前语言的文案。
+ * `overrides` 是当前宠物的文案覆盖（PetModule.text[locale]）：只写要改的条目，
+ * 其余回落到 i18n.ts 里的通用文案（以鲸鱼口吻为基准）。
+ */
+export function getStrings(locale: PetLocale, overrides?: PetTextOverrides): PetStrings {
+  const base: PetStrings = locale === 'en' ? en : zh
+  return mergeStrings<PetStrings>(base, overrides)
 }
 
 export function paletteName(locale: PetLocale, id: string, fallback: string): string {

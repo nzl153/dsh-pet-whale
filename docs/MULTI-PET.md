@@ -18,14 +18,19 @@
 
 ```
 src/client/
-  index.ts                 逻辑（多宠物改造只动了 6 处：样式注入、DOM、applyPet、菜单、aria、导入）
+  index.ts                 逻辑（多宠物改造只动了 7 处：样式注入、DOM、applyPet、菜单、文案重算、aria、导入）
   styles.ts                BASE_CSS：与宠物无关的公共样式 + 全部 @keyframes（pw-*）
+  i18n.ts                  基准文案（鲸鱼口吻）+ PetTextOverrides / getStrings(locale, overrides)
   whale.ts                 鲸鱼 SVG（由 scripts/extract-whale.mjs 从 preview.html 生成）
   pets/
     types.ts                PetModule 接口 + 三条约定（读它就够写一只新宠物）
     index.ts                PETS 注册表 / DEFAULT_PET_ID / 选择持久化
-    whale/{index.ts,styles.ts}    鲸鱼模块 + 宠物私有样式（从 styles.ts 切分而来）
-    cat/{index.ts,styles.ts,markup.ts}   小猫模块：手写 SVG + 独立 cat-* 动画
+    whale/{index.ts,styles.ts}          鲸鱼模块 + 宠物私有样式（从 styles.ts 切分而来）
+    cat/{index.ts,styles.ts,markup.ts,text.ts}   小猫：手写 SVG + 独立 cat-* 动画 + 专属台词
+scripts/
+  sync-preview-pets.mjs     把宠物资源注入手写的 preview.html（pnpm sync:preview）
+  preview-pets.mjs          生成"全部宠物 × 全部状态"检查页（pnpm preview）
+  extract-whale.mjs         从 preview.html 抽 V2 鲸鱼 SVG → src/client/whale.ts
 ```
 
 运行时挂**两张** `<style>`：
@@ -92,6 +97,52 @@ export const PETS: readonly PetModule[] = [whalePet, catPet, foxPet]
 名字想跟语言走，就在 `src/client/i18n.ts` 的 `zh.pet` / `en.pet` 里加 `fox: '小狐狸' / 'Fox'`；
 不加也会自动回落到 `PetModule.name`，不会显示空白。
 
+### 4. 换它说的话（强烈建议）
+
+`i18n.ts` 里的基准文案是**鲸鱼口吻**："正在深潜检索知识库...""游一游，活动一下~"。
+一只猫说这些很违和，所以宠物可以整组覆盖它 —— 见下一节。
+
+## 台词也跟着宠物走
+
+机制很小：`PetModule.text` 是一份"只写要改的条目"的覆盖对象，运行时通过
+`getStrings(locale, pet.text?.[locale])` 叠在基准文案上（对象逐层合并，**数组整组替换**）。
+切宠物时 `applyPet` 会重算 `strings`，所以台词、a11y 文案、通知文案立刻跟着换。
+
+`src/client/pets/cat/text.ts` 就是范例：
+
+```ts
+export const CAT_TEXT = {
+  zh: {
+    status: { think: ['正盯着屏幕梳理线索... 🔍', '让我想想这一步该怎么走…'] },
+    panel: { swim: '🐾 巡逻' },                      // 自主巡游对猫叫"巡逻"
+    feedback: { sleep: '呼噜噜... 蜷成一团，做小鱼干的梦 (Zzz) 💤' },
+  },
+  en: { /* 同样的键，英文一套 */ },
+}
+```
+
+值得按宠物改的条目（都是基准文案里带"水/鲸/深潜"味道的）：
+
+| 键 | 基准（鲸鱼） | 猫的版本 |
+|---|---|---|
+| `status.*` | 正在深潜检索知识库 | 正盯着屏幕梳理线索 |
+| `panel.swim` | 🏊 游泳 | 🐾 巡逻 |
+| `feedback.swim[]` / `swimOn` / `swimOff` | 游一游、深潜探索海底世界 | 溜达一圈、巡视领地 |
+| `feedback.sleep` | 正在做深海美梦 | 蜷成一团，做小鱼干的梦 |
+| `feedback.shaken[]` | 我要吐泡泡了 | 我要吐毛球了 |
+| `feedback.restNudge[]` | 深海也需要浮上来换气 | 猫都睡一轮了，你也歇会儿 |
+| `feedback.pokeAnnoyed[]` | 再戳我就要游走咯 | 再戳我就要跑开咯 |
+| `bond.poke[1]` / `bond.welcome` / `bond.chatter` | 软软的肚皮 / 拍拍水 / 冒个泡 | 呼噜呼噜 / 尾巴扫了扫 / 喵一声 |
+| `aria.mini` / `aria.miniTitle` | 显示桌宠小鲸鱼 | 显示桌宠小猫 |
+
+两条注意：
+
+- **数组要整组给**：只给 `['第一条']` 会把整个台词池换成一条，不会与鲸鱼的句子混合（故意的）。
+- 没覆盖到的条目自动沿用基准，所以可以先把 `status` 换掉，其余以后再补。
+
+小猫的完整覆盖见 `src/client/pets/cat/text.ts`（中英各一套）。冒烟测试里有两条断言盯着它：
+"小猫的思考台词是猫口吻""小猫不会说深潜"，以及切回鲸鱼后台词恢复基准。
+
 ## 三条约定（照做就不会踩坑）
 
 1. **上色只用 CSS 变量**：`--pw-body` / `--pw-body-light` / `--pw-body-dark` / `--pw-blush` /
@@ -131,25 +182,58 @@ export const PETS: readonly PetModule[] = [whalePet, catPet, foxPet]
 
 ## 调试与验证
 
-- **静态预览**（不用装进 DSH）：仓库根目录运行
+两个预览页，分工不同：
 
-  ```sh
-  node scripts/preview-pets.mjs      # 生成 pet-preview.html：所有宠物 × 多状态铺成网格
-  ```
+**1. `preview.html` — 手写交互预览台（改外形/动作时用这个）**
 
-  浏览器直接打开 `pet-preview.html` 就能看；要截图留档（Windows 有 Chrome 时）：
+打开就能玩：切宠物、切 7 个状态、投喂/翻滚/摸摸头、追光、打瞌睡、自主巡游，全都在这一页。
+宠物切换按钮在"Q 版圆润 / 官方轮廓版"旁边，还支持 URL 直开某只宠物：
 
-  ```powershell
-  & "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless --disable-gpu `
-    --user-data-dir="$env:TEMP\chrome-pet" --hide-scrollbars --virtual-time-budget=4000 `
-    --window-size=1200,900 --screenshot="pet-preview.png" "file:///$PWD/pet-preview.html"
-  ```
+```
+preview.html?pet=cat      # 直接打开小猫（截图/分享用）
+```
 
-  `--virtual-time-budget` 调小（如 700）能看到"翻肚皮/跳跃"这类一次性动画的中间姿势；
-  默认截到的是动画 0% 相位。
+其中 **V1（Q 版）与 V2（官方轮廓版）是鲸鱼的手写设计稿**，同时也是
+`scripts/extract-whale.mjs` 的抽取源——所以它们不能被改成生成物。**其余宠物**的
+SVG、私有 CSS、切换按钮、台词池由脚本注入，改完宠物资源重跑一次即可：
+
+```sh
+pnpm sync:preview      # = node scripts/sync-preview-pets.mjs
+```
+
+注入的内容都夹在 `<!-- pet-xxx:begin/end -->` 标记里，手写部分不会被覆盖；
+换宠物时预览页会自动换上该宠物的标题、提示语和台词（数据来自 `PetModule.text`）。
+
+> ⚠️ 踩过的坑：注入的**数据脚本必须放在主 `<script>` 之前**，放到后面会被当成脚本正文、整页塌掉。
+> 脚本里已经处理（`upsert(..., 'before')` 并且把 JSON 里的 `<` 转义成 `\u003c`）。
+>
+> 另一个历史坑：仓库里的 `preview.html` 一度比 `whale.ts` 旧（V2 少了 `.angry-eyes`），
+> 于是 `pnpm extract` 会**悄悄删掉**闹脾气用的吊眉眼。已补回，现在
+> `pnpm extract` 的产物与提交版一字不差——改 preview.html 的 V2 之后，请用
+> `git diff src/client/whale.ts` 确认没有意外变化。
+
+**2. `pet-preview.html` — 自动生成的检查台（一次看全）**
+
+```sh
+pnpm preview           # = node scripts/preview-pets.mjs
+```
+
+把 `BASE_CSS` + 每只宠物的 CSS/SVG 抽出来，铺成"宠物 × 状态"网格，用来一眼检查
+所有状态有没有画坏、有没有串规则（它完全由 src 生成，不会与插件漂移）。
+
+要截图留档（Windows 有 Chrome 时；`--user-data-dir` 要给一个**新建**目录，复用旧目录偶尔不产出 png）：
+
+```powershell
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless --disable-gpu `
+  --user-data-dir="$env:TEMP\chrome-pet-1" --hide-scrollbars --virtual-time-budget=4000 `
+  --window-size=1200,900 --screenshot="pet-preview.png" "file:///$PWD/pet-preview.html"
+```
+
+`--virtual-time-budget` 调小（如 700）能看到"翻肚皮/跳跃"这类一次性动画的中间姿势；
+默认截到的是动画 0% 相位。
 
 - **单元/冒烟测试**：`pnpm test`（jsdom）。已覆盖默认宠物、菜单切换、样式表整段替换、
-  容器状态类保留、`pet-whale:pet` 记忆、dispose 清理。
+  容器状态类保留、`pet-whale:pet` 记忆、按宠物换台词、dispose 清理。
 - **类型**：`pnpm typecheck`。
 
 ## 怎么确认没有动坏鲸鱼

@@ -458,6 +458,40 @@ const pet4 = rootEl4?.querySelector('.pet-official')
 check('重挂后仍是小猫（记忆生效）', rootEl4?.getAttribute('data-pet') === 'cat')
 check('重挂后鲸鱼样式没有回插', window.document.getElementById('pet-whale-pet-style')?.textContent.includes('pw-qbob') === false)
 check('小猫与鲸鱼共用同一套色板变量', rootEl4?.style.getPropertyValue('--pw-scale') !== null && pet4 !== null)
+
+// 台词跟着宠物走：基准文案是鲸鱼口吻（深潜/游动），猫不能这么说
+const dialog4 = rootEl4?.querySelector('.dsh-whale-dialog')
+const menu4 = rootEl4?.querySelector('.dsh-whale-menu')
+const clickMenu4 = (label) => {
+  ;[...(menu4?.querySelectorAll('button') ?? [])].find((b) => b.textContent.includes(label))
+    ?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+}
+const toThink = async () => {
+  sessionSnap.running = false
+  legacySlice.partial = null
+  notify()
+  sessionSnap.running = true
+  legacySlice.partial = { turn: 9, step: 1, blocks: [] }
+  notify()
+  await new Promise((r) => setTimeout(r, 30))
+}
+await toThink()
+const catThink = dialog4?.textContent ?? ''
+check('小猫的思考台词是猫口吻', /屏幕|尾巴尖|键盘边|想想这一步/.test(catThink))
+check('小猫不会说"深潜"', /深潜|深海|划水/.test(catThink) === false)
+
+// 换回鲸鱼：台词要跟着回到基准文案
+pet4?.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 200 }))
+clickMenu4('更多设置')
+clickMenu4('外观')
+clickMenu4('小鲸鱼')
+check('切回鲸鱼：data-pet=whale', rootEl4?.getAttribute('data-pet') === 'whale')
+// 切宠物那一刻的提示语是确定性的，用它证明名字回来的同时没被猫的文案粘住
+check(`切回鲸鱼：提示语用鲸鱼的名字 ⟨${dialog4?.textContent ?? ''}⟩`, /小鲸鱼/.test(dialog4?.textContent ?? ''))
+await toThink()
+const whaleLine = dialog4?.textContent ?? ''
+// 状态台词是随机取的，所以用"不含任何猫口吻标记"来断言基准文案已恢复
+check(`切回鲸鱼后不再出现猫口吻 ⟨${whaleLine}⟩`, /喵|舔爪子|炸毛|耷拉|巡逻|溜达|毛球|踩了踩奶|尾巴尖|键盘边/.test(whaleLine) === false)
 dispose4()
 
 // dispose

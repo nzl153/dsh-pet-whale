@@ -111,13 +111,14 @@ export function apply(ctx: Context): () => void {
     // ===== 语言 =====
     const localeService = (ctx as unknown as { locale?: LocaleLike }).locale
     let locale: PetLocale = localeService?.getLocale().active === 'en' ? 'en' : detectBrowserLocale()
-    let strings: PetStrings = getStrings(locale)
 
   // ===== 宠物 =====
-  // 当前宠物决定 .pet-official 塞哪段 SVG、挂哪张私有样式表；选择记在 localStorage。
+  // 当前宠物决定 .pet-official 塞哪段 SVG、挂哪张私有样式表、说什么话；选择记在 localStorage。
   let activePet: PetModule = petOf(loadPetId())
   /** 宠物显示名：i18n 优先，缺了就用 PetModule 自带的名字 */
   const petDisplayName = (p: PetModule): string => petName(locale, p.id, locale === 'en' ? p.name.en : p.name.zh)
+  /** 当前语言的文案：基准是鲸鱼口吻，宠物可以用 text 覆盖它（见 pets/cat/text.ts） */
+  let strings: PetStrings = getStrings(locale, activePet.text?.[locale])
 
   // ===== DOM =====
   const root = document.createElement('div')
@@ -161,6 +162,8 @@ export function apply(ctx: Context): () => void {
       root.style.removeProperty('--pw-pet-w')
       root.style.removeProperty('--pw-pet-h')
     }
+    // 文案跟着宠物走：基准（鲸鱼口吻）叠加这只宠物的覆盖，再重算一遍 a11y 标签
+    strings = getStrings(locale, next.text?.[locale])
     pet.innerHTML = next.html
     pet.setAttribute('aria-label', strings.aria.petName(petDisplayName(next)))
     petStyle.textContent = next.css
@@ -616,7 +619,7 @@ export function apply(ctx: Context): () => void {
     if (!sysNotifyOn || !hasNotificationApi) return
     if (Notification.permission !== 'granted') return
     try {
-      const n = new Notification(`🐳 ${strings.notify.titleDone}`, { body: strings.notify.bodyDone })
+      const n = new Notification(`${activePet.icon} ${strings.notify.titleDone}`, { body: strings.notify.bodyDone })
       window.setTimeout(() => n.close(), 6000)
     } catch {
       // 通知构造失败（部分环境要求 ServiceWorker）时静默降级到标题闪烁
@@ -688,6 +691,9 @@ export function apply(ctx: Context): () => void {
     if (mini === null) return
     mini.dataset.state = state
     mini.title = `${strings.aria.miniTitle(state)}`
+    // 图标与 a11y 文案跟随当前宠物（隐藏状态下切宠物也立刻对）
+    mini.textContent = activePet.icon
+    mini.setAttribute('aria-label', strings.aria.mini)
   }
 
   // ===== 小按钮位置（右下角偏移，localStorage 记忆） =====
@@ -774,7 +780,8 @@ export function apply(ctx: Context): () => void {
     mini.type = 'button'
     mini.setAttribute('data-dsh-whale-mini', '')
     mini.setAttribute('aria-label', strings.aria.mini)
-    mini.textContent = '🐳'
+    // 小按钮图标跟随当前宠物
+    mini.textContent = activePet.icon
     const pos = loadMiniPos()
     mini.style.right = `${pos.right}px`
     mini.style.bottom = `${pos.bottom}px`
@@ -1143,6 +1150,8 @@ export function apply(ctx: Context): () => void {
             closeMenu()
             if (p.id === activePet.id) return
             applyPet(p.id)
+            // 隐藏状态下切宠物：小按钮的图标/文案也要跟着换
+            syncMiniState(visualState)
             showDialog(strings.feedback.petApplied(name))
             sounds.play('bubble')
           })
@@ -1917,7 +1926,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     const applyLocale = (nextLocale: PetLocale) => {
       if (locale === nextLocale) return
       locale = nextLocale
-      strings = getStrings(locale)
+      strings = getStrings(locale, activePet.text?.[locale])
       pet.setAttribute('aria-label', strings.aria.petName(petDisplayName(activePet)))
       if (mini !== null) mini.setAttribute('aria-label', strings.aria.mini)
       syncMiniState(visualState)

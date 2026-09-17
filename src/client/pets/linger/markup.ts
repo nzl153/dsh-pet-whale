@@ -43,6 +43,8 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <path class="hair" d="M9.0 5.8 C8.1 12.2 7.9 20.4 8.5 28.4 C8.7 29.4 9.3 29.8 9.9 29.4 C9.4 21.4 9.7 13.2 10.4 7.0 Z" fill="url(#lingHair)"/>
             <path class="hair" d="M17.0 5.8 C17.9 12.2 18.1 20.4 17.5 28.4 C17.3 29.4 16.7 29.8 16.1 29.4 C16.6 21.4 16.3 13.2 15.6 7.0 Z" fill="url(#lingHair)"/>
 
+            <!-- 正面身体整组（转身时整体隐藏/显示由样式表控制） -->
+            <g class="front-body">
             <!-- 长裙：白为主 + 蓝侧片 + 蓝裙摆滚边 -->
             <g class="skirt" style="transform-origin: 13px 23px">
               <path d="M10.0 23.0 L16.0 23.0 C17.2 30.2 18.6 39.0 19.2 45.2 C16.9 46.0 14.7 46.4 13 46.4 C11.3 46.4 9.1 46.0 6.8 45.2 C7.4 39.0 8.8 30.2 10.0 23.0 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.2" stroke-linejoin="round"/>
@@ -132,13 +134,17 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               </g>
             </g>
             <!-- 脖子（领口会盖住下半段，靠下面的"颈洞"露出来） -->
-            <rect x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
+            </g>
+
+            <rect class="neck" x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
 
             <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子。
                  注意：位移写在样式表里（[data-dsh-whale] .pet-official .head），
                  **不要**写成 transform 属性 —— 那样 CSS 动画（远眺/理鬓等）一上就会覆盖属性，
                  头会当场掉下来。 -->
             <g class="head">
+            <!-- 正面五官整组：转身到背面相位时整组隐藏，改由 .back-view 接管 -->
+            <g class="face-front">
             <!-- 脸：圆一些、下巴短一点（原来上下拉得太长） -->
             <path d="M13 4.2 C10.5 4.2 8.5 6.0 8.5 8.4 C8.5 10.6 9.4 12.5 11.0 13.4 C11.6 13.7 12.3 13.9 13 13.9 C13.7 13.9 14.4 13.7 15.0 13.4 C16.6 12.5 17.5 10.6 17.5 8.4 C17.5 6.0 15.5 4.2 13 4.2 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->
@@ -201,6 +207,29 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <ellipse class="blush" cx="16.1" cy="10.9" rx="0.66" ry="0.34" style="fill:var(--pw-blush,#F0A0A0)" opacity=".24"/>
             <path d="M12.72 11.45 Q13 11.78 13.28 11.45" fill="none" style="stroke:var(--pw-eye,#2E2A24)" stroke-width="0.17" stroke-linecap="round" opacity=".75"/>
 
+            </g>
+
+            <!-- 背面视图（micro-spin 转到背面相位时显示，把脸整组盖住）。
+                 坐标写在"局部系"里：本组在 .head 内，而 .head 有 translateY(-1.2)，
+                 所以 y 要比实际渲染位置大 1.2（比如臀线渲染在 30.4，这里写 31.6）。 -->
+            <g class="back-view" style="display:none;opacity:0">
+              <path d="M13 1.4 C8.6 1.4 6.7 4.6 6.7 8.8 C6.7 14.2 7.0 19.4 7.6 24.2 C8.0 27.6 8.6 29.8 9.5 31.0 C10.6 31.8 11.8 31.6 12.5 30.6 C12.9 29.4 13.0 27.4 13.0 25.2 C13.0 27.4 13.1 29.4 13.5 30.6 C14.2 31.6 15.4 31.8 16.5 31.0 C17.4 29.8 18.0 27.6 18.4 24.2 C19.0 19.4 19.3 14.2 19.3 8.8 C19.3 4.6 17.4 1.4 13 1.4 Z" fill="url(#lingHair)"/>
+              <path d="M9.6 4.4 C11.0 3.6 15.0 3.6 16.4 4.4" fill="none" stroke="#6E6680" stroke-width="0.22" stroke-linecap="round" opacity=".38"/>
+              <path d="M10.2 12.0 C9.6 17.4 9.4 23.4 9.9 29.6" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".3"/>
+              <path d="M15.8 12.0 C16.4 17.4 16.6 23.4 16.1 29.6" fill="none" stroke="#6E6680" stroke-width="0.16" stroke-linecap="round" opacity=".3"/>
+              <circle cx="8.3" cy="4.4" r="1.5" fill="url(#lingHair)"/>
+              <circle cx="8.3" cy="4.35" r="0.6" fill="#4E4759"/>
+              <circle cx="17.7" cy="4.4" r="1.5" fill="url(#lingHair)"/>
+              <circle cx="17.7" cy="4.35" r="0.6" fill="#4E4759"/>
+              <path d="M7.0 5.3 C7.7 6.2 8.9 6.2 9.6 5.3" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.32" stroke-linecap="round"/>
+              <path d="M16.4 5.3 C17.1 6.2 18.3 6.2 19.0 5.3" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.32" stroke-linecap="round"/>
+              <path d="M13 23.7 C11.8 22.9 10.6 23.1 10.4 23.9 C10.2 24.7 11.2 25.3 12.6 24.9 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+              <path d="M13 23.7 C14.2 22.9 15.4 23.1 15.6 23.9 C15.8 24.7 14.8 25.3 13.4 24.9 Z" style="fill:var(--pw-blush,#F0A0A0)"/>
+              <circle cx="13" cy="23.8" r="0.44" style="fill:var(--pw-blush,#F0A0A0)"/>
+              <path d="M12.7 24.1 C12.2 26.9 12.1 29.4 12.4 31.6 C12.8 31.7 13.1 31.4 13.1 31.0 C12.9 28.6 13.0 26.3 13.3 24.1 Z" style="fill:var(--pw-blush,#F0A0A0)" opacity=".92"/>
+              <path d="M13.3 24.1 C13.7 26.3 13.8 28.6 13.6 31.0 C13.2 31.1 12.9 30.8 12.9 30.4 C13.1 28.2 13.0 26.1 12.7 24.1 Z" style="fill:var(--pw-blush,#F0A0A0)" opacity=".92"/>
+            </g>
+
             <!-- 思考：双掌掐诀于胸前（手随手臂抬起，这里只画指间的灵光） -->
             <g class="hand-seal" style="display:none">
 
@@ -230,6 +259,8 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               <path class="spout-stream" d="M16.3 2.1 Q17.1 1.5 16.1 0.9" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.26" stroke-linecap="round" opacity=".85"/>
             </g>
 
+            </g>
+
           <!-- 御剑：整把剑横在脚下，两端探出裙外 -->
           <g class="sword" style="display:none">
             <ellipse cx="13" cy="47.0" rx="9.6" ry="1.4" style="fill:var(--pw-body-light,#8FB5FF)" opacity=".3"/>
@@ -241,7 +272,6 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
             <path d="M22.3 44.4 L22.9 47.2 L23.6 47.2 L23.1 44.4 Z" fill="#C9A76A" stroke="#8A6F3E" stroke-width="0.1" stroke-linejoin="round"/>
             <path d="M23.4 45.2 L25.3 45.1 L25.4 46.7 L23.5 46.8 Z" fill="#6B5A46"/>
             <path d="M25.2 45.2 L25.8 45.2 L25.9 46.7 L25.3 46.7 Z" fill="#C9A76A"/>
-          </g>
           </g>
 
           <!-- 灵光符文（working 时浮起） -->
@@ -261,6 +291,8 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               <path d="M10.3 42.2 L10.6 43.0 M10.9 42.2 L10.6 43.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.22" stroke-linecap="round"/>
               <path d="M15.7 42.2 L15.4 43.0 M15.1 42.2 L15.4 43.0" fill="none" style="stroke:var(--pw-body-light,#8FB5FF)" stroke-width="0.22" stroke-linecap="round"/>
             </g>
+          </g>
+
           </g>
 
         </svg>

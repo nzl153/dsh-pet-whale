@@ -111,8 +111,16 @@ export const LINGER_PET_CSS = `
    前三个"看得出来"，远眺安静。原先的拂袖/整衣襟/掐指/裙摆轻摆幅度太小，已删。 */
 /* 原地转圈：绕**竖轴**转身（.body 做 scaleX 翻转），不是在画面里翻滚 */
 [data-dsh-whale] .pet-official.micro-spin .body { animation: linger-microSpin 1.9s ease-in-out; }
+/* 转身＝换图（只做正⇄背两张图；侧身那张画不好，用户 2026-09-17 决定去掉）：
+   换面时身体轻微收窄(0.8)+位移，配合衣摆/丝带的拖尾把"转过去"交代出来。
+   正面专属部件（脸/刘海/肩前发/背后长发/脖子）在背面相位隐藏；背面图自带头发与腰结。 */
+[data-dsh-whale] .pet-official.micro-spin .face-front,
+[data-dsh-whale] .pet-official.micro-spin .hair-front,
+[data-dsh-whale] .pet-official.micro-spin .hair,
+[data-dsh-whale] .pet-official.micro-spin .neck { animation: linger-microSpinFace 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .back-view { display: block !important; animation: linger-microSpinBack 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .back-view { display: block !important; animation: linger-microSpinBack 1.9s ease-in-out; }
 [data-dsh-whale] .pet-official.micro-spin .skirt { animation: linger-microSpinFlare 1.9s ease-in-out; }
-[data-dsh-whale] .pet-official.micro-spin .hair { animation: linger-microSpinHair 1.9s ease-in-out; transform-origin: 13px 7px; }
 [data-dsh-whale] .pet-official.micro-spin .ribbon { animation: linger-microSpinRibbon 1.9s ease-in-out; }
 [data-dsh-whale] .pet-official.micro-spin .sash { animation: linger-microSpinSash 1.9s ease-in-out; }
 /* 放法术：双臂抬起结印 + 脚下法阵亮起 + 花瓣升起 + 指尖灵光 */
@@ -388,26 +396,32 @@ export const LINGER_PET_CSS = `
    - 最小宽度只压到 0.34（原来 0.16，太薄就成了纸片），始终保留体积
    - 加左右位移（±2px）与 ±3° 微转，暗示"质量绕着中轴甩过去"
    - 头发/裙摆/腰带**滞后一拍**（各自再做一个反向 scaleX/rotate），形成拖尾 */
+/* 身体：只在换面那一下轻微收窄 + 位移（正面留 ~23%，背面留 ~47%） */
 @keyframes linger-microSpin {
   0%   { transform: translate(0, 0) scale(1, 1); }
-  15%  { transform: translate(-1.5px, -0.7px) scale(0.36, 1.02); }
-  34%  { transform: translate(-2.1px, -1.2px) scale(-0.62, 1.02) rotate(-3deg); }
-  50%  { transform: translate(-0.4px, -1.5px) scale(-1, 1); }
-  66%  { transform: translate(1.5px, -0.9px) scale(-0.36, 1.02); }
-  84%  { transform: translate(2.1px, -0.6px) scale(0.62, 1.02) rotate(3deg); }
+  20%  { transform: translate(-1.2px, -0.6px) scale(0.8, 1.01); }
+  27%  { transform: translate(-0.8px, -1.3px) scale(1, 1); }
+  70%  { transform: translate(0.8px, -1.3px) scale(1, 1); }
+  77%  { transform: translate(1.2px, -0.6px) scale(0.8, 1.01); }
   100% { transform: translate(0, 0) scale(1, 1); }
+}
+/* 正面专属部件：23%~72% 藏起来（那段看背面图） */
+@keyframes linger-microSpinFace {
+  0%,23%     { opacity: 1; }
+  23.1%,72%  { opacity: 0; }
+  72.1%,100% { opacity: 1; }
+}
+/* 背面视图：23%~72% 显示 */
+@keyframes linger-microSpinBack {
+  0%,23%     { opacity: 0; }
+  23.1%,72%  { opacity: 1; }
+  72.1%,100% { opacity: 0; }
 }
 @keyframes linger-microSpinFlare {
   0%,100% { transform: rotate(-1.4deg) scaleX(1); }
   28%     { transform: rotate(3deg) scaleX(1.11); }
   56%     { transform: rotate(-1deg) scaleX(0.74); }
   80%     { transform: rotate(2deg) scaleX(1.06); }
-}
-@keyframes linger-microSpinHair {
-  0%,100% { transform: rotate(0deg) scaleX(1); }
-  30%     { transform: rotate(9deg) scaleX(1.14); }
-  58%     { transform: rotate(-5deg) scaleX(0.8); }
-  82%     { transform: rotate(5deg) scaleX(1.05); }
 }
 @keyframes linger-microSpinRibbon {
   0%,100% { transform: rotate(0deg) scaleX(1); }

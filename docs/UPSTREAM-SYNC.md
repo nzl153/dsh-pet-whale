@@ -117,4 +117,25 @@ pnpm install; pnpm build                       # 回到可用状态
 dsh plugin --profile web add link:<仓库路径> --config.minimumReleaseAge=0
 ```
 
+## 8. 推到自己的 fork（本仓库当前状态）
+
+本仓库已经有一个 GitHub fork：`https://github.com/wzwei1990/dsh-pet-whale.git`
+（本地克隆 `E:\mygit3\dsh-pet-whale`），工作副本里加了名为 `fork` 的 remote。
+
+```powershell
+# 日常：改动提交到 feat/multi-pet，然后推分支
+git push fork feat/multi-pet
+
+# 想让 fork 的默认分支 main 也是最新代码（本仓库的 main 与分支基线一致，属快进、无冲突）
+git push fork feat/multi-pet:main
+
+# 以后同步上游：把上游合并进分支，再推 fork
+git fetch origin main; git merge origin/main; pnpm pet:doctor; pnpm test
+git push fork feat/multi-pet; git push fork feat/multi-pet:main
+```
+
+> `fork` 的 main 与分支基线同为 `8ed73aa` 时才是快进。若之后分叉了（例如上游已合并你的改动），
+> 就别再直接推 main，改成推分支 + 在 GitHub 上开 PR。
+
+
 需要发到 npm 的话，先改 `package.json` 的 `name` / `version`（别占用上游的包名）。

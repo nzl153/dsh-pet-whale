@@ -163,6 +163,9 @@ node patches/apply-patches.cjs <dsh 安装根目录>
 - 鲸鱼轮廓使用 DeepSeek 官方 FishLogo 路径（品牌素材，使用请注明出处）
 - 交互设计思路参考 [whale-girl](https://github.com/vlln/whale-girl)（MIT）
 - 主题配色灵感来自 Anthropic Claude 的暖色纸感风格
+- **灵儿（Ling'er）是非商业同人角色**：原型为《仙剑奇侠传》赵灵儿（软星 / 大宇资讯 IP），
+  造型是按参考图**重画的手写 SVG**、未使用任何原作素材，**不可商用**；
+  本仓库与上游作者、DSH 官方及权利人无关联。详见 [NOTICE.md](NOTICE.md)
 
 ## License
 

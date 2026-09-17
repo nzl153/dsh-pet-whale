@@ -133,6 +133,16 @@ the browser invalidates and reloads this plugin automatically. **Client-only cha
   - `pnpm build` — one-shot full build before committing
   - `pnpm typecheck` / `pnpm test` — type check and smoke tests
 
+## Notice
+
+- The `灵儿 / Ling'er` pet is **non-commercial fan work**. Its character reference is
+  **Zhao Ling'er** from *The Legend of Sword and Fairy* (Softstar / 大宇资讯). It was re-drawn
+  from scratch as hand-written SVG with **no game assets** extracted or redistributed, and it
+  **must not be used commercially**. This repository is unaffiliated with and unendorsed by the
+  rights holder, the upstream plugin author, and the DSH project. See [NOTICE.md](NOTICE.md).
+- The whale silhouette uses DeepSeek's official FishLogo path (brand asset — credit the source).
+- Interaction design was inspired by [whale-girl](https://github.com/vlln/whale-girl) (MIT).
+
 ## License
 
 [MIT](LICENSE)

@@ -16,4 +16,7 @@ export const lingerPet: PetModule = {
   css: LINGER_PET_CSS,
   text: LINGER_TEXT,
   size: { w: 87, h: 160 },
+  // 她是站着的：idle 的"随机小挪动"会变成无缘无故到处飘（而且没有对应的飞行/走动动作），
+  // 所以关掉。想看她在屏幕上飞，用右键菜单的「御剑」（= 游泳模式）。
+  idleDrift: false,
 }

@@ -121,6 +121,16 @@ for (const id of petIds) {
       }
     }
   }
+  // 竖版盒子（h 明显大于 w）＝站立型角色：建议关掉 idle 的随机平移，
+  // 否则 microSwim 会每 9~17 秒把她平移最多 ±100px/±70px，看着像"无缘无故到处飘"
+  const petIndex = existsSync(join(dir, 'index.ts')) ? readFileSync(join(dir, 'index.ts'), 'utf8') : ''
+  const sizeM = /size:\s*\{\s*w:\s*(\d+)\s*,\s*h:\s*(\d+)\s*\}/.exec(petIndex)
+  if (sizeM) {
+    const [, w, h] = sizeM.map(Number)
+    if (h > w * 1.4 && !/idleDrift:\s*false/.test(petIndex)) {
+      warn(`${id} 是竖版盒子（${w}×${h}，站立型）但没写 idleDrift:false —— idle 会被 microSwim 随机平移，看着像到处飘`)
+    }
+  }
   if (problems.length === 0) ok(`宠物 ${id}：文件齐全、已注册、关键帧无冲突`)
   else bad(`宠物 ${id}：${problems.join('；')}`)
 }

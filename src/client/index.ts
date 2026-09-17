@@ -1432,9 +1432,11 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
         if (Math.random() < 0.5) microLook()
         else microBubbles()
       } else {
+        // idleDrift:false 的宠物（站立的灵儿）不做随机平移：平移而没有对应动作＝无缘无故到处飘
+        const canDrift = activePet.idleDrift !== false
         const roll = Math.random()
-        if (roll < 0.35) microSwim()
-        else if (roll < 0.7) microLook()
+        if (canDrift && roll < 0.35) microSwim()
+        else if (roll < (canDrift ? 0.7 : 0.55)) microLook()
         else microBubbles()
       }
       scheduleIdleMicro()

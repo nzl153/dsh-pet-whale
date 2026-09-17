@@ -35,4 +35,11 @@ export interface PetModule {
   size?: { w: number; h: number }
   /** 可选：鼠标追光的瞳孔选择器，默认 '.pupil-highlight' */
   pupilSelector?: string
+  /**
+   * 可选：idle 时是否允许"随机小挪动"（默认 true）。
+   * 鲸鱼、猫这类会游走/溜达的宠物保持默认；**站立型人物请设 false** ——
+   * 平移时没有对应动作（不像在飞、也不像在走），看着就是"无缘无故到处飘"。
+   * 关掉后 idle 的小动作只剩看四周、冒泡泡这类原地动作。
+   */
+  idleDrift?: boolean
 }

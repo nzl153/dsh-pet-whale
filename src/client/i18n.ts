@@ -72,6 +72,12 @@ export interface PetStrings {
   /** 宠物名字：id → 该语言下的名字；缺失时回落到 PetModule.name（与 palette 同样的回退策略） */
   pet: Record<string, string>
   palette: Record<string, string>
+  /**
+   * 原地动作的碎语池：动作 id → 台词。
+   * 动作 id 由 `PetModule.micro` 声明，插件调度器按"洗牌袋"挑动作、按概率配一句话。
+   * 缺这个 id（或空数组）＝做这个动作时闭嘴。基准（鲸鱼）是空表 —— 鲸鱼不做原地动作。
+   */
+  micro: Record<string, string[]>
   feedback: {
     squish: string
     roll: string
@@ -243,6 +249,8 @@ const zh: PetStrings = {
     'theme-blue': '主题蓝',
     qinglian: '青莲',
   },
+  // 鲸鱼不做原地动作（它有游泳/看四周/吐泡泡那一套），所以基准是空表
+  micro: {},
   feedback: {
     squish: '戳一戳，心情 +1 ✨',
     roll: '翻个 360° 跟头给你看！(≧∇≦)ﾉ ✨',
@@ -456,6 +464,7 @@ const en: PetStrings = {
     'theme-blue': 'Theme Blue',
     qinglian: 'Lotus Green',
   },
+  micro: {},
   feedback: {
     squish: 'Poke! Mood +1 ✨',
     roll: 'A 360° flip just for you! (≧∇≦)ﾉ ✨',

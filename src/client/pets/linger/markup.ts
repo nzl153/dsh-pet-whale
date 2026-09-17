@@ -96,9 +96,9 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               <circle cx="7.85" cy="20.6" r="0.95" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18"/>
               <!-- 前臂：袖口 + 垂下的袖尾 + 手，整体绕肘转动 -->
               <g class="forearm" style="transform-origin: 7.85px 20.6px">
-                <path d="M6.9 20.4 C6.8 22.4 6.7 24.2 6.7 25.6 C7.8 26.4 9.0 26.3 9.7 25.5 C9.8 24.0 9.9 22.2 10.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M6.75 25.4 C6.6 27.6 6.6 29.4 6.8 30.8 C7.9 31.5 9.1 31.3 9.8 30.4 C9.8 28.8 9.9 27.0 10.0 25.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M6.7 24.4 C7.7 25.1 8.9 24.9 9.7 24.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
+                <!-- 前臂：喇叭形广袖，袖口停在腕部（手从袖口下方露出，不再有第三截） -->
+                <path d="M6.9 20.4 C6.6 22.2 6.1 24.0 5.7 25.5 C7.0 26.5 8.5 26.5 9.6 25.6 C9.9 23.9 10.0 22.1 10.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
+                <path d="M6.0 24.4 C7.2 25.2 8.5 25.1 9.6 24.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
                 <g class="hand">
                   <path d="M7.9 25.7 C7.2 25.7 6.8 26.2 6.8 26.9 C6.8 27.7 7.3 28.2 8.0 28.2 C8.7 28.2 9.1 27.6 9.1 26.9 C9.1 26.2 8.6 25.7 7.9 25.7 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M6.9 26.4 C6.5 26.2 6.3 26.3 6.2 26.6 C6.1 26.9 6.3 27.2 6.6 27.2" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
@@ -111,21 +111,34 @@ export const LINGER_HTML = `<svg viewBox="0 0 26 48" aria-hidden="true">
               <path d="M16.8 14.2 C18.1 15.4 18.9 17.4 19.1 19.4 L19.1 20.8 C18.2 21.5 17.0 21.3 16.2 20.5 C16.0 18.4 15.8 16.6 15.3 15.9 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
               <circle cx="18.15" cy="20.6" r="0.95" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18"/>
               <g class="forearm" style="transform-origin: 18.15px 20.6px">
-                <path d="M19.1 20.4 C19.2 22.4 19.3 24.2 19.3 25.6 C18.2 26.4 17.0 26.3 16.3 25.5 C16.2 24.0 16.1 22.2 16.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M19.25 25.4 C19.4 27.6 19.4 29.4 19.2 30.8 C18.1 31.5 16.9 31.3 16.2 30.4 C16.2 28.8 16.1 27.0 16.0 25.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M19.3 24.4 C18.3 25.1 17.1 24.9 16.3 24.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
+                <!-- 前臂：喇叭形广袖，袖口停在腕部（手从袖口下方露出，不再有第三截） -->
+                <path d="M19.1 20.4 C19.4 22.2 19.9 24.0 20.3 25.5 C19.0 26.5 17.5 26.5 16.4 25.6 C16.1 23.9 16.0 22.1 16.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
+                <path d="M20.0 24.4 C18.8 25.2 17.5 25.1 16.4 24.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
                 <g class="hand">
                   <path d="M18.1 25.7 C18.8 25.7 19.2 26.2 19.2 26.9 C19.2 27.7 18.7 28.2 18.0 28.2 C17.3 28.2 16.9 27.6 16.9 26.9 C16.9 26.2 17.4 25.7 18.1 25.7 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M19.1 26.4 C19.5 26.2 19.7 26.3 19.8 26.6 C19.9 26.9 19.7 27.2 19.4 27.2" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M18.7 27.8 L18.7 28.4 M18.1 28.0 L18.1 28.6 M17.5 27.8 L17.5 28.4" fill="none" stroke="#E8C4A8" stroke-width="0.08" stroke-linecap="round"/>
+                </g>
+                <!-- 折扇：挂在右手里（默认隐藏，micro-fan 时展开挥动）。
+                     放在 .forearm 里，所以抬手/挥扇会跟着手臂一起走。 -->
+                <g class="fan" style="display:none;transform-origin:18.1px 26.4px">
+                  <!-- 扇面画成"局部朝下"：右前臂折起约 110° 时它正好转到朝上，像在胸前扇风 -->
+                  <path d="M18.1 26.4 L20.0 30.6 A 4.5 4.5 0 0 1 16.2 30.6 Z" fill="#F7F2E4" stroke="#B9A98C" stroke-width="0.14" stroke-linejoin="round"/>
+                  <path d="M20.0 30.6 A 4.5 4.5 0 0 1 16.2 30.6" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.38" stroke-linecap="round"/>
+                  <path d="M18.1 26.4 L19.6 30.3 M18.1 26.4 L18.1 30.9 M18.1 26.4 L16.6 30.3" fill="none" stroke="#B9A98C" stroke-width="0.12" stroke-linecap="round"/>
+                  <path d="M17.4 30.9 C17.0 31.6 16.9 32.2 17.1 32.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.2" stroke-linecap="round"/>
+                  <circle cx="18.1" cy="26.4" r="0.34" fill="#C9A76A"/>
                 </g>
               </g>
             </g>
             <!-- 脖子（领口会盖住下半段，靠下面的"颈洞"露出来） -->
             <rect x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
 
-            <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子 -->
-            <g class="head" transform="translate(0 -1.2)">
+            <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子。
+                 注意：位移写在样式表里（[data-dsh-whale] .pet-official .head），
+                 **不要**写成 transform 属性 —— 那样 CSS 动画（远眺/理鬓等）一上就会覆盖属性，
+                 头会当场掉下来。 -->
+            <g class="head">
             <!-- 脸：圆一些、下巴短一点（原来上下拉得太长） -->
             <path d="M13 4.2 C10.5 4.2 8.5 6.0 8.5 8.4 C8.5 10.6 9.4 12.5 11.0 13.4 C11.6 13.7 12.3 13.9 13 13.9 C13.7 13.9 14.4 13.7 15.0 13.4 C16.6 12.5 17.5 10.6 17.5 8.4 C17.5 6.0 15.5 4.2 13 4.2 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->

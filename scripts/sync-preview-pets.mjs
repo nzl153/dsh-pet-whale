@@ -49,6 +49,8 @@ const pets = PET_DIRS.map((id) => {
   const text = dataOf(join(dir, 'text.ts'), `${id.toUpperCase()}_TEXT`)
   // 宠物自带尺寸（竖版人物用），预览页要按它显示
   const sizeMatch = /size:\s*\{\s*w:\s*(\d+)\s*,\s*h:\s*(\d+)\s*\}/.exec(meta)
+  // 原地动作清单（idle 时能演的那套）：预览页据此生成试演按钮
+  const micro = [...(/micro:\s*\[([^\]]*)\]/.exec(meta)?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1])
   const toPageDict = (t) => ({
     // 预览页自己的键名（见 preview.html 里的 i18n 对象）
     ...(t.status ? { status: t.status } : {}),
@@ -71,6 +73,7 @@ const pets = PET_DIRS.map((id) => {
     nameZh,
     nameEn,
     size: sizeMatch ? { w: Number(sizeMatch[1]), h: Number(sizeMatch[2]) } : undefined,
+    micro,
     html: tpl(join(dir, 'markup.ts')),
     css: tpl(join(dir, 'styles.ts')),
     ui: {
@@ -78,12 +81,14 @@ const pets = PET_DIRS.map((id) => {
         modeLabels: { [id]: `${icon} ${nameZh}` },
         title: `${icon} 桌宠${nameZh} · 预览`,
         hint: `提示：单击${nameZh}触发撒娇/翻滚/晕乎互动；双击翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。`,
+        microLabel: '原地动作：',
         ...toPageDict(text.zh),
       },
       en: {
         modeLabels: { [id]: `${icon} ${nameEn}` },
         title: `${icon} Desktop Pet ${nameEn} · Preview`,
         hint: `Tip: click the ${nameEn.toLowerCase()} for pokes/rolls; double-click to roll; move the mouse to follow; it naps when idle.`,
+        microLabel: 'Idle actions:',
         ...toPageDict(text.en),
       },
     },
@@ -143,7 +148,7 @@ html = upsert(html, 'pet-nodes', nodeBlock, '        <span class="bubble-blue bb
 const json = (v) => JSON.stringify(v, null, 2).replaceAll('<', '\\u003c')
 const uiBlock = `<script id="pet-ui-data">
   // 由 scripts/sync-preview-pets.mjs 生成：宠物模块清单 + 该宠物的文案覆盖
-  window.__PET_MODULES__ = ${json(pets.map((p) => ({ id: p.id, baseClass: 'pet-official' })))};
+  window.__PET_MODULES__ = ${json(pets.map((p) => ({ id: p.id, baseClass: 'pet-official', micro: p.micro })))};
   window.__PET_UI__ = ${json(Object.fromEntries(pets.map((p) => [p.id, p.ui])))};
 </script>`
 html = upsert(html, 'pet-ui-data', uiBlock, '<script>', 'before')

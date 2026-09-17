@@ -97,13 +97,19 @@ pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 运行时挂两张样式表——公共的 `BASE_CSS` 常驻，**当前宠物那张整段替换**——所以两只宠物的
 选择器与 keyframes 永不共存，互不干扰。行为逻辑（状态机、拖拽、游动、粒子、菜单、统计）与宠物无关。
 
-完整的接入步骤、状态 class 契约表、三条约定（上色只用 CSS 变量 / keyframes 用自己的前缀 /
-容器比例）和调试截图方法见 **[docs/MULTI-PET.md](docs/MULTI-PET.md)**。
+完整的接入步骤、状态 class 契约表、五条约定（上色只用 CSS 变量 / keyframes 用自己的前缀 /
+容器比例 / 第三方 IP 声明 / **原地动作声明式**）和调试截图方法见 **[docs/MULTI-PET.md](docs/MULTI-PET.md)**。
+
+idle 时的小动作是**声明式**的：宠物用 `micro: ['spin', 'spell', …]` 声明自己会演哪些原地动作，
+插件按洗牌袋轮播并可配一句碎语（`i18n.micro[id]`）—— 灵儿关了御剑就靠这套（原地转圈/放法术/扇扇子/远眺），
+新宠物加动作 = 声明 id + 写一段 keyframes，插件逻辑不用改。
 
 ```sh
 pnpm preview      # 生成 pet-preview.html：所有宠物 × 多状态铺成一张网格，浏览器直接打开
-pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在也能切宠物：?pet=cat / ?pet=linger）
-pnpm pet:doctor   # 体检：样式切分、宠物注册、预览页同步、构建产物新鲜度（只读）
+                  #   node scripts/preview-pets.mjs --only=linger --states=micro-gaze --scale=4  挑单个动作
+pnpm sync:preview # 把宠物资源同步进手写的 preview.html（它现在也能切宠物：?pet=cat / ?pet=linger，
+                  #   并会按 micro 清单生成「原地动作」试演按钮）
+pnpm pet:doctor   # 体检：样式切分、宠物注册、动作声明与样式是否配对、预览页同步、构建新鲜度（只读）
 ```
 
 改造过之后，**上游更新了怎么合进来**（merge 流程、冲突对照表、回滚）见

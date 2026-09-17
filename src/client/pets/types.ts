@@ -42,4 +42,19 @@ export interface PetModule {
    * 关掉后 idle 的小动作只剩看四周、冒泡泡这类原地动作。
    */
   idleDrift?: boolean
+  /**
+   * 可选：idle 时能演的**原地动作**清单（声明式，插件逻辑不用为每只宠物改代码）。
+   *
+   * 约定（照做就不会踩坑）：
+   * - 触发器是加在 `.pet-official` 上的临时 class：`.micro-<id>`，播完由插件移除
+   * - 样式表写 `[data-dsh-whale] .pet-official.micro-<id> <部件> { animation: <一次性> }`
+   * - 动画**必须一次性**（别 infinite），时长 ≤ 2.2s，且 **0% 与 100% 都是中性姿态**
+   *   —— class 移除是硬切，首尾回到中性才看不出跳变
+   * - 台词池走 i18n 的 `micro[id]`（可选；配一句话才像"她在做事"）
+   * - 只在「御剑/游泳」关闭、状态为 idle 时播；洗牌袋保证短周期内不重复
+   *
+   * 不声明（或空数组）＝不做原地动作，调度器退回"看四周 / 吐泡泡"的老行为。
+   * 灵儿的 4 个：spin(原地转圈·绕竖轴) spell(放法术) fan(扇扇子) gaze(远眺)
+   */
+  micro?: string[]
 }

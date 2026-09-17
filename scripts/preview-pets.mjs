@@ -42,11 +42,22 @@ const cells = [
   // 灵儿：多给几个状态，方便对着参考图挑造型
   ['linger', 'idle', ''], ['linger', 'think', ''], ['linger', 'working', ''], ['linger', 'celebrate', ''],
   ['linger', 'error', ''], ['linger', 'sleeping', ''], ['linger', 'belly-up', ''], ['linger', 'swimming', 'swimming'],
+  // 原地动作（关闭御剑时的那套）：格子直接挂 micro-<id>，静态图停在动画中段看姿势
+  ['linger', 'micro-spin', ''], ['linger', 'micro-spell', ''], ['linger', 'micro-fan', ''], ['linger', 'micro-gaze', ''],
 ]
 
 /** --only=<宠物 id>：只画这一只（挑细节时用），默认全都画 */
 const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
-const shownCells = ONLY ? cells.filter(([id]) => id === ONLY) : cells
+/** --states=micro-sleeve,micro-collar：只画这些状态（挑单个动作/姿势时用） */
+const STATES = process.argv
+  .find((a) => a.startsWith('--states='))
+  ?.slice('--states='.length)
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+const shownCells = cells
+  .filter(([id]) => (ONLY ? id === ONLY : true))
+  .filter(([, state]) => (STATES && STATES.length > 0 ? STATES.includes(state) : true))
 
 const cellHtml = shownCells
   .map(([id, state, rootState]) => {

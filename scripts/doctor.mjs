@@ -80,6 +80,7 @@ const keyframeOwners = new Map()
 for (const id of petIds) {
   const dir = join(petsDir, id)
   const problems = []
+  const notes = []
   if (!existsSync(join(dir, 'index.ts'))) problems.push('缺 index.ts')
   if (!existsSync(join(dir, 'styles.ts'))) problems.push('缺 styles.ts')
   if (!existsSync(join(dir, 'markup.ts'))) warn(`pets/${id} 没有 markup.ts（SVG 来自别处，例如生成物，属正常）`)
@@ -92,6 +93,15 @@ for (const id of petIds) {
   }
   if (existsSync(join(dir, 'styles.ts'))) {
     const css = tpl(join(dir, 'styles.ts'))
+    // micro 声明了的原地动作，样式表里必须有对应规则，否则"声明了却不会演"（静默失效）
+    const microSrc = /micro:\s*\[([^\]]*)\]/.exec(idx)
+    if (microSrc) {
+      const ids = [...microSrc[1].matchAll(/'([^']+)'/g)].map((m) => m[1])
+      for (const mid of ids) {
+        if (!css.includes(`.micro-${mid}`)) problems.push(`micro 声明了 '${mid}'，但样式表里没有 .micro-${mid} 规则`)
+      }
+      if (ids.length > 0) notes.push(`${ids.length} 个原地动作（${ids.join('/')}）样式齐全`)
+    }
     for (const m of css.matchAll(/@keyframes\s+([A-Za-z0-9_-]+)/g)) {
       const name = m[1]
       if (name.startsWith('pw-')) problems.push(`styles.ts 定义了 pw-* 关键帧 ${name}（pw-* 属于 BASE_CSS）`)
@@ -131,7 +141,7 @@ for (const id of petIds) {
       warn(`${id} 是竖版盒子（${w}×${h}，站立型）但没写 idleDrift:false —— idle 会被 microSwim 随机平移，看着像到处飘`)
     }
   }
-  if (problems.length === 0) ok(`宠物 ${id}：文件齐全、已注册、关键帧无冲突`)
+  if (problems.length === 0) ok(`宠物 ${id}：文件齐全、已注册、关键帧无冲突${notes.length > 0 ? '，' + notes.join('；') : ''}`)
   else bad(`宠物 ${id}：${problems.join('；')}`)
 }
 

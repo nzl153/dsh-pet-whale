@@ -56,6 +56,13 @@ const zh: PetTextOverrides = {
     sedentarySet: (min) => `好，坐满 ${min} 分钟，我提醒你起来走走。`,
     restNudge: ['久坐伤身，起来舒展一下吧 🌸', '喝口茶？我陪你歇歇。', '眼睛也该歇了，看看远处。', '修行也讲张弛，你也一样。'],
   },
+  // idle 原地动作的碎语（动作 id 与 pets/linger/index.ts 的 micro 清单对应）
+  micro: {
+    spin: ['（原地转了个圈，裙裾如花）', '转一圈，灵气顺一顺 ✦', '旋身一礼——好看么？'],
+    spell: ['敕——！', '（结印于胸前，灵光自足下升起）', '符成，诸邪退避 ✦', '且看这一式。'],
+    fan: ['（展开折扇，徐徐摇了两下）', '心静自然凉。', '扇面上这枝梅，是我自己题的。'],
+    gaze: ['云那边似乎有动静。', '（远眺片刻，风把裙裾带起）', '今日天光不错，宜出行。'],
+  },
   aria: {
     mini: '显示桌宠灵儿',
     miniTitle: (state) => `桌宠灵儿（${state}）· 点我召回，可拖拽移动`,
@@ -131,6 +138,12 @@ const en: PetTextOverrides = {
       'Your eyes need rest too; look far away.',
       'Even cultivation needs balance — so do you.',
     ],
+  },
+  micro: {
+    spin: ['(turns once on the spot, skirt blooming)', 'One turn to settle my qi ✦', 'A twirl and a bow — how was that?'],
+    spell: ['Seal — !', '(forms a sign at her chest, light rising from her feet)', 'The charm holds; nothing foul may pass ✦', 'Watch this one.'],
+    fan: ['(unfurls a folding fan and waves it twice)', 'A calm mind cools itself.', 'I wrote that plum branch on the fan myself.'],
+    gaze: ['Something stirs past those clouds.', '(gazes afar, skirt lifted by the wind)', 'Fine light today — good for travel.'],
   },
   aria: {
     mini: 'Show desktop pet Ling\'er',

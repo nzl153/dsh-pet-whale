@@ -187,7 +187,52 @@ export const CAT_TEXT = {
 小猫的完整覆盖见 `src/client/pets/cat/text.ts`（中英各一套）。冒烟测试里有两条断言盯着它：
 "小猫的思考台词是猫口吻""小猫不会说深潜"，以及切回鲸鱼后台词恢复基准。
 
-## 四条约定（照做就不会踩坑）
+## idle 原地动作（`micro`）——关掉御剑后她靠这套"活着"
+
+插件在 idle、且「御剑/游泳」关闭时，会从宠物**声明的动作清单**里挑一个来演（洗牌袋，短周期不重复），
+并有机会（60%）配一句碎语。整层是声明式的：**加动作 = 声明 id + 写 keyframes**，插件逻辑不用动。
+
+```ts
+// pets/<id>/index.ts
+micro: ['spin', 'spell', 'fan', 'gaze'],
+```
+
+```css
+/* pets/<id>/styles.ts：触发器是加在 .pet-official 上的临时 class（插件 2.4s 后移除） */
+[data-dsh-whale] .pet-official.micro-spell .forearm { animation: linger-microSpellL 2.2s ease-in-out; }
+```
+
+台词池写在 i18n 的 `micro[id]`（见 `pets/<id>/text.ts`）：
+
+```ts
+micro: { spell: ['敕——！', '（结印于胸前，灵光自足下升起）'], /* … */ },
+```
+
+**规则（这几条都是踩出来的）：**
+
+1. 动画**一次性**，别 `infinite`；时长 ≤ 2.2s（插件 2.4s 后摘 class）
+2. **0% 与 100% 都必须是中性姿态**（＝待机那套数值）。摘 class 是硬切，首尾不回中性会看见跳变
+3. **轴心必须显式写**：SVG 子元素默认 `transform-box: view-box` —— 旋转轴是**整个画布中心**，
+   不写 `transform-origin` 的话"点头/抬手"会变成绕腰部平移（御剑歪了、远眺飘了都是这个）
+4. **别在同一元素上同时用 SVG `transform` 属性和 CSS 动画**：CSS 会覆盖属性。
+   灵儿 `.head` 的"上移 1.2"就是这么从属性搬进样式表的
+5. **几何限制**：手肘是刚体、前臂只有 6 单位 —— **手够不到头/脸**（差 4 单位以上），
+   所以"摸头/理鬓/遮阳"这类做不了；够得到的是：抬手到胸前（扇扇子）、双臂上举（放法术）、只动头/发/裙（远眺）
+6. 站立型宠物（竖版盒子）记得 `idleDrift: false`，否则 idle 还会被 `microSwim` 随机平移（看着像到处飘）
+7. **调度器还要看"根上的状态"**：原地动作只在 `visualState === 'idle'` 播，但**打瞌睡（`sleeping` 是根 class）
+   与闹脾气（`sulking` 变量）时 `visualState` 仍是 `idle`** —— 不单独判断就会"一边睡觉一边转圈"。
+   `hidden` / `dragging` / 菜单打开 / 页面不可见同样要排除（`scheduleIdleMicro` 的守卫就是这份清单）；
+   进入这些状态时若动作还没演完，用 `clearMicroAction()` 收掉
+
+**怎么看效果**：改完跑 `pnpm sync:preview` + `pnpm build`，然后
+
+```sh
+node scripts/preview-pets.mjs --only=linger --states=micro-spell,micro-gaze --scale=4  # 单格静态姿势
+# 或在 preview.html 里点「原地动作」那一行的按钮看动态（按钮按 micro 清单自动生成）
+pnpm pet:doctor   # 会检查：声明了的动作必须有对应 .micro-<id> 样式（防"声明了却不会演"）
+```
+
+## 五条约定（照做就不会踩坑）
 
 1. **上色只用 CSS 变量**：`--pw-body` / `--pw-body-light` / `--pw-body-dark` / `--pw-blush` /
    `--pw-eye` / `--pw-pupil`。这样 `palettes.ts` 里 7 套色板对所有宠物自动生效，换肤不用改一行代码。
@@ -200,6 +245,8 @@ export const CAT_TEXT = {
 4. **第三方 IP 要写声明**：宠物若基于动漫/游戏角色，在 `NOTICE.md` 补一段
    （原型作品、权利人、非商业、可移除），并在 README「声明」里加一行；
    而且**不要把原作素材放进仓库**，自己重画成 SVG/CSS。参考 `pets/linger` 的做法。
+5. **原地动作走声明式**：想让宠物在 idle 时有自己的小动作，声明 `micro: [...]` + 写一次性 keyframes
+   （首尾回中性、轴心显式写），别把动作逻辑写进 `index.ts`。完整规矩见上一节「idle 原地动作」。
 
 ## 状态 class 契约
 
@@ -209,6 +256,7 @@ export const CAT_TEXT = {
 |---|---|---|---|
 | `idle` `think` `working` `celebrate` `error` `wait` `disappointed` | `.pet-official` | 主状态机，互斥 | `think` = 回合中无工具，`working` = 有工具调用 |
 | `joy` `squish` `dizzy` `rolling` `belly-up` `annoyed` `sulking` `shaken` `welcome` `impatient` `spouting` | `.pet-official` | 互动/瞬时反应 | 到时自动移除（如 `joy` 1.1s、`belly-up` 2s） |
+| `micro-<id>` | `.pet-official` | idle 时演一次"原地动作" | 由 `PetModule.micro` 声明；2.4s 后自动移除，动画首尾必须回中性 —— 见上一节 |
 | `swimming` `swim-dive` `swimming-dive` | `.pet-official` | 自主巡游 | 由 `swim.ts` 驱动 |
 | `sleeping` `dragging` `edge-left` `edge-right` `hidden` `paused` `swimming` | 根 `[data-dsh-whale]` | 全局状态 | `hidden`/`paused` 由 BASE_CSS 处理 |
 | `data-facing="right"` | 根 | 拖拽/游动朝向 | 需要翻转时自己写 `[data-facing="right"]` 规则 |

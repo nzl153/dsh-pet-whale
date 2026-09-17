@@ -90,9 +90,48 @@ export const LINGER_PET_CSS = `
 /* 手：待机时轻轻前后摆（宽度 ±0.35 单位，看得见但不夸张） */
 [data-dsh-whale] .pet-official .arm { animation: linger-armSwayL 4.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .arm + .arm { animation: linger-armSwayR 4.4s ease-in-out infinite; }
-/* 空闲姿态 = 抱臂（垂手不好看）：左前臂横在上、右前臂垫在里，带轻微呼吸起伏 */
+/* 空闲姿态 = 双手交叠于腹前（只折 42°）。原来是"抱臂"（-122/+96），但手肘是刚体、
+   前臂仅 6 单位，折多了手只能落在胸口中线、必然压住另一只袖子 —— 看着就是"手和袖口重叠"。
+   折 42° 时手落在腰带两侧、红飘带从两手之间露出来，干净且仍然端正。 */
 [data-dsh-whale] .pet-official .forearm { animation: linger-forearmHugL 4.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .arm + .arm .forearm { animation: linger-forearmHugR 4.4s ease-in-out infinite; }
+/* 头部上移 1.2（原来写在 SVG 的 transform 属性上；改成 CSS 才能和"远眺/整衣襟"等 CSS 动画共存）。
+   轴心必须显式给：SVG 子元素默认以 viewBox 中心为轴（transform-box:view-box），
+   不写的话"点头/抬头"会变成绕腰部的平移。14.4 = 脖子根在**局部坐标**里的位置
+   （局部比渲染位置低 1.2，因为位移是这一层的 transform 做的）。 */
+[data-dsh-whale] .pet-official .head { transform-origin: 13px 14.4px; transform: translateY(-1.2px); }
+
+/* ===== idle 原地动作（micro-*）：关闭御剑时她就靠这些"活着" =====
+   约定（见 pets/types.ts）：插件给 .pet-official 加临时 class，2.4s 后移除；
+   动画必须一次性、≤2.2s，且 0% / 100% 都回到**中性姿态**（否则移除时硬切会跳）。
+   中性姿态＝待机那一套：.body = translateY(0) scale(1,1)｜左前臂 -42°｜右前臂 +42°｜
+   .head = translateY(-1.2px)（轴心在脖子）｜.skirt = rotate(-1.4deg) scaleX(1)｜.hair(后发) 无动画。
+
+   只留 4 个（用户 2026-09-17 拍板）：转圈(spin) / 放法术(spell) / 扇扇子(fan) / 远眺(gaze) ——
+   前三个"看得出来"，远眺安静。原先的拂袖/整衣襟/掐指/裙摆轻摆幅度太小，已删。 */
+/* 原地转圈：绕**竖轴**转身（.body 做 scaleX 翻转），不是在画面里翻滚 */
+[data-dsh-whale] .pet-official.micro-spin .body { animation: linger-microSpin 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .skirt { animation: linger-microSpinFlare 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .hair { animation: linger-microSpinHair 1.9s ease-in-out; transform-origin: 13px 7px; }
+[data-dsh-whale] .pet-official.micro-spin .ribbon { animation: linger-microSpinRibbon 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .sash { animation: linger-microSpinSash 1.9s ease-in-out; }
+/* 放法术：双臂抬起结印 + 脚下法阵亮起 + 花瓣升起 + 指尖灵光 */
+[data-dsh-whale] .pet-official.micro-spell .forearm { animation: linger-microSpellL 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .arm + .arm .forearm { animation: linger-microSpellR 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .hand-seal { display: block !important; animation: linger-microSealGlow 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .keyboard-unit { display: block !important; animation: linger-microFormation 2.2s ease-out; }
+[data-dsh-whale] .pet-official.micro-spell .spout-group { display: block !important; animation: linger-microSpout 2.2s ease-out; }
+[data-dsh-whale] .pet-official.micro-spell .head { animation: linger-microHeadGaze 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .skirt { animation: linger-microSkirtPulse 2.2s ease-in-out; }
+/* 扇扇子：右手折扇展开并挥动（扇子挂在右前臂里，随手臂走） */
+[data-dsh-whale] .pet-official.micro-fan .arm + .arm .forearm { animation: linger-microFanArm 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .fan { display: block !important; animation: linger-microFanWave 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .ribbon { animation: linger-microFanRibbon 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .head { animation: linger-microHeadTiltRight 2.2s ease-in-out; }
+/* 远眺：抬头 + 长发与裙摆被风带起 */
+[data-dsh-whale] .pet-official.micro-gaze .head { animation: linger-microGazeUp 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-gaze .hair { animation: linger-microHairTrail 2.2s ease-in-out; transform-origin: 13px 7px; }
+[data-dsh-whale] .pet-official.micro-gaze .skirt { animation: linger-microSkirtTrail 2.2s ease-in-out; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
@@ -337,7 +376,125 @@ export const LINGER_PET_CSS = `
   0%,100% { transform: rotate(-1.2deg); }
   50%     { transform: rotate(1.6deg); }
 }
-/* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
+/* ---- idle 原地动作（micro-*）的关键帧 ----
+   规矩：一次性、≤2.2s、**首尾回中性姿态**（待机那套数值），class 被移除时看不出跳变。
+   中性值速查：.body = translateY(0) scale(1,1)｜.skirt = rotate(-1.4deg) scaleX(1)｜
+   .sash = rotate(-2.5deg)｜.head = translateY(-1.2px)｜左前臂 = rotate(-42deg)｜右前臂 = rotate(42deg)｜
+   .hair(后发) 无动画｜.fan 有独立轴心（扇钉）。
+   几何限制：手肘刚体、前臂 6 单位，手够不到头/脸；扇子画成"局部朝下"，
+   这样右前臂折起约 110° 时扇面正好朝上，像在胸前扇风。 */
+/* 转圈：绕竖轴转一整圈（1 → 侧 → 背 → 侧 → 1），不是画面内翻滚 */
+/* 转圈：绕竖轴转身。要点：
+   - 最小宽度只压到 0.34（原来 0.16，太薄就成了纸片），始终保留体积
+   - 加左右位移（±2px）与 ±3° 微转，暗示"质量绕着中轴甩过去"
+   - 头发/裙摆/腰带**滞后一拍**（各自再做一个反向 scaleX/rotate），形成拖尾 */
+@keyframes linger-microSpin {
+  0%   { transform: translate(0, 0) scale(1, 1); }
+  15%  { transform: translate(-1.5px, -0.7px) scale(0.36, 1.02); }
+  34%  { transform: translate(-2.1px, -1.2px) scale(-0.62, 1.02) rotate(-3deg); }
+  50%  { transform: translate(-0.4px, -1.5px) scale(-1, 1); }
+  66%  { transform: translate(1.5px, -0.9px) scale(-0.36, 1.02); }
+  84%  { transform: translate(2.1px, -0.6px) scale(0.62, 1.02) rotate(3deg); }
+  100% { transform: translate(0, 0) scale(1, 1); }
+}
+@keyframes linger-microSpinFlare {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  28%     { transform: rotate(3deg) scaleX(1.11); }
+  56%     { transform: rotate(-1deg) scaleX(0.74); }
+  80%     { transform: rotate(2deg) scaleX(1.06); }
+}
+@keyframes linger-microSpinHair {
+  0%,100% { transform: rotate(0deg) scaleX(1); }
+  30%     { transform: rotate(9deg) scaleX(1.14); }
+  58%     { transform: rotate(-5deg) scaleX(0.8); }
+  82%     { transform: rotate(5deg) scaleX(1.05); }
+}
+@keyframes linger-microSpinRibbon {
+  0%,100% { transform: rotate(0deg) scaleX(1); }
+  30%     { transform: rotate(16deg) scaleX(1.2); }
+  58%     { transform: rotate(-8deg) scaleX(0.82); }
+  82%     { transform: rotate(9deg) scaleX(1.06); }
+}
+@keyframes linger-microSpinSash {
+  0%,100% { transform: rotate(-2.5deg) scaleX(1); }
+  30%     { transform: rotate(12deg) scaleX(1.16); }
+  58%     { transform: rotate(-6deg) scaleX(0.84); }
+  82%     { transform: rotate(7deg) scaleX(1.04); }
+}
+/* 放法术：双臂上举结印 + 法阵 + 花瓣 */
+@keyframes linger-microSpellL {
+  0%,100% { transform: rotate(-42deg); }
+  30%     { transform: rotate(-158deg); }
+  70%     { transform: rotate(-150deg); }
+}
+@keyframes linger-microSpellR {
+  0%,100% { transform: rotate(42deg); }
+  30%     { transform: rotate(132deg); }
+  70%     { transform: rotate(124deg); }
+}
+@keyframes linger-microFormation {
+  0%      { opacity: 0; transform: scale(.6) rotate(0deg); }
+  25%     { opacity: 1; }
+  75%     { opacity: .95; }
+  100%    { opacity: 0; transform: scale(1.25) rotate(80deg); }
+}
+@keyframes linger-microSpout {
+  0%      { opacity: 0; transform: translateY(2px); }
+  35%     { opacity: 1; transform: translateY(-1px); }
+  100%    { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes linger-microSealGlow {
+  0%,12%,100% { opacity: 0; }
+  34%         { opacity: 1; }
+  68%         { opacity: .5; }
+}
+@keyframes linger-microHeadGaze {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  32%     { transform: translateY(-1.9px) rotate(-3deg); }
+  72%     { transform: translateY(-1.6px) rotate(-2deg); }
+}
+@keyframes linger-microSkirtPulse {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  40%     { transform: rotate(0deg) scaleX(1.08); }
+}
+/* 扇扇子：抬手到胸前 + 扇面来回挥（-16°/+10°/-14°/+8°） */
+@keyframes linger-microFanArm {
+  0%,100% { transform: rotate(42deg); }
+  22%     { transform: rotate(124deg); }
+  78%     { transform: rotate(120deg); }
+}
+@keyframes linger-microFanWave {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-16deg); }
+  40%     { transform: rotate(10deg); }
+  60%     { transform: rotate(-14deg); }
+  80%     { transform: rotate(8deg); }
+}
+@keyframes linger-microFanRibbon {
+  0%,100% { transform: rotate(0deg); }
+  40%     { transform: rotate(12deg); }
+}
+/* 远眺：抬头 + 长发/裙摆被风带起 */
+@keyframes linger-microGazeUp {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  30%     { transform: translateY(-2.1px) rotate(-6.5deg); }
+  70%     { transform: translateY(-1.7px) rotate(-3.5deg); }
+}
+@keyframes linger-microHeadTiltRight {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  32%     { transform: translateY(-1.2px) rotate(3.2deg); }
+  66%     { transform: translateY(-1.2px) rotate(2.2deg); }
+}
+@keyframes linger-microHairTrail {
+  0%,100% { transform: rotate(0deg); }
+  34%     { transform: rotate(13deg); }
+  74%     { transform: rotate(7deg); }
+}
+@keyframes linger-microSkirtTrail {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  34%     { transform: rotate(-12deg) scaleX(1.12); }
+  74%     { transform: rotate(-6deg) scaleX(1.05); }
+}/* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
 /* 手臂：绕肩摆动 / 掐指（抬起并收袖）/ 施法 / 上扬。左右分开写，因为"抬起"要朝身体内侧。
    注：手臂是刚体（没有肘），"抬到胸前"用 translate + scale 收短袖子，而不是硬转一个大角度。 */
 /* 手臂关键帧。几何：肘在 y20.6，前臂约 6 单位（手在胯侧 y26.6），肘下另有一截袖尾。
@@ -353,12 +510,12 @@ export const LINGER_PET_CSS = `
 }
 /* 空闲：抱臂（左前臂横压在上，右前臂垫在内） */
 @keyframes linger-forearmHugL {
-  0%,100% { transform: rotate(-122deg); }
-  50%     { transform: rotate(-117deg); }
+  0%,100% { transform: rotate(-42deg); }
+  50%     { transform: rotate(-37deg); }
 }
 @keyframes linger-forearmHugR {
-  0%,100% { transform: rotate(96deg); }
-  50%     { transform: rotate(101deg); }
+  0%,100% { transform: rotate(42deg); }
+  50%     { transform: rotate(47deg); }
 }
 /* 等待：拱手于腹前（双手在身前合拢，位置比抱臂低） */
 @keyframes linger-forearmMeetL {

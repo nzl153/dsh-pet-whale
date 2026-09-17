@@ -376,6 +376,8 @@
   }
   .controls button:hover { background: #F1EBDD; transform: translateY(-1px); }
   .controls button.active { background: var(--accent); color: #FBF8F0; border-color: var(--accent); }
+  /* 原地动作试演那一行 */
+  .micro-label { align-self: center; font-size: 12px; color: #8a7f72; }
 
   /* 互动操作按钮 */
   .interact-bar {
@@ -1171,9 +1173,48 @@
 /* 手：待机时轻轻前后摆（宽度 ±0.35 单位，看得见但不夸张） */
 [data-dsh-whale] .pet-official .arm { animation: linger-armSwayL 4.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .arm + .arm { animation: linger-armSwayR 4.4s ease-in-out infinite; }
-/* 空闲姿态 = 抱臂（垂手不好看）：左前臂横在上、右前臂垫在里，带轻微呼吸起伏 */
+/* 空闲姿态 = 双手交叠于腹前（只折 42°）。原来是"抱臂"（-122/+96），但手肘是刚体、
+   前臂仅 6 单位，折多了手只能落在胸口中线、必然压住另一只袖子 —— 看着就是"手和袖口重叠"。
+   折 42° 时手落在腰带两侧、红飘带从两手之间露出来，干净且仍然端正。 */
 [data-dsh-whale] .pet-official .forearm { animation: linger-forearmHugL 4.4s ease-in-out infinite; }
 [data-dsh-whale] .pet-official .arm + .arm .forearm { animation: linger-forearmHugR 4.4s ease-in-out infinite; }
+/* 头部上移 1.2（原来写在 SVG 的 transform 属性上；改成 CSS 才能和"远眺/整衣襟"等 CSS 动画共存）。
+   轴心必须显式给：SVG 子元素默认以 viewBox 中心为轴（transform-box:view-box），
+   不写的话"点头/抬头"会变成绕腰部的平移。14.4 = 脖子根在**局部坐标**里的位置
+   （局部比渲染位置低 1.2，因为位移是这一层的 transform 做的）。 */
+[data-dsh-whale] .pet-official .head { transform-origin: 13px 14.4px; transform: translateY(-1.2px); }
+
+/* ===== idle 原地动作（micro-*）：关闭御剑时她就靠这些"活着" =====
+   约定（见 pets/types.ts）：插件给 .pet-official 加临时 class，2.4s 后移除；
+   动画必须一次性、≤2.2s，且 0% / 100% 都回到**中性姿态**（否则移除时硬切会跳）。
+   中性姿态＝待机那一套：.body = translateY(0) scale(1,1)｜左前臂 -42°｜右前臂 +42°｜
+   .head = translateY(-1.2px)（轴心在脖子）｜.skirt = rotate(-1.4deg) scaleX(1)｜.hair(后发) 无动画。
+
+   只留 4 个（用户 2026-09-17 拍板）：转圈(spin) / 放法术(spell) / 扇扇子(fan) / 远眺(gaze) ——
+   前三个"看得出来"，远眺安静。原先的拂袖/整衣襟/掐指/裙摆轻摆幅度太小，已删。 */
+/* 原地转圈：绕**竖轴**转身（.body 做 scaleX 翻转），不是在画面里翻滚 */
+[data-dsh-whale] .pet-official.micro-spin .body { animation: linger-microSpin 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .skirt { animation: linger-microSpinFlare 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .hair { animation: linger-microSpinHair 1.9s ease-in-out; transform-origin: 13px 7px; }
+[data-dsh-whale] .pet-official.micro-spin .ribbon { animation: linger-microSpinRibbon 1.9s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spin .sash { animation: linger-microSpinSash 1.9s ease-in-out; }
+/* 放法术：双臂抬起结印 + 脚下法阵亮起 + 花瓣升起 + 指尖灵光 */
+[data-dsh-whale] .pet-official.micro-spell .forearm { animation: linger-microSpellL 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .arm + .arm .forearm { animation: linger-microSpellR 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .hand-seal { display: block !important; animation: linger-microSealGlow 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .keyboard-unit { display: block !important; animation: linger-microFormation 2.2s ease-out; }
+[data-dsh-whale] .pet-official.micro-spell .spout-group { display: block !important; animation: linger-microSpout 2.2s ease-out; }
+[data-dsh-whale] .pet-official.micro-spell .head { animation: linger-microHeadGaze 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-spell .skirt { animation: linger-microSkirtPulse 2.2s ease-in-out; }
+/* 扇扇子：右手折扇展开并挥动（扇子挂在右前臂里，随手臂走） */
+[data-dsh-whale] .pet-official.micro-fan .arm + .arm .forearm { animation: linger-microFanArm 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .fan { display: block !important; animation: linger-microFanWave 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .ribbon { animation: linger-microFanRibbon 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-fan .head { animation: linger-microHeadTiltRight 2.2s ease-in-out; }
+/* 远眺：抬头 + 长发与裙摆被风带起 */
+[data-dsh-whale] .pet-official.micro-gaze .head { animation: linger-microGazeUp 2.2s ease-in-out; }
+[data-dsh-whale] .pet-official.micro-gaze .hair { animation: linger-microHairTrail 2.2s ease-in-out; transform-origin: 13px 7px; }
+[data-dsh-whale] .pet-official.micro-gaze .skirt { animation: linger-microSkirtTrail 2.2s ease-in-out; }
 
 /* ===== 思考：凝神掐诀（抬手 + 灵光），与 idle 明显区分 ===== */
 [data-dsh-whale] .pet-official.think { animation: linger-meditate 3.6s ease-in-out infinite; }
@@ -1418,7 +1459,125 @@
   0%,100% { transform: rotate(-1.2deg); }
   50%     { transform: rotate(1.6deg); }
 }
-/* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
+/* ---- idle 原地动作（micro-*）的关键帧 ----
+   规矩：一次性、≤2.2s、**首尾回中性姿态**（待机那套数值），class 被移除时看不出跳变。
+   中性值速查：.body = translateY(0) scale(1,1)｜.skirt = rotate(-1.4deg) scaleX(1)｜
+   .sash = rotate(-2.5deg)｜.head = translateY(-1.2px)｜左前臂 = rotate(-42deg)｜右前臂 = rotate(42deg)｜
+   .hair(后发) 无动画｜.fan 有独立轴心（扇钉）。
+   几何限制：手肘刚体、前臂 6 单位，手够不到头/脸；扇子画成"局部朝下"，
+   这样右前臂折起约 110° 时扇面正好朝上，像在胸前扇风。 */
+/* 转圈：绕竖轴转一整圈（1 → 侧 → 背 → 侧 → 1），不是画面内翻滚 */
+/* 转圈：绕竖轴转身。要点：
+   - 最小宽度只压到 0.34（原来 0.16，太薄就成了纸片），始终保留体积
+   - 加左右位移（±2px）与 ±3° 微转，暗示"质量绕着中轴甩过去"
+   - 头发/裙摆/腰带**滞后一拍**（各自再做一个反向 scaleX/rotate），形成拖尾 */
+@keyframes linger-microSpin {
+  0%   { transform: translate(0, 0) scale(1, 1); }
+  15%  { transform: translate(-1.5px, -0.7px) scale(0.36, 1.02); }
+  34%  { transform: translate(-2.1px, -1.2px) scale(-0.62, 1.02) rotate(-3deg); }
+  50%  { transform: translate(-0.4px, -1.5px) scale(-1, 1); }
+  66%  { transform: translate(1.5px, -0.9px) scale(-0.36, 1.02); }
+  84%  { transform: translate(2.1px, -0.6px) scale(0.62, 1.02) rotate(3deg); }
+  100% { transform: translate(0, 0) scale(1, 1); }
+}
+@keyframes linger-microSpinFlare {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  28%     { transform: rotate(3deg) scaleX(1.11); }
+  56%     { transform: rotate(-1deg) scaleX(0.74); }
+  80%     { transform: rotate(2deg) scaleX(1.06); }
+}
+@keyframes linger-microSpinHair {
+  0%,100% { transform: rotate(0deg) scaleX(1); }
+  30%     { transform: rotate(9deg) scaleX(1.14); }
+  58%     { transform: rotate(-5deg) scaleX(0.8); }
+  82%     { transform: rotate(5deg) scaleX(1.05); }
+}
+@keyframes linger-microSpinRibbon {
+  0%,100% { transform: rotate(0deg) scaleX(1); }
+  30%     { transform: rotate(16deg) scaleX(1.2); }
+  58%     { transform: rotate(-8deg) scaleX(0.82); }
+  82%     { transform: rotate(9deg) scaleX(1.06); }
+}
+@keyframes linger-microSpinSash {
+  0%,100% { transform: rotate(-2.5deg) scaleX(1); }
+  30%     { transform: rotate(12deg) scaleX(1.16); }
+  58%     { transform: rotate(-6deg) scaleX(0.84); }
+  82%     { transform: rotate(7deg) scaleX(1.04); }
+}
+/* 放法术：双臂上举结印 + 法阵 + 花瓣 */
+@keyframes linger-microSpellL {
+  0%,100% { transform: rotate(-42deg); }
+  30%     { transform: rotate(-158deg); }
+  70%     { transform: rotate(-150deg); }
+}
+@keyframes linger-microSpellR {
+  0%,100% { transform: rotate(42deg); }
+  30%     { transform: rotate(132deg); }
+  70%     { transform: rotate(124deg); }
+}
+@keyframes linger-microFormation {
+  0%      { opacity: 0; transform: scale(.6) rotate(0deg); }
+  25%     { opacity: 1; }
+  75%     { opacity: .95; }
+  100%    { opacity: 0; transform: scale(1.25) rotate(80deg); }
+}
+@keyframes linger-microSpout {
+  0%      { opacity: 0; transform: translateY(2px); }
+  35%     { opacity: 1; transform: translateY(-1px); }
+  100%    { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes linger-microSealGlow {
+  0%,12%,100% { opacity: 0; }
+  34%         { opacity: 1; }
+  68%         { opacity: .5; }
+}
+@keyframes linger-microHeadGaze {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  32%     { transform: translateY(-1.9px) rotate(-3deg); }
+  72%     { transform: translateY(-1.6px) rotate(-2deg); }
+}
+@keyframes linger-microSkirtPulse {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  40%     { transform: rotate(0deg) scaleX(1.08); }
+}
+/* 扇扇子：抬手到胸前 + 扇面来回挥（-16°/+10°/-14°/+8°） */
+@keyframes linger-microFanArm {
+  0%,100% { transform: rotate(42deg); }
+  22%     { transform: rotate(124deg); }
+  78%     { transform: rotate(120deg); }
+}
+@keyframes linger-microFanWave {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-16deg); }
+  40%     { transform: rotate(10deg); }
+  60%     { transform: rotate(-14deg); }
+  80%     { transform: rotate(8deg); }
+}
+@keyframes linger-microFanRibbon {
+  0%,100% { transform: rotate(0deg); }
+  40%     { transform: rotate(12deg); }
+}
+/* 远眺：抬头 + 长发/裙摆被风带起 */
+@keyframes linger-microGazeUp {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  30%     { transform: translateY(-2.1px) rotate(-6.5deg); }
+  70%     { transform: translateY(-1.7px) rotate(-3.5deg); }
+}
+@keyframes linger-microHeadTiltRight {
+  0%,100% { transform: translateY(-1.2px) rotate(0deg); }
+  32%     { transform: translateY(-1.2px) rotate(3.2deg); }
+  66%     { transform: translateY(-1.2px) rotate(2.2deg); }
+}
+@keyframes linger-microHairTrail {
+  0%,100% { transform: rotate(0deg); }
+  34%     { transform: rotate(13deg); }
+  74%     { transform: rotate(7deg); }
+}
+@keyframes linger-microSkirtTrail {
+  0%,100% { transform: rotate(-1.4deg) scaleX(1); }
+  34%     { transform: rotate(-12deg) scaleX(1.12); }
+  74%     { transform: rotate(-6deg) scaleX(1.05); }
+}/* 手：待机轻摆 / 施法抬手画诀 / 开心上扬 */
 /* 手臂：绕肩摆动 / 掐指（抬起并收袖）/ 施法 / 上扬。左右分开写，因为"抬起"要朝身体内侧。
    注：手臂是刚体（没有肘），"抬到胸前"用 translate + scale 收短袖子，而不是硬转一个大角度。 */
 /* 手臂关键帧。几何：肘在 y20.6，前臂约 6 单位（手在胯侧 y26.6），肘下另有一截袖尾。
@@ -1434,12 +1593,12 @@
 }
 /* 空闲：抱臂（左前臂横压在上，右前臂垫在内） */
 @keyframes linger-forearmHugL {
-  0%,100% { transform: rotate(-122deg); }
-  50%     { transform: rotate(-117deg); }
+  0%,100% { transform: rotate(-42deg); }
+  50%     { transform: rotate(-37deg); }
 }
 @keyframes linger-forearmHugR {
-  0%,100% { transform: rotate(96deg); }
-  50%     { transform: rotate(101deg); }
+  0%,100% { transform: rotate(42deg); }
+  50%     { transform: rotate(47deg); }
 }
 /* 等待：拱手于腹前（双手在身前合拢，位置比抱臂低） */
 @keyframes linger-forearmMeetL {
@@ -2115,9 +2274,9 @@
               <circle cx="7.85" cy="20.6" r="0.95" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18"/>
               <!-- 前臂：袖口 + 垂下的袖尾 + 手，整体绕肘转动 -->
               <g class="forearm" style="transform-origin: 7.85px 20.6px">
-                <path d="M6.9 20.4 C6.8 22.4 6.7 24.2 6.7 25.6 C7.8 26.4 9.0 26.3 9.7 25.5 C9.8 24.0 9.9 22.2 10.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M6.75 25.4 C6.6 27.6 6.6 29.4 6.8 30.8 C7.9 31.5 9.1 31.3 9.8 30.4 C9.8 28.8 9.9 27.0 10.0 25.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M6.7 24.4 C7.7 25.1 8.9 24.9 9.7 24.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
+                <!-- 前臂：喇叭形广袖，袖口停在腕部（手从袖口下方露出，不再有第三截） -->
+                <path d="M6.9 20.4 C6.6 22.2 6.1 24.0 5.7 25.5 C7.0 26.5 8.5 26.5 9.6 25.6 C9.9 23.9 10.0 22.1 10.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
+                <path d="M6.0 24.4 C7.2 25.2 8.5 25.1 9.6 24.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
                 <g class="hand">
                   <path d="M7.9 25.7 C7.2 25.7 6.8 26.2 6.8 26.9 C6.8 27.7 7.3 28.2 8.0 28.2 C8.7 28.2 9.1 27.6 9.1 26.9 C9.1 26.2 8.6 25.7 7.9 25.7 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M6.9 26.4 C6.5 26.2 6.3 26.3 6.2 26.6 C6.1 26.9 6.3 27.2 6.6 27.2" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
@@ -2130,21 +2289,34 @@
               <path d="M16.8 14.2 C18.1 15.4 18.9 17.4 19.1 19.4 L19.1 20.8 C18.2 21.5 17.0 21.3 16.2 20.5 C16.0 18.4 15.8 16.6 15.3 15.9 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
               <circle cx="18.15" cy="20.6" r="0.95" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18"/>
               <g class="forearm" style="transform-origin: 18.15px 20.6px">
-                <path d="M19.1 20.4 C19.2 22.4 19.3 24.2 19.3 25.6 C18.2 26.4 17.0 26.3 16.3 25.5 C16.2 24.0 16.1 22.2 16.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M19.25 25.4 C19.4 27.6 19.4 29.4 19.2 30.8 C18.1 31.5 16.9 31.3 16.2 30.4 C16.2 28.8 16.1 27.0 16.0 25.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
-                <path d="M19.3 24.4 C18.3 25.1 17.1 24.9 16.3 24.0" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
+                <!-- 前臂：喇叭形广袖，袖口停在腕部（手从袖口下方露出，不再有第三截） -->
+                <path d="M19.1 20.4 C19.4 22.2 19.9 24.0 20.3 25.5 C19.0 26.5 17.5 26.5 16.4 25.6 C16.1 23.9 16.0 22.1 16.0 20.6 Z" fill="url(#lingRobe)" stroke="var(--pw-body-dark,#3550C9)" stroke-width="0.18" stroke-linejoin="round"/>
+                <path d="M20.0 24.4 C18.8 25.2 17.5 25.1 16.4 24.2" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.4" stroke-linecap="round"/>
                 <g class="hand">
                   <path d="M18.1 25.7 C18.8 25.7 19.2 26.2 19.2 26.9 C19.2 27.7 18.7 28.2 18.0 28.2 C17.3 28.2 16.9 27.6 16.9 26.9 C16.9 26.2 17.4 25.7 18.1 25.7 Z" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M19.1 26.4 C19.5 26.2 19.7 26.3 19.8 26.6 C19.9 26.9 19.7 27.2 19.4 27.2" fill="#F7E0CE" stroke="#E8C4A8" stroke-width="0.09"/>
                   <path d="M18.7 27.8 L18.7 28.4 M18.1 28.0 L18.1 28.6 M17.5 27.8 L17.5 28.4" fill="none" stroke="#E8C4A8" stroke-width="0.08" stroke-linecap="round"/>
+                </g>
+                <!-- 折扇：挂在右手里（默认隐藏，micro-fan 时展开挥动）。
+                     放在 .forearm 里，所以抬手/挥扇会跟着手臂一起走。 -->
+                <g class="fan" style="display:none;transform-origin:18.1px 26.4px">
+                  <!-- 扇面画成"局部朝下"：右前臂折起约 110° 时它正好转到朝上，像在胸前扇风 -->
+                  <path d="M18.1 26.4 L20.0 30.6 A 4.5 4.5 0 0 1 16.2 30.6 Z" fill="#F7F2E4" stroke="#B9A98C" stroke-width="0.14" stroke-linejoin="round"/>
+                  <path d="M20.0 30.6 A 4.5 4.5 0 0 1 16.2 30.6" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.38" stroke-linecap="round"/>
+                  <path d="M18.1 26.4 L19.6 30.3 M18.1 26.4 L18.1 30.9 M18.1 26.4 L16.6 30.3" fill="none" stroke="#B9A98C" stroke-width="0.12" stroke-linecap="round"/>
+                  <path d="M17.4 30.9 C17.0 31.6 16.9 32.2 17.1 32.8" fill="none" style="stroke:var(--pw-body,#4D6BFE)" stroke-width="0.2" stroke-linecap="round"/>
+                  <circle cx="18.1" cy="26.4" r="0.34" fill="#C9A76A"/>
                 </g>
               </g>
             </g>
             <!-- 脖子（领口会盖住下半段，靠下面的"颈洞"露出来） -->
             <rect x="12.35" y="12.0" width="1.3" height="2.8" rx="0.35" fill="#EFCDB4"/>
 
-            <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子 -->
-            <g class="head" transform="translate(0 -1.2)">
+            <!-- 头部整体上移 1.2：下巴与领口之间露出可见的一截脖子。
+                 注意：位移写在样式表里（[data-dsh-whale] .pet-official .head），
+                 **不要**写成 transform 属性 —— 那样 CSS 动画（远眺/理鬓等）一上就会覆盖属性，
+                 头会当场掉下来。 -->
+            <g class="head">
             <!-- 脸：圆一些、下巴短一点（原来上下拉得太长） -->
             <path d="M13 4.2 C10.5 4.2 8.5 6.0 8.5 8.4 C8.5 10.6 9.4 12.5 11.0 13.4 C11.6 13.7 12.3 13.9 13 13.9 C13.7 13.9 14.4 13.7 15.0 13.4 C16.6 12.5 17.5 10.6 17.5 8.4 C17.5 6.0 15.5 4.2 13 4.2 Z" fill="#F7E0CE"/>
             <!-- 鬓发（细，只到下颌） -->
@@ -2309,6 +2481,9 @@
     <button data-s="disappointed">失落·自愈</button>
   </div>
 
+  <!-- 原地动作试演：按钮按当前宠物的 micro 清单生成（关闭御剑后它 idle 时自己会演的那套） -->
+  <div class="controls" id="microControls" style="display:none"></div>
+
   <div class="stats-bar" id="statsBar"></div>
 
   <p class="hint" id="hintText">提示：单击小鲸鱼触发加权撒娇/翻滚/晕乎互动；双击 360° 翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。</p>
@@ -2319,11 +2494,18 @@
   window.__PET_MODULES__ = [
   {
     "id": "cat",
-    "baseClass": "pet-official"
+    "baseClass": "pet-official",
+    "micro": []
   },
   {
     "id": "linger",
-    "baseClass": "pet-official"
+    "baseClass": "pet-official",
+    "micro": [
+      "spin",
+      "spell",
+      "fan",
+      "gaze"
+    ]
   }
 ];
   window.__PET_UI__ = {
@@ -2334,6 +2516,7 @@
       },
       "title": "🐱 桌宠小猫 · 预览",
       "hint": "提示：单击小猫触发撒娇/翻滚/晕乎互动；双击翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。",
+      "microLabel": "原地动作：",
       "status": {
         "idle": [
           "小猫趴在这儿呢~ 点我可以戳戳哦 🐱",
@@ -2410,6 +2593,7 @@
       },
       "title": "🐱 Desktop Pet Cat · Preview",
       "hint": "Tip: click the cat for pokes/rolls; double-click to roll; move the mouse to follow; it naps when idle.",
+      "microLabel": "Idle actions:",
       "status": {
         "idle": [
           "Cat on standby~ Click me for a poke! 🐱",
@@ -2488,6 +2672,7 @@
       },
       "title": "🌸 桌宠灵儿 · 预览",
       "hint": "提示：单击灵儿触发撒娇/翻滚/晕乎互动；双击翻滚；晃动鼠标灵动追光；长时间无操作自动打瞌睡。",
+      "microLabel": "原地动作：",
       "status": {
         "idle": [
           "灵儿在此，静候差遣 🌸",
@@ -2565,6 +2750,7 @@
       },
       "title": "🌸 Desktop Pet linger · Preview",
       "hint": "Tip: click the linger for pokes/rolls; double-click to roll; move the mouse to follow; it naps when idle.",
+      "microLabel": "Idle actions:",
       "status": {
         "idle": [
           "Ling'er is here, awaiting your word 🌸",
@@ -3170,6 +3356,36 @@
   }
   buttons.forEach(b => b.addEventListener('click', () => setState(b.dataset.s)));
 
+  // ===== 原地动作试演（micro-<id>，插件里 idle 时自动轮播的那套）=====
+  const microBox = document.getElementById('microControls');
+  const MICRO_PREVIEW_MS = 2400;
+  let microTimer = 0;
+  function playMicro(id) {
+    const el = activePetEl();
+    [...el.classList].filter(c => c.startsWith('micro-')).forEach(c => el.classList.remove(c));
+    el.classList.add('micro-' + id);
+    clearTimeout(microTimer);
+    microTimer = setTimeout(() => el.classList.remove('micro-' + id), MICRO_PREVIEW_MS);
+  }
+  function renderMicroButtons() {
+    const entry = petEntries().find(e => e.box.style.display !== 'none') || petEntries()[1];
+    const mod = (window.__PET_MODULES__ || []).find(m => m.id === entry.id);
+    const list = (mod && mod.micro) || [];
+    microBox.innerHTML = '';
+    microBox.style.display = list.length ? '' : 'none';
+    if (!list.length) return;
+    const label = document.createElement('span');
+    label.className = 'micro-label';
+    label.textContent = petDict().microLabel || '原地动作：';
+    microBox.appendChild(label);
+    list.forEach(id => {
+      const b = document.createElement('button');
+      b.textContent = id;
+      b.addEventListener('click', () => playMicro(id));
+      microBox.appendChild(b);
+    });
+  }
+
   function setMode(m) {
     petEntries().forEach(e => { e.box.style.display = e.id === m ? '' : 'none'; });
     modeBtns.forEach(b => b.classList.toggle('active', b.dataset.m === m));
@@ -3180,8 +3396,10 @@
     document.getElementById('pageTitle').textContent = dict.title;
     document.getElementById('hintText').textContent = dict.hint;
     showDialog(pick(dict.status[currentState] || dict.status.idle));
+    renderMicroButtons(); // 换了宠物，原地动作按钮跟着换（没有动作的宠物整行隐藏）
   }
   modeBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+  renderMicroButtons(); // 首屏也按当前宠物铺一次（鲸鱼没有 micro，整行隐藏）
 
   function popBubble(el) {
     const bubbles = el.querySelectorAll('.bubble');

@@ -450,7 +450,10 @@ export function apply(ctx: Context): () => void {
     syncMiniState(effective)
     swimmer.onStateChange(effective)
     if (effective === 'idle') scheduleIdleMicro()
-    else clearIdleMicro()
+    else {
+      clearIdleMicro()
+      clearMicroAction() // 离场时把还没演完的原地动作收掉（首尾都是中性姿态，硬切看不出）
+    }
     if (changed) {
       showDialog(pick(strings.status[effective]))
       autoSound(effective)
@@ -1421,16 +1424,68 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     }, MICRO_SWIM_MS)
     if (!quiet && Math.random() < 0.35) showDialog(pick(strings.feedback.swim))
   }
+  // ===== 原地动作（宠物声明式，见 pets/types.ts 的 micro 约定）=====
+  /** 单个动作占用的时长上限：宠物样式表里的动画要 ≤ 这个值（约定 2.2s，留 0.2s 余量） */
+  const MICRO_ACTION_MS = 2400
+  /** 动作会说话的几率 */
+  const MICRO_LINE_CHANCE = 0.6
+  let microActionTimer = 0
+  let microActionClass = ''
+  let microActionLast = ''
+  /** 洗牌袋：声明的动作打乱后依次取，取完重洗 → 短周期内不会连着重复同一个 */
+  let microBag: string[] = []
+  const clearMicroAction = () => {
+    if (microActionClass === '') return
+    pet.classList.remove(microActionClass)
+    microActionClass = ''
+  }
+  const nextMicroAction = (): string => {
+    const list = activePet.micro ?? []
+    if (list.length === 0) return ''
+    if (microBag.length === 0) {
+      microBag = [...list]
+      for (let i = microBag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        const t = microBag[i]
+        microBag[i] = microBag[j]
+        microBag[j] = t
+      }
+      // 新一轮的第一个别和上一轮的最后一个撞（两只动作的宠物会明显）
+      if (microBag.length > 1 && microBag[0] === microActionLast) {
+        const t = microBag[0]
+        microBag[0] = microBag[1]
+        microBag[1] = t
+      }
+    }
+    return microBag.shift() ?? ''
+  }
+  const playMicroAction = (id: string) => {
+    if (id === '') return
+    clearMicroAction()
+    microActionLast = id
+    microActionClass = `micro-${id}`
+    pet.classList.add(microActionClass)
+    window.clearTimeout(microActionTimer)
+    microActionTimer = window.setTimeout(clearMicroAction, MICRO_ACTION_MS)
+    const pool = strings.micro[id]
+    if (pool !== undefined && pool.length > 0 && Math.random() < MICRO_LINE_CHANCE) showDialog(pick(pool))
+  }
+
   const scheduleIdleMicro = () => {
     clearIdleMicro()
     idleMicroTimer = window.setTimeout(() => {
-      if (visualState !== 'idle' || root.classList.contains('hidden') || dragging || document.hidden || menu.classList.contains('open')) {
+      // 睡着/闹脾气时不做原地动作（打瞌睡只是根上的 class，visualState 仍是 idle，所以这里必须单独看 sleeping）
+      if (visualState !== 'idle' || sleeping || sulking || root.classList.contains('hidden') || dragging || document.hidden || menu.classList.contains('open')) {
         scheduleIdleMicro()
         return
       }
       if (swimmer.isEnabled) {
+        // 在飞：只有原地小动作会显得别扭，留着看四周/吐泡泡
         if (Math.random() < 0.5) microLook()
         else microBubbles()
+      } else if ((activePet.micro?.length ?? 0) > 0 && Math.random() < 0.62) {
+        // 没开御剑的站立型宠物：优先演宠物声明的原地动作（拂袖/理鬓/掐指/远眺…）
+        playMicroAction(nextMicroAction())
       } else {
         // idleDrift:false 的宠物（站立的灵儿）不做随机平移：平移而没有对应动作＝无缘无故到处飘
         const canDrift = activePet.idleDrift !== false
@@ -1680,6 +1735,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
       }
       sleeping = true
       root.classList.add('sleeping')
+      clearMicroAction() // 正要睡着时如果动作还没演完，收掉（否则会一边睡觉一边转圈）
       showDialog(strings.feedback.sleep)
     }, SLEEP_MS)
   }
@@ -1966,6 +2022,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
 
   const dispose = () => {
     window.clearTimeout(sleepTimer)
+    window.clearTimeout(microActionTimer)
     if (sedentaryTimer !== 0) window.clearInterval(sedentaryTimer)
     window.clearInterval(chatterTimer)
     if (dragIdleTimer !== 0) window.clearTimeout(dragIdleTimer)

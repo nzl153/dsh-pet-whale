@@ -120,6 +120,18 @@ the browser invalidates and reloads this plugin automatically. **Client-only cha
   - `pnpm build` — one-shot full build before committing
   - `pnpm typecheck` / `pnpm test` — type check and smoke tests
 
+## Community forks
+
+The whale itself is maintenance-first (see [CONTRIBUTING.md](CONTRIBUTING.md)). If you want more,
+take a look at these forks:
+
+- [wzwei1990/dsh-pet-whale](https://github.com/wzwei1990/dsh-pet-whale) — multi-pet architecture
+  (switch between the whale, a cat and Ling'er, each with its own SVG, animations and lines),
+  plus a `pnpm pet:doctor` health-check script
+
+These forks are maintained independently and are not affiliated with this repository. Please read
+their own documentation before using them.
+
 ## License
 
 [MIT](LICENSE)

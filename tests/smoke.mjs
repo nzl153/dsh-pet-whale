@@ -423,6 +423,119 @@ check('形影不离档双击翻肚皮', pet2?.classList.contains('belly-up') ===
 check('翻肚皮说了话', /肚皮|放松/.test(dialog2?.textContent ?? ''))
 dispose2()
 
+// ===== 0.1.7 形状：列表没有 current，主视图靠 retainedBy.mainView 认；uiSession.sessionStatus 按会话给状态 =====
+{
+  const rows = {
+    a: { id: 'a', displayTitle: '会话A', running: false, retainedBy: { mainView: 1 } },
+    b: { id: 'b', displayTitle: '会话B', running: false, retainedBy: {} },
+    k: { id: 'k', displayTitle: '子代理', running: false, parentId: 'a', origin: 'subagent', retainedBy: {} },
+  }
+  const list17 = makeObservable(() => ({ ids: ['a', 'b'], byId: rows, phase: 'ready', projectionsBySession: {} }))
+  const snapA = { sessionId: 'a', running: false, lastAgentError: null, openError: null }
+  const faceA = makeObservable(() => snapA)
+  const faceB = makeObservable(() => ({ sessionId: 'b', running: false, lastAgentError: null, openError: null }))
+  const status = new Map([
+    ['a', { running: false, pendingInteraction: undefined, completionUnread: false }],
+    ['b', { running: false, pendingInteraction: undefined, completionUnread: false }],
+    ['k', { running: false, pendingInteraction: undefined, completionUnread: false }],
+  ])
+  const statusObs = makeObservable(() => status)
+  const ctx17 = {
+    sessions: {
+      list: list17,
+      binding: (id) =>
+        id === 'a' ? { sessionId: 'a', session: faceA } : id === 'b' ? { sessionId: 'b', session: faceB } : undefined,
+    },
+    uiConversation: { binding: () => ({ target: () => makeObservable(() => ({ legacy: { turnEnds: new Map(), partial: null, runningCalls: [] } })) }) },
+    uiSession: { sessionStatus: statusObs },
+  }
+  window.localStorage.removeItem('pet-whale:follow-all')
+  window.localStorage.setItem('pet-whale:muted', '0')
+  window.localStorage.setItem('pet-whale:volume', 'mid')
+  const dispose3 = exports_.apply(ctx17)
+  const root3 = window.document.querySelector('[data-dsh-whale]')
+  const pet3 = root3?.querySelector('.pet-official')
+  const badge3 = root3?.querySelector('.dsh-whale-badge')
+  const dialog3 = root3?.querySelector('.dsh-whale-dialog')
+  const cls3 = () => [...(pet3?.classList ?? [])].filter((c) => ['idle', 'think', 'working', 'celebrate', 'error', 'wait'].includes(c)).join(',')
+  check('0.1.7 列表无 current 也能认出当前会话', cls3() === 'idle')
+
+  snapA.running = true
+  faceA.notify()
+  check('0.1.7 当前会话在跑 → think（不再永远 idle）', cls3() === 'think')
+  snapA.running = false
+  faceA.notify()
+  await new Promise((r) => setTimeout(r, 2700))
+
+  status.set('k', { running: true, pendingInteraction: undefined, completionUnread: false })
+  statusObs.notify()
+  check('子代理在跑不算别的会话', badge3?.hidden === true && cls3() === 'idle')
+
+  status.set('b', { running: true, pendingInteraction: undefined, completionUnread: false })
+  statusObs.notify()
+  check('别的会话在跑 → working', cls3() === 'working')
+  check('角标显示 1', badge3?.hidden === false && badge3?.textContent === '1')
+
+  status.set('b', { running: false, pendingInteraction: undefined, completionUnread: true })
+  statusObs.notify()
+  check('别的会话跑完 → celebrate', cls3() === 'celebrate')
+  check('跑完报出会话名', (dialog3?.textContent ?? '').includes('会话B'))
+  check('跑完角标收起', badge3?.hidden === true)
+  await new Promise((r) => setTimeout(r, 2700))
+  check('庆祝到点回落 idle', cls3() === 'idle')
+
+  status.set('b', { running: true, pendingInteraction: { key: 'q1', kind: 'approval', sessionId: 'b' }, completionUnread: false })
+  statusObs.notify()
+  check('别的会话等确认 → wait', cls3() === 'wait')
+  check('等确认报出会话名', (dialog3?.textContent ?? '').includes('会话B'))
+
+  status.set('a', { running: true, pendingInteraction: { key: 'q2', kind: 'approval', sessionId: 'a' }, completionUnread: false })
+  status.set('b', { running: false, pendingInteraction: undefined, completionUnread: false })
+  snapA.running = true
+  faceA.notify()
+  statusObs.notify()
+  check('当前会话等确认 → wait（0.1.5 读不到的 pending）', cls3() === 'wait')
+  status.set('a', { running: true, pendingInteraction: undefined, completionUnread: false })
+  statusObs.notify()
+  snapA.running = false
+  faceA.notify()
+  await new Promise((r) => setTimeout(r, 2700))
+
+  // 关掉跟随：别的会话在跑也不管
+  const menu3 = root3?.querySelector('.dsh-whale-menu')
+  const clickBtn = (text) =>
+    [...(menu3?.querySelectorAll('button') ?? [])].find((b) => b.textContent.includes(text))
+      ?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+  pet3?.dispatchEvent(new window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 200 }))
+  clickBtn('更多设置')
+  clickBtn('行为')
+  clickBtn('跟随所有会话')
+  check('跟随开关已写入', window.localStorage.getItem('pet-whale:follow-all') === '0')
+  status.set('b', { running: true, pendingInteraction: undefined, completionUnread: false })
+  statusObs.notify()
+  check('关掉跟随后别的会话在跑仍 idle', cls3() === 'idle' && badge3?.hidden === true)
+
+  // 音量：静音 → 小 → 中 → 大 → 静音 循环（初值在挂载前写进存储）
+  const volumeLabel = () => [...(menu3?.querySelectorAll('button') ?? [])].find((b) => b.textContent.includes('音量'))?.textContent ?? ''
+  check('音量入口显示当前档', volumeLabel().includes('中'))
+  clickBtn('音量')
+  check('中 → 大', window.localStorage.getItem('pet-whale:volume') === 'high' && volumeLabel().includes('大'))
+  clickBtn('音量')
+  check('大 → 静音', window.localStorage.getItem('pet-whale:muted') === '1' && volumeLabel().includes('静音'))
+  clickBtn('音量')
+  check('静音 → 小', window.localStorage.getItem('pet-whale:muted') === '0' && window.localStorage.getItem('pet-whale:volume') === 'low')
+
+  // 当前会话在跑时切到一个闲着的会话：不能当成"跑完了"去庆祝（真机 0.1.7 上发现的）
+  snapA.running = true
+  faceA.notify()
+  check('切换前当前会话在跑', cls3() === 'think')
+  rows.a.retainedBy = {}
+  rows.b.retainedBy = { mainView: 1 }
+  list17.notify()
+  check('切到闲着的会话不误庆祝', cls3() === 'idle')
+  dispose3()
+}
+
 // dispose
 check('dispose 移除容器', window.document.querySelector('[data-dsh-whale]') === null)
 check('dispose 移除样式', window.document.getElementById('pet-whale-style') === null)

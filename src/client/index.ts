@@ -1,21 +1,23 @@
 // pet-whale client bundle：纯 DOM 桌宠。
-// apply(ctx) 由官方 client 通道调用；状态来自 ctx.sessions（会话生命周期快照）
-// 与 ctx.uiConversation（会话对话视图，提供 partial / runningCalls / turnEnds）。
+// apply(ctx) 由官方 client 通道调用；状态来自 ctx.sessions（会话生命周期快照）、
+// ctx.uiConversation（会话对话视图，提供 partial / runningCalls / turnEnds）
+// 与 ctx.uiSession.sessionStatus（0.1.7：每个会话的 running / 待确认，用于跟随所有会话）。
 import type { Context } from '@deepseek-ai/cordis'
 import type { ISessions, SessionFace } from '@deepseek-ai/dsh-api-session-controller/client'
 import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { WHALE_HTML } from './whale'
 import { WHALE_CSS } from './styles'
-import { WhaleSounds } from './sounds'
+import { VOLUME_LEVELS, WhaleSounds } from './sounds'
 import { WhaleDriver, type WhaleSnapshot, type WhaleState } from './state'
 import { PALETTES, applyPalette, loadPaletteId, paletteOf, savePaletteId } from './palettes'
 import { detectBrowserLocale, getStrings, paletteName, type PetLocale, type PetStrings } from './i18n'
 import { WhaleSwimmer } from './swim'
 
-// 官方 client 通道的服务闸：等 sessions / locale / uiConversation 服务就绪后再 apply。
+// 官方 client 通道的服务闸：等 sessions / locale / uiConversation / uiSession 服务就绪后再 apply。
 // uiConversation 由 @deepseek-ai/dsh-client-ui-conversation 提供，
-// chat 视图（ChatSnapshot）由 @deepseek-ai/dsh-client-ui-chat 注册。
-export const inject = ['sessions', 'locale', 'uiConversation']
+// chat 视图（ChatSnapshot）由 @deepseek-ai/dsh-client-ui-chat 注册，
+// uiSession 由 @deepseek-ai/dsh-client-ui-session 提供（0.1.5 就有，sessionStatus 是 0.1.7 才加的）。
+export const inject = ['sessions', 'locale', 'uiConversation', 'uiSession']
 
 const STATES: readonly WhaleState[] = ['idle', 'think', 'working', 'celebrate', 'error', 'wait', 'disappointed']
 const POS_KEY = 'pet-whale:pos'
@@ -81,10 +83,40 @@ const SOUND_GAP_MS = 1200
 
 const pick = (list: string[]): string => list[Math.floor(Math.random() * list.length)]
 
+/** 跟随所有会话：别的会话在跑 / 跑完 / 等确认也让鲸鱼知道，'0' 表示只看当前会话 */
+const FOLLOW_ALL_KEY = 'pet-whale:follow-all'
+
 /** DSH locale 服务的最小接口（不引入额外依赖）。 */
 interface LocaleLike {
   getLocale(): { active: string }
   subscribe(fn: () => void): () => void
+}
+
+/** dsh-client-ui-session 的 SessionStatus 最小面（0.1.7）。 */
+interface SessionStatusLike {
+  readonly running: boolean | undefined
+  readonly pendingInteraction: unknown
+}
+interface SessionStatusSource {
+  getSnapshot(): ReadonlyMap<string, SessionStatusLike>
+  subscribe(fn: () => void): () => void
+}
+
+type SessionList = ReturnType<ISessions['list']['getSnapshot']>
+type SessionRow = { displayTitle?: string; parentId?: string; origin?: string; retainedBy?: Partial<Record<string, number>> }
+
+/**
+ * 当前会话。0.1.5 的会话列表直接给 current；0.1.7 起导航归视图所有（列表里没有 current 了），
+ * 主视图用 mainView 这个来源持有它正在显示的会话，看 retainedBy 就知道是哪个。
+ */
+function currentSessionId(list: SessionList): string | undefined {
+  // 字段存在就是 0.1.5 形状，undefined 也是它的答案（没选中会话）
+  if ('current' in list) return (list as { current?: string }).current
+  const rows = (list.byId ?? {}) as Readonly<Record<string, SessionRow | undefined>>
+  for (const id of Object.keys(rows)) {
+    if ((rows[id]?.retainedBy?.mainView ?? 0) > 0) return id
+  }
+  return undefined
 }
 
 export function apply(ctx: Context): () => void {
@@ -115,9 +147,11 @@ export function apply(ctx: Context): () => void {
     <span class="dsh-whale-snack">🐟</span>
     <span class="dsh-whale-zzz">Zzz...</span>
     <div class="pet-official idle" role="img" aria-label="${strings.aria.pet}">${WHALE_HTML}</div>
+    <span class="dsh-whale-badge" hidden></span>
     <div class="dsh-whale-menu" role="menu"></div>
   `
   const dialog = root.querySelector<HTMLElement>('.dsh-whale-dialog')!
+  const badge = root.querySelector<HTMLElement>('.dsh-whale-badge')!
   const snack = root.querySelector<HTMLElement>('.dsh-whale-snack')!
   const pet = root.querySelector<HTMLElement>('.pet-official')!
   const menu = root.querySelector<HTMLElement>('.dsh-whale-menu')!
@@ -1133,14 +1167,33 @@ export function apply(ctx: Context): () => void {
           menu.classList.add('open')
           positionMenu(lastMenuPos.x, lastMenuPos.y)
         })
-appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () => {
-          const next = !sounds.isMuted
-          sounds.setMuted(next)
-          buildMenu('behavior')
-          menu.classList.add('open')
-          positionMenu(lastMenuPos.x, lastMenuPos.y)
-          if (next) sounds.play('bubble')
+        // 音量：静音 → 小 → 中 → 大 → 静音；换完响一声让人听到新音量
+        appendMenuBtn(strings.panel.volume(sounds.isMuted ? strings.panel.volumeOff : strings.panel.volumeNames[VOLUME_LEVELS.indexOf(sounds.volume)]), () => {
+          if (sounds.isMuted) {
+            sounds.setMuted(false)
+            sounds.setVolume('low')
+          } else if (sounds.volume === 'high') {
+            sounds.setMuted(true)
+          } else {
+            sounds.setVolume(VOLUME_LEVELS[VOLUME_LEVELS.indexOf(sounds.volume) + 1])
+          }
+          reopenMenu('behavior')
+          sounds.play('bubble')
         })
+        if (statusSource !== undefined) {
+          appendMenuBtn(`${strings.panel.followAll}${followAll ? ' ✓' : ' ✕'}`, () => {
+            followAll = !followAll
+            try {
+              localStorage.setItem(FOLLOW_ALL_KEY, followAll ? '1' : '0')
+            } catch {
+              // 忽略存储失败
+            }
+            updateBadge()
+            onSnapshot()
+            showDialog(followAll ? strings.feedback.followAllOn : strings.feedback.followAllOff)
+            reopenMenu('behavior')
+          })
+        }
         appendMenuBtn(`${strings.panel.notify}${notifyOn ? ' ✓' : ' ✕'}`, () => {
           notifyOn = !notifyOn
           try {
@@ -1714,8 +1767,13 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
   let unsubChat: (() => void) | undefined
   let face: SessionFace | undefined
   let chat: ChatSnapshot | undefined
+  let boundSession: unknown
   let prevSessionId: string | undefined = undefined
   let isFirstSessionSync = true
+
+  // 0.1.7 的按会话状态；0.1.5 的 uiSession 没有 sessionStatus，这一整块自动不生效
+  const statusRaw = (ctx as unknown as { uiSession?: { sessionStatus?: SessionStatusSource } }).uiSession?.sessionStatus
+  const statusSource = typeof statusRaw?.getSnapshot === 'function' ? statusRaw : undefined
 
   /** 把两处订阅合成状态机需要的"最小快照面"。 */
   const composeSnapshot = (): WhaleSnapshot | undefined => {
@@ -1723,6 +1781,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     const session = face.getSnapshot()
     const legacy = chat?.legacy
     const partial = legacy?.partial ?? null
+    const status = prevSessionId === undefined ? undefined : statusSource?.getSnapshot().get(prevSessionId)
     return {
       running: session.running,
       partial,
@@ -1731,12 +1790,81 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
       lastAgentError: session.lastAgentError,
       openError: session.openError,
       turnEnds: legacy?.turnEnds,
-      // pending：0.1.5 的会话快照没有这个字段，也没有替代的公开读取面
-      //（审批 / 提问的数据只在 slot 的 carrier 上，见 state.ts 文件头）。
-      // 这里按老字段兜底读一次：宿主将来补上就自动生效，没有就是 undefined，
-      // 绝不因为字段缺失而抛错。
-      pending: (session as { pending?: readonly unknown[] }).pending,
+      // pending：0.1.7 从 uiSession.sessionStatus 的 pendingInteraction 来；
+      // 0.1.5 没有公开读取面（见 state.ts 文件头），按老字段兜底读，没有就是 undefined。
+      pending:
+        status?.pendingInteraction !== undefined
+          ? [status.pendingInteraction]
+          : (session as { pending?: readonly unknown[] }).pending,
     }
+  }
+
+  // ===== 跟随所有会话 =====
+  let followAll = true
+  try {
+    followAll = localStorage.getItem(FOLLOW_ALL_KEY) !== '0'
+  } catch {
+    // 忽略存储失败
+  }
+  let otherRunning = 0
+  let otherWaiting = 0
+  /** 别的会话的事，要在状态切换的那句台词之后再说，不然会被盖掉 */
+  let otherNews = ''
+  const prevOtherRunning = new Map<string, boolean>()
+  const prevOtherWaiting = new Map<string, boolean>()
+  let statusPrimed = false
+
+  const rowOf = (id: string): SessionRow | undefined =>
+    (sessions?.list.getSnapshot().byId as Readonly<Record<string, SessionRow | undefined>> | undefined)?.[id]
+
+  const updateBadge = () => {
+    const n = followAll ? otherRunning : 0
+    badge.hidden = n === 0
+    badge.textContent = n > 9 ? '9+' : String(n)
+    badge.title = n === 0 ? '' : strings.multi.badge(n)
+  }
+
+  const recountOthers = () => {
+    if (statusSource === undefined) return
+    let running = 0
+    let waiting = 0
+    let done: string | undefined
+    let newlyWaiting: string | undefined
+    for (const [id, st] of statusSource.getSnapshot()) {
+      const row = rowOf(id)
+      // 子代理是当前会话自己派出去的活，不算"别的会话"
+      if (row?.parentId !== undefined || row?.origin === 'subagent') continue
+      if (id === prevSessionId) {
+        // 当前会话的边沿归状态机管；清掉旧记录，免得切走时拿过期的"在跑"误判成刚跑完
+        prevOtherRunning.delete(id)
+        prevOtherWaiting.delete(id)
+        continue
+      }
+      const isRunning = st.running === true
+      const isWaiting = st.pendingInteraction !== undefined
+      if (isRunning) running++
+      if (isWaiting) waiting++
+      if (statusPrimed && prevOtherRunning.get(id) === true && st.running === false) done ??= id
+      if (statusPrimed && isWaiting && prevOtherWaiting.get(id) !== true) newlyWaiting ??= id
+      prevOtherRunning.set(id, isRunning)
+      prevOtherWaiting.set(id, isWaiting)
+    }
+    statusPrimed = true
+    otherRunning = running
+    otherWaiting = waiting
+    updateBadge()
+    if (followAll) {
+      if (done !== undefined) {
+        driver.celebrateOther(performance.now())
+        otherNews = strings.multi.doneOther(rowOf(done)?.displayTitle ?? '')
+      } else if (newlyWaiting !== undefined) {
+        otherNews = strings.multi.waitingOther(rowOf(newlyWaiting)?.displayTitle ?? '')
+      }
+    }
+  }
+  const onStatus = () => {
+    recountOthers()
+    onSnapshot()
   }
 
   // 瞬态到点回落需要一个"没人推快照也要醒一次"的定时器。
@@ -1760,43 +1888,66 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     }, Math.max(16, at - now + 24))
   }
 
+  /** 当前会话闲着时，别的会话的状态顶上来：有人等确认 > 有人在跑 */
+  const withOthers = (state: WhaleState): WhaleState => {
+    if (!followAll || state !== 'idle') return state
+    if (otherWaiting > 0) return 'wait'
+    if (otherRunning > 0) return 'working'
+    return state
+  }
+  let lastShown: WhaleState | null = null
+  const announceOtherNews = () => {
+    if (otherNews === '') return
+    showDialog(otherNews)
+    otherNews = ''
+  }
+
   const onSnapshot = () => {
     const snapObj = composeSnapshot()
     if (snapObj === undefined) {
       clearWake()
       lastErrorText = ''
-      setState('idle', visualState !== 'idle')
+      const shown = withOthers('idle')
+      setState(shown, lastShown !== null && shown !== lastShown)
+      lastShown = shown
+      announceOtherNews()
       updateTicker('')
       return
     }
     lastErrorText = snapObj.lastAgentError ?? (snapObj.openError != null ? 'open-error' : '')
     const step = driver.step(snapObj, performance.now())
-    setState(step.state, step.changed)
+    const shown = withOthers(step.state)
+    // 首帧（lastShown 为 null）跟 prime 一样不算变化，不冒台词不出声
+    setState(shown, lastShown !== null && shown !== lastShown)
+    lastShown = shown
+    announceOtherNews()
     // 只有开关打开且真实状态是 think 时展示思考流；假装工作模式不展示
     updateTicker(tickerOn && step.state === 'think' ? partialTextOf(snapObj.partial) : '')
     scheduleWake()
   }
   const syncSession = () => {
+    const id = currentSessionId(sessions.list.getSnapshot())
+    const binding = id === undefined ? undefined : sessions.binding(id as Parameters<ISessions['binding']>[0])
+    // 0.1.7 的会话列表会因为别的会话的元数据频繁发布；当前会话和它的绑定都没变就不重订
+    if (!isFirstSessionSync && id === prevSessionId && binding === boundSession) return
     unsubSession?.()
     unsubChat?.()
     unsubSession = undefined
     unsubChat = undefined
     face = undefined
     chat = undefined
-    const list = sessions.list.getSnapshot()
-    const id = list.current
+    boundSession = binding
     if (id !== undefined && id !== prevSessionId && !isFirstSessionSync) {
       triggerWelcome()
     }
+    const switched = id !== prevSessionId
+    if (switched && !isFirstSessionSync) driver.reset()
     prevSessionId = id
     isFirstSessionSync = false
+    // 当前会话换了，"别的会话"的名单也跟着变，重新数一遍
+    if (switched) recountOthers()
 
-    if (id === undefined) {
-      onSnapshot()
-      return
-    }
-    const binding = sessions.binding(id)
-    if (binding === undefined) {
+    if (id === undefined || binding === undefined) {
       onSnapshot()
       return
     }
@@ -1820,9 +1971,12 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     onSnapshot()
   }
 
+  let unsubStatus: (() => void) | undefined
   if (sessions !== undefined) {
     unsubList = sessions.list.subscribe(syncSession)
     syncSession()
+    unsubStatus = statusSource?.subscribe(onStatus)
+    onStatus()
   }
 
   markActive()
@@ -1892,6 +2046,7 @@ appendMenuBtn(`${strings.panel.sound}${sounds.isMuted ? ' ✕' : ' ✓'}`, () =>
     window.clearTimeout(dialogTimer)
     if (eyeRaf !== 0) window.cancelAnimationFrame(eyeRaf)
     unsubList?.()
+    unsubStatus?.()
     unsubSession?.()
     unsubChat?.()
     clearWake()

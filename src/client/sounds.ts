@@ -1,25 +1,52 @@
-// WebAudio 合成音效：从 preview.html 原样移植，加静音记忆与浏览器自动播放策略解锁。
+// WebAudio 合成音效：从 preview.html 原样移植，加静音/音量记忆与浏览器自动播放策略解锁。
 
 export type SoundType = 'bubble' | 'work' | 'celebrate' | 'error' | 'snack' | 'trick'
 
+/** 音量三档；mid 就是 1.1.x 一直以来的响度 */
+export type VolumeLevel = 'low' | 'mid' | 'high'
+export const VOLUME_LEVELS: readonly VolumeLevel[] = ['low', 'mid', 'high']
+const VOLUME_GAIN: Record<VolumeLevel, number> = { low: 0.4, mid: 1, high: 1.6 }
+
 const MUTE_KEY = 'pet-whale:muted'
+const VOLUME_KEY = 'pet-whale:volume'
 
 export class WhaleSounds {
   private ctx: AudioContext | null = null
+  /** 所有音效都接到这个总音量上，换档只改它的 gain */
+  private master: GainNode | null = null
   private muted: boolean
+  private level: VolumeLevel
 
   constructor() {
     let muted = false
+    let level: VolumeLevel = 'mid'
     try {
       muted = localStorage.getItem(MUTE_KEY) === '1'
+      const raw = localStorage.getItem(VOLUME_KEY)
+      if ((VOLUME_LEVELS as readonly string[]).includes(raw ?? '')) level = raw as VolumeLevel
     } catch {
       // localStorage 不可用（隐私模式等），静音状态仅本次会话生效
     }
     this.muted = muted
+    this.level = level
   }
 
   get isMuted(): boolean {
     return this.muted
+  }
+
+  get volume(): VolumeLevel {
+    return this.level
+  }
+
+  setVolume(level: VolumeLevel): void {
+    this.level = level
+    if (this.master !== null) this.master.gain.value = VOLUME_GAIN[level]
+    try {
+      localStorage.setItem(VOLUME_KEY, level)
+    } catch {
+      // 忽略存储失败
+    }
   }
 
   setMuted(muted: boolean): void {
@@ -46,6 +73,9 @@ export class WhaleSounds {
         window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
       if (Ctor === undefined) return null
       this.ctx = new Ctor()
+      this.master = this.ctx.createGain()
+      this.master.gain.value = VOLUME_GAIN[this.level]
+      this.master.connect(this.ctx.destination)
     }
     if (this.ctx.state === 'suspended') void this.ctx.resume()
     return this.ctx
@@ -56,6 +86,7 @@ export class WhaleSounds {
     try {
       const ctx = this.acquire()
       if (ctx === null) return
+      const out: AudioNode = this.master ?? ctx.destination
       const now = ctx.currentTime
       if (type === 'bubble') {
         const osc = ctx.createOscillator()
@@ -66,7 +97,7 @@ export class WhaleSounds {
         gain.gain.setValueAtTime(0.3, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(out)
         osc.start(now)
         osc.stop(now + 0.15)
       } else if (type === 'work') {
@@ -77,7 +108,7 @@ export class WhaleSounds {
         gain.gain.setValueAtTime(0.18, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(out)
         osc.start(now)
         osc.stop(now + 0.07)
       } else if (type === 'celebrate') {
@@ -89,7 +120,7 @@ export class WhaleSounds {
           gain.gain.setValueAtTime(0.2, now + i * 0.08)
           gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.22)
           osc.connect(gain)
-          gain.connect(ctx.destination)
+          gain.connect(out)
           osc.start(now + i * 0.08)
           osc.stop(now + i * 0.08 + 0.23)
         })
@@ -102,7 +133,7 @@ export class WhaleSounds {
         gain.gain.setValueAtTime(0.15, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.26)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(out)
         osc.start(now)
         osc.stop(now + 0.27)
       } else if (type === 'snack') {
@@ -114,7 +145,7 @@ export class WhaleSounds {
         gain.gain.setValueAtTime(0.25, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(out)
         osc.start(now)
         osc.stop(now + 0.13)
       } else if (type === 'trick') {
@@ -126,7 +157,7 @@ export class WhaleSounds {
         gain.gain.setValueAtTime(0.28, now)
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(out)
         osc.start(now)
         osc.stop(now + 0.42)
       }

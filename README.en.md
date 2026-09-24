@@ -43,7 +43,8 @@ The repository's [preview.html](preview.html) is the same page and can be opened
 | Custom size | Right-click - Appearance - Size cycles through Small / Standard / Large / Huge (0.8x - 1.6x). Scaling also moves the collision bounds, splash origins and edge detection, not just the visual |
 | Localization | Full Chinese and English copy, following the DSH locale service automatically; the standalone preview page detects the browser language and can be overridden manually |
 | Stats | The settings panel keeps running counts of completions, interactions, errors, and days spent together |
-| Sound | WebAudio-synthesized sounds, can be muted |
+| Sound | WebAudio-synthesized sounds, can be muted; "More settings → Behavior → Volume" cycles Muted / Low / Medium / High, remembered across reloads |
+| Follow all sessions | DSH 0.1.7+: when the current session is idle but another one is running, the whale keeps working and a badge shows how many are running; when another session finishes it celebrates and names it, and it tells you which session is waiting for confirmation. Subagents don't count. Can be turned off under "More settings → Behavior" |
 | Accessibility | Respects `prefers-reduced-motion` |
 
 ## i18n
@@ -58,12 +59,17 @@ Requires DSH `>=0.1.5-alpha.2 <0.2.0` (web profile) and Node.js `^22.19.0 || >=2
 
 | DSH release | Status | Basis |
 |---|---|---|
+| `0.1.7-rc.2` | compatible | Ran on a real host: tool call `idle → think → working`; switching to another session mid-turn shows badge 1 without a false celebrate; when the background session finishes it celebrates, names the session, and falls back after 2.5s; zero console errors |
+| `0.1.7-rc.1` | compatible | Not run. npm type comparison: the only differences from rc.2 are in the model-catalog interfaces; the session list, session snapshot, chat projection and `sessionStatus` this plugin reads are unchanged |
+| `0.1.5-rc.3` | compatible | Not run. Only pins dependency versions relative to rc.2 |
 | `0.1.5-rc.2` | compatible | Ran on a real host: new session, tool call, plain-text turn — zero console errors, `idle → think → working → celebrate → idle` all fired, and celebrate self-expires back to idle after 2.5s (no next message needed to unstick it) |
 | `0.1.5-rc.1` | compatible | Not run. Per-file npm comparison: `dsh-api-session-controller`, `dsh-client-ui-conversation`, `dsh-client-locale`, `dsh-client-modules`, `dsh-cordis-client-runner` are **byte-identical** to rc.2; `dsh-client-ui-chat` differs only by a 15-character CSS tweak unrelated to the `legacy` projection this plugin reads |
 | `0.1.5-alpha.2` | compatible | Not run. Same as above; the only difference is a doc-string line number (`contract.ts:23` → `:24`) in `dsh-cordis-client-runner` |
 
 The previous 1.1.0 threw `TypeError: Cannot read properties of undefined (reading 'length')` on every session-snapshot
 update under 0.1.5. The field-by-field mapping and the fix are documented at the top of `src/client/state.ts`.
+1.1.2 doesn't throw under 0.1.7 but stays idle forever: 0.1.7 removed `current` from the session list, so the plugin
+couldn't find the current session. Since 1.1.3 it uses the session held by the main view.
 
 ```sh
 # Local directory install (the repo already contains built lib/, no build needed)
@@ -96,6 +102,9 @@ pnpm verify:hmr    # verify local repo <-> running DSH HMR wiring
   (`running` / `lastAgentError` / `openError`); `partial` / `runningCalls` / `turnEnds` come from the
   chat projection on `ctx.uiConversation` (`ChatSnapshot.legacy`). The field-by-field mapping lives at the
   top of `src/client/state.ts`.
+- 0.1.7 changes: the current session is the list row with `retainedBy.mainView > 0` (the list no longer has
+  `current`); per-session running / pending confirmation comes from `ctx.uiSession.sessionStatus` and drives the
+  wait state and follow-all-sessions. 0.1.5 has no `sessionStatus`, so both are simply inactive there.
 
 ### Hot Reload
 

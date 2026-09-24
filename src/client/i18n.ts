@@ -50,7 +50,13 @@ export interface PetStrings {
     pretend: string
     thinkTicker: string
     swim: string
-    sound: string
+    /** 音量入口，参数是当前档的名字 */
+    volume: (name: string) => string
+    volumeOff: string
+    /** 小 / 中 / 大，与 sounds.ts 的 VOLUME_LEVELS 同序 */
+    volumeNames: [string, string, string]
+    /** 跟随所有会话 */
+    followAll: string
     /** 完成提醒（标签页标题） */
     notify: string
     /** 系统通知（需授权） */
@@ -88,6 +94,8 @@ export interface PetStrings {
     swim: string[]
     swimOn: string
     swimOff: string
+    followAllOn: string
+    followAllOff: string
     joy: string[]
     pokeDizzy: string[]
     /** 连戳中段：开始不耐烦 */
@@ -114,6 +122,13 @@ export interface PetStrings {
     sedentaryOff: string
     /** 久坐提醒时鲸鱼说的话 */
     restNudge: string[]
+  }
+  /** 跟随所有会话：别的会话的动静 */
+  multi: {
+    /** 角标的悬停提示，参数是别的会话里正在跑的个数 */
+    badge: (n: number) => string
+    doneOther: (title: string) => string
+    waitingOther: (title: string) => string
   }
   /** 页面标题闪烁与系统通知用的文案 */
   notify: {
@@ -206,7 +221,10 @@ const zh: PetStrings = {
     pretend: '💼 假装工作',
     thinkTicker: '🧠 思考链',
     swim: '🏊 游泳',
-    sound: '🔊 音效',
+    volume: (name) => `🔊 音量：${name}`,
+    volumeOff: '静音',
+    volumeNames: ['小', '中', '大'],
+    followAll: '🫧 跟随所有会话',
     notify: '🔔 完成提醒',
     sysNotify: '📢 系统通知',
     sedentary: (min) => (min === 0 ? '⏰ 久坐提醒：关' : `⏰ 久坐提醒：${min} 分钟`),
@@ -255,6 +273,8 @@ const zh: PetStrings = {
     ],
     swimOn: '游泳模式已开启，我会自己到处游啦 🐳🌊',
     swimOff: '游泳模式已关闭，我乖乖待命~',
+    followAllOn: '别的会话有动静我也会告诉你~',
+    followAllOff: '好，我只盯着眼前这个会话~',
     joy: [
       '嘻嘻，最喜欢主人啦~ 🥰',
       '好开心！能量充满啦~ ✨',
@@ -319,6 +339,11 @@ const zh: PetStrings = {
       '眼睛也要休息的，看看远处吧 ✨',
       '深海也需要浮上来换气呀，你也是 🫧',
     ],
+  },
+  multi: {
+    badge: (n) => `另外 ${n} 个会话正在跑`,
+    doneOther: (title) => (title === '' ? '另一个会话跑完啦 ✅' : `「${title}」那边跑完啦 ✅`),
+    waitingOther: (title) => (title === '' ? '另一个会话在等你确认 👀' : `「${title}」在等你确认 👀`),
   },
   notify: {
     titleDone: '完成了',
@@ -410,7 +435,10 @@ const en: PetStrings = {
     pretend: '💼 Pretend to work',
     thinkTicker: '🧠 Think ticker',
     swim: '🏊 Swimming',
-    sound: '🔊 Sound',
+    volume: (name) => `🔊 Volume: ${name}`,
+    volumeOff: 'Muted',
+    volumeNames: ['Low', 'Medium', 'High'],
+    followAll: '🫧 Follow all sessions',
     notify: '🔔 Finish alert',
     sysNotify: '📢 System notification',
     sedentary: (min) => (min === 0 ? '⏰ Break reminder: off' : `⏰ Break reminder: ${min} min`),
@@ -459,6 +487,8 @@ const en: PetStrings = {
     ],
     swimOn: 'Swimming mode on: I will roam around by myself 🐳🌊',
     swimOff: 'Swimming mode off: I will stay put~',
+    followAllOn: 'I will keep an eye on your other sessions too~',
+    followAllOff: 'Got it, just this session~',
     joy: [
       'Hehe, love you the most! 🥰',
       'So happy! Energy fully restored~ ✨',
@@ -523,6 +553,11 @@ const en: PetStrings = {
       'Eyes need rest too — look at something far away ✨',
       'Even the deep sea surfaces to breathe. So should you 🫧',
     ],
+  },
+  multi: {
+    badge: (n) => `${n} other session${n === 1 ? '' : 's'} running`,
+    doneOther: (title) => (title === '' ? 'Another session just finished ✅' : `"${title}" just finished ✅`),
+    waitingOther: (title) => (title === '' ? 'Another session needs your confirmation 👀' : `"${title}" needs your confirmation 👀`),
   },
   notify: {
     titleDone: 'Done',

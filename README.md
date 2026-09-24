@@ -51,7 +51,8 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 | 拖着不动 | 抓起来悬在半空超过 2 秒，它开始扭腰问你还在不在；你一动它就不问了 |
 | 翻肚皮 | 双击的反应跟着关系走：平时翻个 360° 跟头，处到「形影不离」才肯翻肚皮给你看 |
 | 自定义大小 | 右键 →「外观 → 大小」在小 / 标准 / 大 / 特大之间循环，0.8 ~ 1.6 倍。缩放会同步影响碰撞边界、水花位置和贴边判定，不只是看着变大 |
-| 音效 | WebAudio 合成六种音效，右键可关，偏好持久化 |
+| 音效 | WebAudio 合成六种音效，右键可关；「更多设置 → 行为 → 音量」在静音 / 小 / 中 / 大之间循环，偏好持久化 |
+| 跟随所有会话 | DSH 0.1.7 起可用：当前会话闲着、别的会话在跑时鲸鱼照样干活，身上角标显示在跑的个数；别的会话跑完会庆祝并报出会话名，等你确认时会提醒是哪个会话。子代理不算。「更多设置 → 行为」可关 |
 | 无障碍 | `prefers-reduced-motion` 下自动降级为静态显示 |
 
 ## 安装
@@ -60,12 +61,16 @@ DeepSeek Harness（DSH）Web 界面的桌宠插件：右下角一只**官方轮�
 
 | DSH 版本 | 状态 | 依据 |
 |---|---|---|
+| `0.1.7-rc.2` | compatible | 真机跑过：工具调用 `idle→think→working`；回合进行中切到别的会话，角标显示 1、不误庆祝；后台会话跑完时庆祝并报出会话名，2.5 秒后回落；控制台 0 报错 |
+| `0.1.7-rc.1` | compatible | 未实跑。npm 包类型比对：与 rc.2 的差异只在模型目录相关接口，本插件读的会话列表 / 会话快照 / chat 投影 / `sessionStatus` 没有变化 |
+| `0.1.5-rc.3` | compatible | 未实跑。相对 rc.2 只锁定了依赖版本 |
 | `0.1.5-rc.2` | compatible | 真机跑过：新建会话 / 工具调用 / 纯文字回合，控制台 0 报错，鲸鱼 `idle→think→working→celebrate→idle` 全部触发，且 celebrate 2.5 秒后自己回落到 idle（不需要下一条消息来顶） |
 | `0.1.5-rc.1` | compatible | 未实跑。npm 包逐文件比对：本插件用到的 `dsh-api-session-controller` / `dsh-client-ui-conversation` / `dsh-client-locale` / `dsh-client-modules` / `dsh-cordis-client-runner` 与 rc.2 **逐字节相同**；`dsh-client-ui-chat` 只差一段 15 字符的 CSS（与本插件读的 `legacy` 投影无关） |
 | `0.1.5-alpha.2` | compatible | 未实跑。同上，唯一差异是 `dsh-cordis-client-runner` 里一个文档字符串的行号（`contract.ts:23` → `:24`） |
 
 这台机器上原本跑的 1.1.0 在 0.1.5 下会在会话快照更新时抛
 `TypeError: Cannot read properties of undefined (reading 'length')`，成因与改法见 `src/client/state.ts` 开头的字段对照。
+1.1.2 在 0.1.7 下不报错但一直待机：0.1.7 的会话列表去掉了 `current`，插件认不出当前会话。1.1.3 起改为看主视图持有的会话。
 
 ```sh
 # 本地目录安装（仓库已包含构建产物 lib/，无需先构建）
@@ -97,6 +102,8 @@ pnpm verify:hmr    # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 - 状态来源（dsh 0.1.5）：会话生命周期取自 `ctx.sessions` 的会话快照（`running` / `lastAgentError` / `openError`）；
   `partial` / `runningCalls` / `turnEnds` 取自 `ctx.uiConversation` 的 chat 投影（`ChatSnapshot.legacy`）。
   两处的字段对照和 0.1.5 的变更说明写在 `src/client/state.ts` 文件头。
+- 0.1.7 的变化：当前会话从会话列表里 `retainedBy.mainView > 0` 的那一行认（列表不再有 `current`）；
+  每个会话的 running / 待确认来自 `ctx.uiSession.sessionStatus`，用于 wait 状态和跟随所有会话。0.1.5 上没有 `sessionStatus`，这两项自动不生效。
 
 ### Hot Reload
 

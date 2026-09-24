@@ -30,6 +30,8 @@
 //       （dsh-client-ui-approval / dsh-client-ui-user-questions 都只导出 apply + props 类型）。
 //       本文件与 index.ts 都按老字段兜底读：宿主补上就自动生效，没有就是 undefined，
 //       所以 wait 在 0.1.5 上实际不会触发——这是有意的降级，不是漏改。
+//       0.1.7 起 ctx.uiSession.sessionStatus 按会话给出 pendingInteraction，
+//       index.ts 从那里把它填进 pending，wait 才真正能触发。
 //
 // 因此：**所有可能不存在的字段一律可选，读之前一律兜底**。
 // 之前直接写 snap.runningCalls.length 就是这次 0.1.5 控制台里
@@ -182,6 +184,24 @@ export class WhaleDriver {
     if (this.transient === null || this.transient.state !== 'disappointed') return false
     this.transient = null
     return true
+  }
+
+  /**
+   * 换了当前会话：下一帧当首帧重新起算基线。
+   * 不重置的话，旧会话 running=true、新会话 running=false 会被 step 当成"回合跑完"误庆祝。
+   */
+  reset(): void {
+    this.prevRunning = null
+    this.stickyUntil = null
+  }
+
+  /**
+   * 别的会话跑完了：当前会话的快照里看不到这个边沿，由调用方直接递进来。
+   * 正在报错 / 失落时不抢戏。下一次 step() 才会把状态真正切过去。
+   */
+  celebrateOther(now: number): void {
+    if (this.transient !== null && this.transient.state !== 'celebrate' && now < this.transient.until) return
+    this.transient = { state: 'celebrate', until: now + CELEBRATE_MS }
   }
 
   get state(): WhaleState {

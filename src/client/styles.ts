@@ -416,6 +416,30 @@ export const WHALE_CSS = `
 [data-dsh-whale] .dsh-whale-snack.drop { animation: pw-dropSnack 0.7s ease-in forwards; }
 [data-dsh-whale][data-facing="right"] .dsh-whale-snack { left: auto; right: 14px; }
 
+/* ===== 角标：别的会话里正在跑的个数 ===== */
+[data-dsh-whale] .dsh-whale-badge {
+  position: absolute;
+  top: calc(4px * var(--pw-scale));
+  right: calc(10px * var(--pw-scale));
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: var(--pw-body-dark);
+  color: #FBF8F0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px #FBF8F0;
+  pointer-events: auto;
+  z-index: 16;
+}
+[data-dsh-whale][data-facing="right"] .dsh-whale-badge { right: auto; left: calc(10px * var(--pw-scale)); }
+/* 以后给角标加 display 时，hidden 属性会被压过（青筋/星星踩过的坑），先钉死 */
+[data-dsh-whale] .dsh-whale-badge[hidden] { display: none !important; }
+
 
 /* ===== 打瞌睡 ===== */
 [data-dsh-whale] .dsh-whale-zzz {

@@ -129,6 +129,12 @@ export interface PetStrings {
     badge: (n: number) => string
     doneOther: (title: string) => string
     waitingOther: (title: string) => string
+    /** 同时在跑的会话（含当前）到 2 个，参数是个数 */
+    parallel: (n: number) => string[]
+    /** 到 OVERTIME_AT 个及以上 */
+    overtime: (n: number) => string[]
+    /** 这一批并发过的会话全部跑完 */
+    allDone: string[]
   }
   /** 页面标题闪烁与系统通知用的文案 */
   notify: {
@@ -344,6 +350,9 @@ const zh: PetStrings = {
     badge: (n) => `另外 ${n} 个会话正在跑`,
     doneOther: (title) => (title === '' ? '另一个会话跑完啦 ✅' : `「${title}」那边跑完啦 ✅`),
     waitingOther: (title) => (title === '' ? '另一个会话在等你确认 👀' : `「${title}」在等你确认 👀`),
+    parallel: (n) => [`${n} 个会话一起跑，全速并发推进中！🌊`, `左鳍一个右鳍一个，${n} 路并发开工~ 💨`],
+    overtime: (n) => [`${n} 个会话同时开工……这就是加班吗 😵`, `${n} 路并发？！以后再也不想加班了 😭`],
+    allDone: ['好累啊……终于全部搞定了 🫠', '呼——全部收工！让我瘫一会儿 💦'],
   },
   notify: {
     titleDone: '完成了',
@@ -558,6 +567,9 @@ const en: PetStrings = {
     badge: (n) => `${n} other session${n === 1 ? '' : 's'} running`,
     doneOther: (title) => (title === '' ? 'Another session just finished ✅' : `"${title}" just finished ✅`),
     waitingOther: (title) => (title === '' ? 'Another session needs your confirmation 👀' : `"${title}" needs your confirmation 👀`),
+    parallel: (n) => [`${n} sessions at once — full-speed parallel push! 🌊`, `One per fin: ${n} running in parallel~ 💨`],
+    overtime: (n) => [`${n} sessions at once... is this what overtime feels like 😵`, `${n} in parallel?! No more overtime, ever 😭`],
+    allDone: ['So tired... finally got every last one done 🫠', 'Phew — all wrapped up! Let me flop for a bit 💦'],
   },
   notify: {
     titleDone: 'Done',

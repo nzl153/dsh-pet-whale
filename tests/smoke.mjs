@@ -429,6 +429,8 @@ dispose2()
     a: { id: 'a', displayTitle: '会话A', running: false, retainedBy: { mainView: 1 } },
     b: { id: 'b', displayTitle: '会话B', running: false, retainedBy: {} },
     k: { id: 'k', displayTitle: '子代理', running: false, parentId: 'a', origin: 'subagent', retainedBy: {} },
+    c: { id: 'c', displayTitle: '会话C', running: false, retainedBy: {} },
+    d: { id: 'd', displayTitle: '会话D', running: false, retainedBy: {} },
   }
   const list17 = makeObservable(() => ({ ids: ['a', 'b'], byId: rows, phase: 'ready', projectionsBySession: {} }))
   const snapA = { sessionId: 'a', running: false, lastAgentError: null, openError: null }
@@ -438,6 +440,8 @@ dispose2()
     ['a', { running: false, pendingInteraction: undefined, completionUnread: false }],
     ['b', { running: false, pendingInteraction: undefined, completionUnread: false }],
     ['k', { running: false, pendingInteraction: undefined, completionUnread: false }],
+    ['c', { running: false, pendingInteraction: undefined, completionUnread: false }],
+    ['d', { running: false, pendingInteraction: undefined, completionUnread: false }],
   ])
   const statusObs = makeObservable(() => status)
   const ctx17 = {
@@ -483,6 +487,41 @@ dispose2()
   check('跑完角标收起', badge3?.hidden === true)
   await new Promise((r) => setTimeout(r, 2700))
   check('庆祝到点回落 idle', cls3() === 'idle')
+
+  // 并发播报：2 个 → 并发，4 个 → 加班，档内抖动不重喊，全部跑完 → 收工
+  const run = (id, on) => status.set(id, { running: on, pendingInteraction: undefined, completionUnread: false })
+  snapA.running = true
+  faceA.notify()
+  run('b', true)
+  statusObs.notify()
+  check('两个会话同时跑 → 并发台词', /并发/.test(dialog3?.textContent ?? ''))
+  run('c', true)
+  statusObs.notify()
+  check('三个仍在并发档，不重喊', !/加班/.test(dialog3?.textContent ?? ''))
+  run('d', true)
+  statusObs.notify()
+  check('四个会话 → 加班台词', /加班/.test(dialog3?.textContent ?? ''))
+  run('d', false)
+  statusObs.notify()
+  run('d', true)
+  statusObs.notify()
+  check('档内上下抖动不重复喊加班', !/加班/.test(dialog3?.textContent ?? '') || /跑完/.test(dialog3?.textContent ?? ''))
+  run('b', false)
+  run('c', false)
+  run('d', false)
+  statusObs.notify()
+  check('别的都跑完、当前还在跑 → 还没收工', !/全部搞定|全部收工/.test(dialog3?.textContent ?? ''))
+  snapA.running = false
+  faceA.notify()
+  check('最后一个跑完 → 收工台词', /全部搞定|全部收工/.test(dialog3?.textContent ?? ''))
+  check('收工时庆祝', cls3() === 'celebrate')
+  await new Promise((r) => setTimeout(r, 2700))
+  snapA.running = true
+  faceA.notify()
+  snapA.running = false
+  faceA.notify()
+  check('单个会话跑完不说收工', !/全部搞定|全部收工/.test(dialog3?.textContent ?? ''))
+  await new Promise((r) => setTimeout(r, 2700))
 
   status.set('b', { running: true, pendingInteraction: { key: 'q1', kind: 'approval', sessionId: 'b' }, completionUnread: false })
   statusObs.notify()

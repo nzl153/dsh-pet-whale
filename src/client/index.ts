@@ -85,6 +85,8 @@ const pick = (list: string[]): string => list[Math.floor(Math.random() * list.le
 
 /** 跟随所有会话：别的会话在跑 / 跑完 / 等确认也让鲸鱼知道，'0' 表示只看当前会话 */
 const FOLLOW_ALL_KEY = 'pet-whale:follow-all'
+/** 同时在跑的会话（含当前）到这个数就算"加班" */
+const OVERTIME_AT = 4
 
 /** DSH locale 服务的最小接口（不引入额外依赖）。 */
 interface LocaleLike {
@@ -1895,6 +1897,30 @@ export function apply(ctx: Context): () => void {
     if (otherRunning > 0) return 'working'
     return state
   }
+  // 并发播报：档位只升不降，一批活全部跑完（总数归零）才清零，免得人数在档内上下抖动时反复喊
+  let busyTier = 0
+  let peakRunning = 0
+  const trackConcurrency = (currentRunning: boolean) => {
+    if (!followAll || statusSource === undefined) {
+      busyTier = 0
+      peakRunning = 0
+      return
+    }
+    const total = otherRunning + (currentRunning ? 1 : 0)
+    const tier = total >= OVERTIME_AT ? 2 : total >= 2 ? 1 : 0
+    if (tier > busyTier) {
+      otherNews = pick(tier === 2 ? strings.multi.overtime(total) : strings.multi.parallel(total))
+      busyTier = tier
+    }
+    peakRunning = Math.max(peakRunning, total)
+    if (total === 0) {
+      // 真并发过才说收工的话；单个会话跑完还是平常的台词
+      if (peakRunning >= 2) otherNews = pick(strings.multi.allDone)
+      busyTier = 0
+      peakRunning = 0
+    }
+  }
+
   let lastShown: WhaleState | null = null
   const announceOtherNews = () => {
     if (otherNews === '') return
@@ -1907,6 +1933,7 @@ export function apply(ctx: Context): () => void {
     if (snapObj === undefined) {
       clearWake()
       lastErrorText = ''
+      trackConcurrency(false)
       const shown = withOthers('idle')
       setState(shown, lastShown !== null && shown !== lastShown)
       lastShown = shown
@@ -1915,6 +1942,7 @@ export function apply(ctx: Context): () => void {
       return
     }
     lastErrorText = snapObj.lastAgentError ?? (snapObj.openError != null ? 'open-error' : '')
+    trackConcurrency(snapObj.running)
     const step = driver.step(snapObj, performance.now())
     const shown = withOthers(step.state)
     // 首帧（lastShown 为 null）跟 prime 一样不算变化，不冒台词不出声

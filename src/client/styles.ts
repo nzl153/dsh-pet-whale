@@ -416,27 +416,67 @@ export const WHALE_CSS = `
 [data-dsh-whale] .dsh-whale-snack.drop { animation: pw-dropSnack 0.7s ease-in forwards; }
 [data-dsh-whale][data-facing="right"] .dsh-whale-snack { left: auto; right: 14px; }
 
-/* ===== 角标：别的会话里正在跑的个数 ===== */
+/* ===== 角标：别的会话里正在跑的个数 =====
+ * 挂在鲸鱼头前上方（朝右时镜像过去），做成一颗小气泡：实色渐变 + 左上高光 + 内阴影。
+ * 三种动效各占一个独立变换属性，互不覆盖：
+ *   translate — JS 每帧跟着鲸鱼身体的起伏走（index.ts 的 followBody）
+ *   rotate    — 轻微左右摆
+ *   scale     — 数字变化时弹一下 */
 [data-dsh-whale] .dsh-whale-badge {
   position: absolute;
   top: calc(4px * var(--pw-scale));
-  right: calc(10px * var(--pw-scale));
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  left: calc(-6px * var(--pw-scale));
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
   box-sizing: border-box;
-  border-radius: 9px;
-  background: var(--pw-body-dark);
-  color: #FBF8F0;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 18px;
+  border-radius: 12px;
+  /* 底色要够深，白字才看得清；亮面只交给 ::before 那一小块高光 */
+  background: radial-gradient(circle at 35% 30%, var(--pw-body) 0%, var(--pw-body-dark) 85%);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 3px 8px rgba(53, 80, 201, 0.32),
+    inset 0 -2px 3px rgba(20, 30, 90, 0.22),
+    inset 0 1px 2px rgba(255, 255, 255, 0.55);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 21px;
   text-align: center;
-  box-shadow: 0 0 0 2px #FBF8F0;
+  text-shadow: 0 1px 2px rgba(20, 30, 90, 0.55);
   pointer-events: auto;
+  cursor: default;
   z-index: 16;
+  transform-origin: 50% 90%;
+  animation: pw-badgeSway 2.8s ease-in-out infinite;
 }
-[data-dsh-whale][data-facing="right"] .dsh-whale-badge { right: auto; left: calc(10px * var(--pw-scale)); }
+/* 气泡左上角的高光（右下角别再加小反光点，真机上看着像数字后面跟了个句号） */
+[data-dsh-whale] .dsh-whale-badge::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 7px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  transform: rotate(-28deg);
+  pointer-events: none;
+}
+[data-dsh-whale] .dsh-whale-badge.pop {
+  animation: pw-badgeSway 2.8s ease-in-out infinite, pw-badgePop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+[data-dsh-whale][data-facing="right"] .dsh-whale-badge { left: auto; right: calc(-6px * var(--pw-scale)); }
+@keyframes pw-badgeSway {
+  0%, 100% { rotate: -6deg; }
+  50% { rotate: 6deg; }
+}
+@keyframes pw-badgePop {
+  0% { scale: 0.3; }
+  60% { scale: 1.18 0.9; }
+  80% { scale: 0.95 1.05; }
+  100% { scale: 1; }
+}
 /* 以后给角标加 display 时，hidden 属性会被压过（青筋/星星踩过的坑），先钉死 */
 [data-dsh-whale] .dsh-whale-badge[hidden] { display: none !important; }
 

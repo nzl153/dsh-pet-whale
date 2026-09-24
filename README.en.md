@@ -44,7 +44,7 @@ The repository's [preview.html](preview.html) is the same page and can be opened
 | Localization | Full Chinese and English copy, following the DSH locale service automatically; the standalone preview page detects the browser language and can be overridden manually |
 | Stats | The settings panel keeps running counts of completions, interactions, errors, and days spent together |
 | Sound | WebAudio-synthesized sounds, can be muted; "More settings → Behavior → Volume" cycles Muted / Low / Medium / High, remembered across reloads |
-| Follow all sessions | DSH 0.1.7+: when the current session is idle but another one is running, the whale keeps working and a badge shows how many are running; when another session finishes it celebrates and names it, and it tells you which session is waiting for confirmation. Subagents don't count. Can be turned off under "More settings → Behavior" |
+| Follow all sessions | DSH 0.1.7+: when the current session is idle but another one is running, the whale keeps working and a little bubble badge in front of its head shows how many are running (it rides the body's bobbing, sways gently, and pops when the number changes); when another session finishes it celebrates and names it, and it tells you which session is waiting for confirmation. Subagents don't count. Can be turned off under "More settings → Behavior" |
 | Parallel chatter | With follow-all on: at 2 sessions running at once (current included) it cheers about the parallel push, at 4 it starts complaining about overtime; each level is announced once, and only when a batch that really ran in parallel is fully done does it sigh "so tired... finally got every last one done" |
 | Accessibility | Respects `prefers-reduced-motion` |
 

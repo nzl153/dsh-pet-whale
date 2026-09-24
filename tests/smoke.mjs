@@ -480,6 +480,21 @@ dispose2()
   check('别的会话在跑 → working', cls3() === 'working')
   check('角标显示 1', badge3?.hidden === false && badge3?.textContent === '1')
 
+  // 角标跟随身体起伏：jsdom 没有布局，给身体桩一个正弦起伏的位置，看角标的 translate 跟着变
+  const body3 = pet3?.querySelector('.body')
+  const tFollow0 = Date.now()
+  body3.getBoundingClientRect = () => {
+    const y = 20 + 8 * Math.sin(((Date.now() - tFollow0) / 400) * Math.PI)
+    return { left: 10, top: y, width: 100, height: 60, right: 110, bottom: y + 60, x: 10, y }
+  }
+  const followYs = new Set()
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 60))
+    followYs.add((badge3?.style.translate ?? '').split(' ')[1] ?? '')
+  }
+  check('角标跟着身体起伏移动', followYs.size >= 4 && [...followYs].every((v) => /^-?\d+(\.\d+)?px$/.test(v)))
+  delete body3.getBoundingClientRect
+
   status.set('b', { running: false, pendingInteraction: undefined, completionUnread: true })
   statusObs.notify()
   check('别的会话跑完 → celebrate', cls3() === 'celebrate')

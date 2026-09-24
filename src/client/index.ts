@@ -953,6 +953,43 @@ export function apply(ctx: Context): () => void {
   document.addEventListener('visibilitychange', onVisibility)
   onVisibility()
 
+  // ===== 角标跟着鲸鱼身体起伏 =====
+  // 各状态的浮动动画不一样（idle 3.2s、睡觉 4s、游泳 0.85s、干活整只在晃），CSS 同步不了，
+  // 只能每帧读身体的实际位置。只取"起伏"：用慢速均值当基线，角标位移 = 当前位置 - 基线，
+  // 这样角标还钉在头前方，只跟着上下左右晃。只在角标显示、页面可见时跑。
+  const petBody = pet.querySelector<SVGGElement>('.body')
+  const reduceMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  let followRaf = 0
+  let baseX = Number.NaN
+  let baseY = Number.NaN
+  const FOLLOW_MAX = 18
+  const clampFollow = (v: number) => Math.max(-FOLLOW_MAX, Math.min(FOLLOW_MAX, v))
+  const followBody = () => {
+    followRaf = 0
+    if (badge.hidden || document.hidden || petBody === null) return
+    const b = petBody.getBoundingClientRect()
+    const r = root.getBoundingClientRect()
+    const x = b.left + b.width / 2 - r.left
+    const y = b.top + b.height / 2 - r.top
+    if (Number.isNaN(baseX)) {
+      baseX = x
+      baseY = y
+    }
+    // 约 2 秒的时间常数：比任何一种浮动周期都慢，基线不会被起伏本身带跑
+    baseX += (x - baseX) * 0.008
+    baseY += (y - baseY) * 0.008
+    badge.style.translate = `${clampFollow(x - baseX).toFixed(1)}px ${clampFollow(y - baseY).toFixed(1)}px`
+    followRaf = window.requestAnimationFrame(followBody)
+  }
+  const startFollow = () => {
+    if (reduceMotion || followRaf !== 0) return
+    followRaf = window.requestAnimationFrame(followBody)
+  }
+  const onFollowVisibility = () => {
+    if (!document.hidden && !badge.hidden) startFollow()
+  }
+  document.addEventListener('visibilitychange', onFollowVisibility)
+
           // ===== 右键菜单 =====
     let menuMode: 'main' | 'more' | 'appearance' | 'behavior' | 'stats' | 'rest' = 'main'
     const appendMenuBtn = (label: string, onClick: () => void, cls = '') => {
@@ -1819,11 +1856,20 @@ export function apply(ctx: Context): () => void {
   const rowOf = (id: string): SessionRow | undefined =>
     (sessions?.list.getSnapshot().byId as Readonly<Record<string, SessionRow | undefined>> | undefined)?.[id]
 
+  let badgeCount = 0
   const updateBadge = () => {
     const n = followAll ? otherRunning : 0
     badge.hidden = n === 0
     badge.textContent = n > 9 ? '9+' : String(n)
     badge.title = n === 0 ? '' : strings.multi.badge(n)
+    // 数字变了就弹一下；先摘类再强制回流，连续变化也能重新播
+    if (n > 0 && n !== badgeCount) {
+      badge.classList.remove('pop')
+      void badge.offsetWidth
+      badge.classList.add('pop')
+    }
+    if (n > 0) startFollow()
+    badgeCount = n
   }
 
   const recountOthers = () => {
@@ -2084,6 +2130,8 @@ export function apply(ctx: Context): () => void {
     window.removeEventListener('mousemove', onMouseMove)
     window.removeEventListener('resize', onResize)
     document.removeEventListener('visibilitychange', onVisibility)
+    document.removeEventListener('visibilitychange', onFollowVisibility)
+    if (followRaf !== 0) window.cancelAnimationFrame(followRaf)
     themeObserver.disconnect()
     clearIdleMicro()
     cancelAvoid()

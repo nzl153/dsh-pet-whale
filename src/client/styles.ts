@@ -333,6 +333,12 @@ export const WHALE_CSS = `
 
 /* 庆祝与喷水柱 */
 [data-dsh-whale] .pet-official.celebrate { animation: pw-leap2 1.4s ease-in-out infinite; }
+/* 笑眼只在没有别的表情抢眼睛时出现：庆祝中被戳、甩晕、翻肚皮，各用各的眼睛 */
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .eye,
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .happy-eyes { display: inline !important; }
+/* 笑眯着的眼睛不眨：一眨就压成一条横线，看着像睡着了 */
+[data-dsh-whale] .pet-official.celebrate .eye-group { animation: none; }
 [data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
 [data-dsh-whale] .pet-official.celebrate .starL { animation: pw-starSpin 1.2s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.celebrate .starR { animation: pw-starSpin 1.2s ease-in-out 0.3s infinite; }
@@ -354,6 +360,14 @@ export const WHALE_CSS = `
 [data-dsh-whale] .pet-official.wait { animation: pw-wait 1.2s ease-in-out infinite; }
 [data-dsh-whale] .pet-official.wait .bubble-blue { display: block; animation: pw-riseBlue 1.2s ease-out infinite; }
 [data-dsh-whale] .pet-official.disappointed { animation: pw-disappointed 2.6s ease-in-out infinite; }
+/* 失落：眼珠往下垂、高光缩小，配八字眉和一滴往下掉的眼泪 */
+[data-dsh-whale] .pet-official.disappointed .eye-group .eye { transform: translateY(0.25px); }
+[data-dsh-whale] .pet-official.disappointed .eye-group .pupil-highlight { transform: translate(-0.12px, 0.45px) scale(0.7); transform-origin: 5.92px 5.35px; }
+[data-dsh-whale] .pet-official.disappointed .eye-group .sad-eyes { display: inline !important; }
+[data-dsh-whale] .pet-official.disappointed .tear {
+  display: inline !important;
+  animation: pw-tearDrop 1.3s ease-in infinite;
+}
 
 
 /* 双击翻滚特技 */
@@ -376,6 +390,9 @@ export const WHALE_CSS = `
 [data-dsh-whale].dragging .eye-group .eye,
 [data-dsh-whale].dragging .eye-group .pupil-highlight { opacity: 0 !important; }
 [data-dsh-whale].dragging .eye-group .caught-eyes { display: inline !important; }
+[data-dsh-whale].dragging .pet-official .eye-group .happy-eyes,
+[data-dsh-whale].dragging .pet-official .eye-group .sad-eyes,
+[data-dsh-whale].dragging .pet-official .tear { display: none !important; }
 [data-dsh-whale].dragging .eye-group .caught-eyes path { stroke: var(--pw-eye, #2E2A24) !important; stroke-width: 0.9 !important; }
 
 /* ===== 台词气泡 ===== */
@@ -860,6 +877,13 @@ export const WHALE_CSS = `
 @keyframes pw-squeeze {
   0%   { transform: scaleX(1) scaleY(1); }
   100% { transform: scaleX(0.82) scaleY(1.1); }
+}
+
+@keyframes pw-tearDrop {
+  0%   { transform: translateY(-0.4px) scale(0.4); opacity: 0; }
+  25%  { transform: translateY(0) scale(1); opacity: 1; }
+  70%  { transform: translateY(1.6px) scale(1); opacity: 1; }
+  100% { transform: translateY(2.6px) scale(0.9); opacity: 0; }
 }
 
 @keyframes pw-squash {

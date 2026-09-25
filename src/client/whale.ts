@@ -1,5 +1,4 @@
-// 由 scripts/extract-whale.mjs 从 preview.html 自动生成，勿手改。
-// 改预览模板后重跑：node scripts/extract-whale.mjs
+// 鲸鱼的 SVG 就以这里为准。preview.html 现在直接加载 lib/client.js，不再是模板来源。
 export const WHALE_HTML = `<svg viewBox="-2 -1 26 19" aria-hidden="true">
           <defs>
             <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -44,7 +43,16 @@ export const WHALE_HTML = `<svg viewBox="-2 -1 26 19" aria-hidden="true">
               <g class="dizzy-eyes" style="display:none" fill="none" stroke="var(--pw-eye,#2E2A24)" stroke-width="0.75" stroke-linecap="round">
                 <path d="M4.7 4.8 L6.4 6.5 M6.4 4.8 L4.7 6.5"/>
               </g>
+              <!-- 庆祝：笑成 ^ 的眼睛，跟睡觉、翻肚皮的弯月眼区分开 -->
+              <g class="happy-eyes" style="display:none" fill="none" stroke="var(--pw-eye,#2E2A24)" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 6.3 L5.55 5.05 L6.6 6.3"/>
+              </g>
+              <!-- 失落：眼睛照常睁着，靠一道八字眉（朝鼻尖那头抬高）和一滴眼泪 -->
+              <g class="sad-eyes" style="display:none" fill="none" stroke="var(--pw-eye,#2E2A24)" stroke-linecap="round">
+                <path d="M4.1 3.45 Q5.3 3.55 6.6 4.3" stroke-width="0.4"/>
+              </g>
             </g>
+            <path class="tear" style="display:none" d="M6.35 6.75 Q6.85 7.55 6.85 7.85 A0.5 0.5 0 0 1 5.85 7.85 Q5.85 7.55 6.35 6.75 Z" fill="#9FD3FF" stroke="#6FB6F2" stroke-width="0.12"/>
 
             <!-- 气孔微喷泉（胜利/翻滚/觉醒时喷出） -->
             <g class="spout-group" style="display:none">

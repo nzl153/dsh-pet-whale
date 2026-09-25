@@ -2,7 +2,7 @@
 
 English | [中文](README.md)
 
-A desktop pet plugin for DeepSeek Harness (DSH), working in both the web UI and the official desktop app. A small whale floats in the bottom-right corner and reacts to your agent's state in real time.
+A desktop pet plugin for DeepSeek Harness (DSH), working in both the official desktop app and the web UI. A small whale floats in the bottom-right corner and reacts to your agent's state in real time.
 
 It uses the official DeepSeek whale outline, pure DOM animations, zero runtime third-party dependencies, and WebAudio-synthesized sound effects (no audio files).
 
@@ -30,7 +30,7 @@ Open the standalone preview page to try every state and interaction:
 
 ## Install
 
-In the profile directory you use (for the web UI usually `~/.dsh/profiles/web`), add the dependency and the bundle to `package.json`:
+In the profile directory you are using (the desktop app and the web UI each have their own; for the web UI it is usually `~/.dsh/profiles/web`), add the dependency and the bundle to `package.json`:
 
 ```json
 {

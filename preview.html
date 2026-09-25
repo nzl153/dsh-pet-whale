@@ -74,6 +74,12 @@
   }
   .lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
   .stage { flex: 1; min-height: 240px; }
+  [data-dsh-whale] .pet-official,
+  [data-dsh-whale-mini] {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   .panel {
     max-width: 720px;
     width: 100%;
@@ -168,6 +174,7 @@
       <li data-i18n="tip6"><b>右键</b> 投喂、摸头、换颜色、改大小</li>
       <li data-i18n="tip7"><b>鼠标在头顶来回蹭</b> 摸摸头；一直狂蹭它会生气游走</li>
     </ul>
+    <p class="note" data-i18n="touchNote">手机端支持拖拽、猛甩和贴边压扁；右键菜单和“鼠标在头顶来回蹭”的摸头手势仅限鼠标设备。</p>
   </section>
 </div>
 
@@ -189,6 +196,7 @@
       tip5: '<b>抓着不放</b> 两秒后它会问你还在吗',
       tip6: '<b>右键</b> 投喂、摸头、换颜色、改大小',
       tip7: '<b>鼠标在头顶来回蹭</b> 摸摸头；一直狂蹭它会生气游走',
+      touchNote: '手机端支持拖拽、猛甩和贴边压扁；右键菜单和“鼠标在头顶来回蹭”的摸头手势仅限鼠标设备。',
       session: '写测试',
     },
     en: {
@@ -205,6 +213,7 @@
       tip5: '<b>Hold it still</b> and it asks if you are there',
       tip6: '<b>Right-click</b> to feed, pat, recolor, resize',
       tip7: '<b>Rub the cursor over its head</b> for a headpat; overdo it and it swims off',
+      touchNote: 'Touch devices support dragging, shaking and edge squashing. The right-click menu and cursor-rub headpat are mouse-only.',
       session: 'Write tests',
     },
   }

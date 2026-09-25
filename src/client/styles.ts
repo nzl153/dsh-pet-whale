@@ -1,5 +1,10 @@
 // 桌宠样式：从 preview.html 的 V2（官方轮廓版）部分移植，keyframes 加 pw- 前缀防撞名，
 // 全部选择器收进 [data-dsh-whale] 作用域，不污染页面全局。
+// 摸头时的光标：一只小手，热点在掌心
+const PAT_CURSOR = `url("data:image/svg+xml,${encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text x='16' y='24' font-size='22' text-anchor='middle'>🤚</text></svg>",
+)}") 16 16, pointer`
+
 export const WHALE_CSS = `
 [data-dsh-whale] {
   --pw-ink: #2E2A24;
@@ -334,9 +339,9 @@ export const WHALE_CSS = `
 /* 庆祝与喷水柱 */
 [data-dsh-whale] .pet-official.celebrate { animation: pw-leap2 1.4s ease-in-out infinite; }
 /* 笑眼只在没有别的表情抢眼睛时出现：庆祝中被戳、甩晕、翻肚皮，各用各的眼睛 */
-[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .eye,
-[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .pupil-highlight { opacity: 0 !important; }
-[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up) .eye-group .happy-eyes { display: inline !important; }
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up):not(.petting) .eye-group .eye,
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up):not(.petting) .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale]:not(.dragging) .pet-official.celebrate:not(.joy):not(.dizzy):not(.shaken):not(.belly-up):not(.petting) .eye-group .happy-eyes { display: inline !important; }
 /* 笑眯着的眼睛不眨：一眨就压成一条横线，看着像睡着了 */
 [data-dsh-whale] .pet-official.celebrate .eye-group { animation: none; }
 [data-dsh-whale] .pet-official.celebrate .stars { display: block !important; }
@@ -351,6 +356,30 @@ export const WHALE_CSS = `
   transform-origin: 8.6px 1.2px;
   animation: pw-spoutSpray 1.3s cubic-bezier(0.2, 0.8, 0.35, 1) infinite;
 }
+
+/* 摸头：你的鼠标在它头顶来回蹭。眯眼、腮红变深，每蹭一下头顶被按下去一点 */
+[data-dsh-whale].patting .pet-official { cursor: ${PAT_CURSOR}; }
+[data-dsh-whale] .pet-official.petting .eye-group { animation: none; }
+[data-dsh-whale] .pet-official.petting .eye-group .eye,
+[data-dsh-whale] .pet-official.petting .eye-group .pupil-highlight { opacity: 0 !important; }
+[data-dsh-whale] .pet-official.petting .eye-group .sleep-eyes { display: inline !important; }
+[data-dsh-whale] .pet-official .blush { transition: opacity 0.3s ease; }
+[data-dsh-whale] .pet-official.petting .blush { opacity: 0.9; }
+[data-dsh-whale] .pet-official.pat-press .body {
+  transform-origin: 50% 100%;
+  animation: pw-patPress 0.3s ease-out !important;
+}
+[data-dsh-whale] .pat-heart {
+  position: absolute;
+  left: 26%;
+  top: 0;
+  color: #F07A8E;
+  font-size: calc(15px * var(--pw-scale));
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-dsh-whale] .pat-heart.show { animation: pw-heartFloat 1.1s ease-out forwards; }
 
 /* 背部粼粼波光折射 */
 [data-dsh-whale] .caustic-shimmer {
@@ -877,6 +906,17 @@ export const WHALE_CSS = `
 @keyframes pw-squeeze {
   0%   { transform: scaleX(1) scaleY(1); }
   100% { transform: scaleX(0.82) scaleY(1.1); }
+}
+
+@keyframes pw-patPress {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.05, 0.9); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes pw-heartFloat {
+  0%   { transform: translateY(4px) scale(0.5); opacity: 0; }
+  25%  { transform: translateY(0) scale(1.1); opacity: 1; }
+  100% { transform: translateY(-22px) scale(0.9); opacity: 0; }
 }
 
 @keyframes pw-tearDrop {

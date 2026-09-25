@@ -65,7 +65,7 @@ export const WHALE_HTML = `<svg viewBox="-2 -1 26 19" aria-hidden="true">
             </g>
 
             <!-- 软萌自然腮红 -->
-            <ellipse cx="6.6" cy="7.2" rx="0.75" ry="0.48" style="fill:var(--pw-blush,#F0A0A0)" opacity="0.5"/>
+            <ellipse class="blush" cx="6.6" cy="7.2" rx="0.75" ry="0.48" style="fill:var(--pw-blush,#F0A0A0)" opacity="0.5"/>
 
             <!-- 覆盖官方路径中的内部孔洞，避免出现第二只眼睛 -->
             <circle cx="12.44" cy="8.26" r="0.45" fill="url(#bodyGrad)"/>
@@ -122,4 +122,5 @@ export const WHALE_HTML = `<svg viewBox="-2 -1 26 19" aria-hidden="true">
         <span class="bubble b3"></span>
         <span class="bubble-blue"></span>
         <span class="bubble-blue bb2"></span>
-        <span class="bubble-blue bb3"></span>`
+        <span class="bubble-blue bb3"></span>
+        <span class="pat-heart">♥</span>`

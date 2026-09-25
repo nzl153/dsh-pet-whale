@@ -76,7 +76,10 @@ export interface PetStrings {
     squish: string
     roll: string
     feed: string
-    headpat: string
+    /** 被摸头：鼠标蹭头顶 / 长按 / 菜单三个入口共用 */
+    patted: string[]
+    /** 蹭得太快：生气游开 */
+    patTooFast: string[]
     paletteApplied: (name: string) => string
     pretendOn: string
     pretendOff: string
@@ -258,7 +261,17 @@ const zh: PetStrings = {
     squish: '戳一戳，心情 +1 ✨',
     roll: '翻个 360° 跟头给你看！(≧∇≦)ﾉ ✨',
     feed: '嚼嚼嚼... 获得小鱼干能量！美味~ 🐟',
-    headpat: '被摸摸头啦~ 暖洋洋的超开心 🥰',
+    patted: [
+      '被摸摸头啦~ 暖洋洋的超开心 🥰',
+      '呼噜呼噜... 再摸一下嘛 (´▽`)',
+      '头顶暖暖的，眼睛都睁不开了~ 💤',
+      '嘿嘿，被摸得好舒服 💖',
+    ],
+    patTooFast: [
+      '再摸就秃头了！😤',
+      '头顶都要搓冒烟了，不给摸了！🔥',
+      '哼，手这么重，我游远点 😤',
+    ],
     paletteApplied: (name) => `换上新皮肤「${name}」~ 🎨`,
     pretendOn: '进入假装工作模式，开始表演敲代码 ⌨️💼',
     pretendOff: '下班！恢复真实状态~',
@@ -483,7 +496,17 @@ const en: PetStrings = {
     squish: 'Poke! Mood +1 ✨',
     roll: 'A 360° flip just for you! (≧∇≦)ﾉ ✨',
     feed: 'Munch munch... fish snack energy! Yummy~ 🐟',
-    headpat: 'Headpat received~ warm and happy 🥰',
+    patted: [
+      'Headpat received~ warm and happy 🥰',
+      'Mmm... one more pat, please (´▽`)',
+      'So cozy up here, my eyes are closing~ 💤',
+      'Hehe, that feels so nice 💖',
+    ],
+    patTooFast: [
+      'Any more and I go bald! 😤',
+      'My head is about to smoke. No more pats! 🔥',
+      'Hmph, too rough. I am swimming away 😤',
+    ],
     paletteApplied: (name) => `New skin applied: ${name}~ 🎨`,
     pretendOn: 'Entering pretend-work mode, time to type ⌨️💼',
     pretendOff: 'Off duty! Back to real state~',

@@ -34,7 +34,7 @@ In the profile directory you use (for the web UI usually `~/.dsh/profiles/web`),
 
 ```json
 {
-  "dependencies": { "pet-whale": "^1.2.2" },
+  "dependencies": { "pet-whale": "^1.2.3" },
   "dsh": { "profile": { "bundles": ["...existing...", "pet-whale"] } }
 }
 ```
@@ -76,6 +76,7 @@ Requires DSH `>=0.1.5-alpha.2 <0.2.0` and Node.js `^22.19.0 || >=24.0.0`. See [C
 | Capability | Description |
 |---|---|
 | Basics | Click to poke, double-click 360° flip, drag with >_< eyes, right-click quick menu, mouse-follow eyes, 20s idle sleep |
+| Headpat | No buttons needed: rub the cursor back and forth over its head and the cursor turns into a little hand. From the second stroke it squints and blushes, each stroke presses its head down a little, and every five strokes a heart floats up. Keep rubbing frantically (eight strokes in about a second) and it frowns, grumbles about going bald, swims off, and refuses pats for five seconds. Patting it while disappointed counts as comfort. The right-click "Headpat" and a 0.7s long press play the same reaction |
 | Poke escalation | Pokes 1-2 get the usual squish, 3-5 make it lean away annoyed, 6+ turn it away with an angry brow; the streak decays after 2.6s of no poking, and it drops the mood the moment the agent starts working |
 | Shake dizzy | Grab it and swing it left and right - four direction changes within a second make it dizzy: the eyes go @@, it begs you to stop, and the body keeps wobbling after you let go; hand tremor and slow back-and-forth do not count. It stays woozy for the next dozen seconds too, with a visibly crooked swim path |
 | Belly up | The double-click reaction follows your bond: normally a 360 spin, but at Inseparable it rolls over and shows you its belly |

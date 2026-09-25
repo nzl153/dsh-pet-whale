@@ -400,6 +400,36 @@ check('左下角只按左边算', rootEl?.classList.contains('edge-left') === tr
 pet.dispatchEvent(Object.assign(ptrXY('pointerup', -2000, 5000), { pointerId: 5 }))
 check('松手清掉上下边缘态', !rootEl?.classList.contains('edge-top') && !rootEl?.classList.contains('edge-bottom'))
 
+// 摸头：不按键在头顶来回蹭。jsdom 没有布局，给鲸鱼一个假的盒子
+pet.getBoundingClientRect = () => ({ left: 0, top: 0, width: 137, height: 101, right: 137, bottom: 101, x: 0, y: 0 })
+const hover = (x, y) => window.dispatchEvent(new window.MouseEvent('mousemove', { clientX: x, clientY: y, buttons: 0 }))
+// 正常摸：一下隔 220ms，五下要将近一秒，不算乱蹭
+const stroke = async (x) => { hover(x, 20); await new Promise((r) => setTimeout(r, 220)) }
+await stroke(20)
+await stroke(50)
+await stroke(20)
+check('蹭一下只是路过，不算摸', !pet.classList.contains('petting'))
+await stroke(50)
+check('蹭第二下开始眯眼', pet.classList.contains('petting') && rootEl.classList.contains('patting'))
+await stroke(20); await stroke(50); await stroke(20)
+check('蹭满五下冒爱心', rootEl.querySelector('.pat-heart')?.classList.contains('show') === true)
+check('被摸说了话', /摸|舒服|暖/.test(dialog?.textContent ?? ''))
+hover(120, 90)
+check('光标离开头顶就不算摸了', !pet.classList.contains('petting'))
+hover(20, 20); hover(50, 20); hover(20, 20); hover(50, 20)
+await new Promise((r) => setTimeout(r, 800))
+check('停手一会儿自己收起', !pet.classList.contains('petting'))
+// 乱蹭：一口气来回好几下 → 生气、放话、游开，之后一阵子不给摸
+rootEl.style.left = '400px'
+rootEl.style.top = '300px'
+for (const x of [20, 50, 20, 50, 20, 50, 20, 50, 20, 50, 20]) hover(x, 20)
+check('蹭太快会生气', pet.classList.contains('sulking') && !pet.classList.contains('petting'))
+check('生气放话', /秃|冒烟|游远/.test(dialog?.textContent ?? ''))
+check('生气后游开', rootEl.style.left !== '400px' || rootEl.style.top !== '300px')
+for (const x of [20, 50, 20, 50]) hover(x, 20)
+check('生气期间再蹭也不理', !pet.classList.contains('petting'))
+delete pet.getBoundingClientRect
+
 // 拖着不放又不动：三秒后开始不耐烦。这条只能真等，没有假时钟
 pet.dispatchEvent(Object.assign(ptr('pointerdown', 300), { pointerId: 4 }))
 pet.dispatchEvent(Object.assign(ptr('pointermove', 340), { pointerId: 4 }))

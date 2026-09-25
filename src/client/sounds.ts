@@ -60,11 +60,20 @@ export class WhaleSounds {
 
   /** 浏览器自动播放策略：AudioContext 需在用户手势后 resume，挂一次全局 pointerdown 解锁。 */
   installGestureUnlock(): void {
-    const unlock = () => {
-      const ctx = this.acquire()
-      if (ctx !== null && ctx.state === 'suspended') void ctx.resume()
-    }
-    document.addEventListener('pointerdown', unlock, { capture: true, passive: true })
+    document.addEventListener('pointerdown', this.unlock, { capture: true, passive: true })
+  }
+
+  private readonly unlock = () => {
+    const ctx = this.acquire()
+    if (ctx !== null && ctx.state === 'suspended') void ctx.resume()
+  }
+
+  /** 卸载时收干净：热重载一次留一个 AudioContext 和一个全局监听，攒多了会出怪事 */
+  dispose(): void {
+    document.removeEventListener('pointerdown', this.unlock, { capture: true })
+    if (this.ctx !== null) void this.ctx.close().catch(() => {})
+    this.ctx = null
+    this.master = null
   }
 
   private acquire(): AudioContext | null {

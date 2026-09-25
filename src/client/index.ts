@@ -1065,7 +1065,7 @@ export function apply(ctx: Context): () => void {
           [
             strings.menu.headpat,
             () => {
-              triggerJoy()
+              triggerPat()
             },
           ],
           [
@@ -1394,6 +1394,171 @@ export function apply(ctx: Context): () => void {
     }, AVOID_DWELL_MS)
   }
 
+  // ===== 摸头 =====
+  // 不按键、光标在头顶来回蹭就算摸。每掉一次头算一下，蹭到第二下它才眯眼，
+  // 免得鼠标只是路过头顶也被当成摸。
+  /** 两次掉头之间至少要走这么远，手抖不算 */
+  const PAT_MIN_TRAVEL = 8
+  /** 停手这么久就算摸完了 */
+  const PAT_IDLE_MS = 650
+  /** 每蹭这么多下冒一颗爱心 */
+  const PAT_HEART_EVERY = 5
+  const PAT_SAY_COOLDOWN_MS = 4000
+  /** 这么多下蹭在 PAT_TOO_FAST_MS 以内就是乱蹭：生气、游开 */
+  const PAT_TOO_FAST_STROKES = 8
+  const PAT_TOO_FAST_MS = 1100
+  /** 生气后这段时间里再蹭也不理 */
+  const PAT_GRUMPY_MS = 5000
+  const PAT_FLEE_STEP = 160
+  let patStrokes = 0
+  let patStrokeTimes: number[] = []
+  let patBlockedUntil = 0
+  let patLastY = 0
+  let patDir = 0
+  let patTurnX = 0
+  let patLastX = 0
+  let patEndTimer = 0
+  let patSaidAt = -Infinity
+  const inHeadZone = (x: number, y: number) => {
+    const r = pet.getBoundingClientRect()
+    if (r.width === 0) return false
+    const fx = (x - r.left) / r.width
+    const fy = (y - r.top) / r.height
+    // SVG 默认朝左，头在左半边；朝右时整只镜像
+    const head = swimmer.currentFacing === 'left' ? fx >= 0.05 && fx <= 0.6 : fx >= 0.4 && fx <= 0.95
+    return head && fy >= 0 && fy <= 0.45
+  }
+  const endPat = () => {
+    window.clearTimeout(patEndTimer)
+    patEndTimer = 0
+    patStrokes = 0
+    patStrokeTimes = []
+    patDir = 0
+    pet.classList.remove('petting', 'pat-press')
+    root.classList.remove('patting')
+  }
+  const pressHead = () => {
+    pet.classList.remove('pat-press')
+    void pet.offsetWidth
+    pet.classList.add('pat-press')
+  }
+  const popHeart = () => {
+    const heart = pet.querySelector<HTMLElement>('.pat-heart')
+    if (heart === null) return
+    heart.classList.remove('show')
+    void heart.offsetWidth
+    heart.classList.add('show')
+  }
+  /** 摸满一轮：冒爱心、说句话、算一次互动；失落时这一摸就是安慰 */
+  const patReward = () => {
+    popHeart()
+    if (visualState === 'disappointed' && driver.soothe()) {
+      triggerComfort()
+      return
+    }
+    recordInteraction()
+    const now = performance.now()
+    if (now - patSaidAt < PAT_SAY_COOLDOWN_MS) return
+    patSaidAt = now
+    sounds.play('bubble')
+    showDialog(pick(strings.feedback.patted))
+  }
+  /** 乱蹭：吊眉、放狠话，朝远离光标的方向游开一段 */
+  const patTooFast = () => {
+    endPat()
+    const now = performance.now()
+    patBlockedUntil = now + PAT_GRUMPY_MS
+    avoidCooldownUntil = now + PAT_GRUMPY_MS
+    recordInteraction()
+    clearSulk()
+    sulking = true
+    pet.classList.remove('annoyed', 'squish', 'dizzy', 'joy')
+    pet.classList.add('sulking')
+    sounds.play('bubble')
+    showDialog(pick(strings.feedback.patTooFast))
+    sulkTimer = window.setTimeout(() => {
+      sulkTimer = 0
+      clearSulk()
+    }, 2600)
+    swimmer.interrupt()
+    const r = pet.getBoundingClientRect()
+    const cx = r.left + r.width / 2
+    const cy = r.top + r.height / 2
+    const dx = cx - patLastX
+    const dy = cy - patLastY
+    const len = Math.hypot(dx, dy) || 1
+    const next = clampPos(cx + (dx / len) * PAT_FLEE_STEP - PET_W() / 2, cy + (dy / len) * PAT_FLEE_STEP - PET_H() / 2)
+    root.style.transition = 'left .6s cubic-bezier(.2,.8,.3,1), top .6s cubic-bezier(.2,.8,.3,1)'
+    root.style.left = `${next.x}px`
+    root.style.top = `${next.y}px`
+    swimmer.spawnSplash(cx, r.top + r.height * 0.79, 4)
+    window.setTimeout(() => {
+      root.style.transition = ''
+      savePos()
+    }, 650)
+  }
+  const onPatStroke = () => {
+    markActive()
+    const now = performance.now()
+    patStrokeTimes.push(now)
+    if (patStrokeTimes.length > PAT_TOO_FAST_STROKES) patStrokeTimes.shift()
+    if (patStrokeTimes.length === PAT_TOO_FAST_STROKES && now - patStrokeTimes[0] < PAT_TOO_FAST_MS) {
+      patTooFast()
+      return
+    }
+    patStrokes += 1
+    if (patStrokes >= 2) {
+      if (!pet.classList.contains('petting')) {
+        swimmer.interrupt()
+        cancelAvoid()
+        pet.classList.add('petting')
+        root.classList.add('patting')
+      }
+      pressHead()
+    }
+    if (patStrokes % PAT_HEART_EVERY === 0) patReward()
+  }
+  const maybePat = (e: MouseEvent) => {
+    if (e.buttons !== 0 || dragging || menu.classList.contains('open') || root.classList.contains('hidden') || visualState === 'error' || performance.now() < patBlockedUntil) {
+      if (patStrokes > 0) endPat()
+      return
+    }
+    if (!inHeadZone(e.clientX, e.clientY)) {
+      if (patStrokes > 0 || patDir !== 0) endPat()
+      return
+    }
+    const prevX = patLastX
+    patLastX = e.clientX
+    patLastY = e.clientY
+    const dx = e.clientX - prevX
+    if (dx === 0) return
+    const dir = dx > 0 ? 1 : -1
+    if (patDir === 0) {
+      patDir = dir
+      patTurnX = prevX
+    } else if (dir !== patDir) {
+      // 掉头点是上一个位置：这一段从上次掉头走到这里，够远才算蹭了一下
+      if (Math.abs(prevX - patTurnX) >= PAT_MIN_TRAVEL) onPatStroke()
+      patDir = dir
+      patTurnX = prevX
+    }
+    window.clearTimeout(patEndTimer)
+    patEndTimer = window.setTimeout(endPat, PAT_IDLE_MS)
+  }
+  /** 菜单「摸摸头」和长按：没有鼠标轨迹，就替你摸三下 */
+  const triggerPat = () => {
+    if (root.classList.contains('hidden')) return
+    endPat()
+    swimmer.interrupt()
+    pet.classList.add('petting')
+    ;[0, 280, 560].forEach((ms) => window.setTimeout(pressHead, ms))
+    window.setTimeout(() => {
+      patSaidAt = -Infinity
+      patReward()
+    }, 560)
+    patEndTimer = window.setTimeout(endPat, 1500)
+  }
+
   // ===== idle 随机小动作 =====
   let idleMicroTimer: number | undefined
   const clearIdleMicro = () => {
@@ -1562,9 +1727,7 @@ export function apply(ctx: Context): () => void {
       longPressTimer = window.setTimeout(() => {
         longPressTriggered = true
         suppressClick = true
-        triggerSquish()
-        showDialog(strings.feedback.headpat)
-        sounds.play('bubble')
+        triggerPat()
       }, 700)
   }
   /**
@@ -1723,6 +1886,7 @@ export function apply(ctx: Context): () => void {
     markActive()
     // 躲避判定自带守卫，且不能被下面追光的 rAF 节流挡掉，所以放在 early-return 之前
     maybeAvoid(e)
+    maybePat(e)
     if (pupil === null || eyeRaf !== 0) return
     eyeRaf = window.requestAnimationFrame(() => {
       eyeRaf = 0
@@ -2148,6 +2312,9 @@ export function apply(ctx: Context): () => void {
     clearIdleMicro()
     cancelAvoid()
     swimmer.dispose()
+    sounds.dispose()
+    localeUnsub?.()
+    window.clearTimeout(patEndTimer)
     if (autoHideTimer !== undefined) window.clearInterval(autoHideTimer)
     hideTicker()
     ticker.remove()

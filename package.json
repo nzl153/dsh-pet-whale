@@ -67,8 +67,7 @@
     "build": "tsdown --config ./tsdown.config.ts && node scripts/verify-build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node tests/smoke.mjs",
-    "verify:hmr": "node scripts/verify-hmr.mjs",
-    "extract": "node scripts/extract-whale.mjs"
+    "verify:hmr": "node scripts/verify-hmr.mjs"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",

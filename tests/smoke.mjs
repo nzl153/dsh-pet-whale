@@ -384,6 +384,21 @@ check(
   rootEl?.classList.contains('edge-left') === false && rootEl?.classList.contains('edge-right') === false,
 )
 
+// 上下边：按到顶 / 底 → 上下压扁；角落只算左右
+const ptrXY = (type, x, y) =>
+  new window.MouseEvent(type, { bubbles: true, cancelable: true, button: 0, clientX: x, clientY: y })
+rootEl.style.left = '400px'
+rootEl.style.top = '300px'
+pet.dispatchEvent(Object.assign(ptrXY('pointerdown', 300, 300), { pointerId: 5 }))
+pet.dispatchEvent(Object.assign(ptrXY('pointermove', 300, -2000), { pointerId: 5 }))
+check('贴顶边上下压扁', rootEl?.classList.contains('edge-top') === true)
+pet.dispatchEvent(Object.assign(ptrXY('pointermove', 300, 5000), { pointerId: 5 }))
+check('贴底边上下压扁', rootEl?.classList.contains('edge-bottom') === true && rootEl?.classList.contains('edge-top') === false)
+pet.dispatchEvent(Object.assign(ptrXY('pointermove', -2000, 5000), { pointerId: 5 }))
+check('左下角只按左边算', rootEl?.classList.contains('edge-left') === true && rootEl?.classList.contains('edge-bottom') === false)
+pet.dispatchEvent(Object.assign(ptrXY('pointerup', -2000, 5000), { pointerId: 5 }))
+check('松手清掉上下边缘态', !rootEl?.classList.contains('edge-top') && !rootEl?.classList.contains('edge-bottom'))
+
 // 拖着不放又不动：三秒后开始不耐烦。这条只能真等，没有假时钟
 pet.dispatchEvent(Object.assign(ptr('pointerdown', 300), { pointerId: 4 }))
 pet.dispatchEvent(Object.assign(ptr('pointermove', 340), { pointerId: 4 }))

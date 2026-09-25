@@ -291,6 +291,17 @@ export const WHALE_CSS = `
   transform-origin: 50% 50%;
   animation: pw-squeeze 0.35s ease-out forwards !important;
 }
+/* 上下压扁：锚在被压的那条边上，看着才像真被按住 */
+[data-dsh-whale].edge-top .pet-official .body,
+[data-dsh-whale].dragging.edge-top .pet-official .body {
+  transform-origin: 50% 0%;
+  animation: pw-squash 0.35s ease-out forwards !important;
+}
+[data-dsh-whale].edge-bottom .pet-official .body,
+[data-dsh-whale].dragging.edge-bottom .pet-official .body {
+  transform-origin: 50% 100%;
+  animation: pw-squash 0.35s ease-out forwards !important;
+}
 
 /* 拖着不放又不动：晃着腰表示不耐烦 */
 [data-dsh-whale].dragging .pet-official.impatient .body {
@@ -849,6 +860,11 @@ export const WHALE_CSS = `
 @keyframes pw-squeeze {
   0%   { transform: scaleX(1) scaleY(1); }
   100% { transform: scaleX(0.82) scaleY(1.1); }
+}
+
+@keyframes pw-squash {
+  0%   { transform: scaleX(1) scaleY(1); }
+  100% { transform: scaleX(1.12) scaleY(0.8); }
 }
 
 @keyframes pw-impatientSway {

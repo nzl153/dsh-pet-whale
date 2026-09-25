@@ -1574,19 +1574,31 @@ export function apply(ctx: Context): () => void {
   let squeezeSaidAt = 0
   const updateEdge = (x: number, y: number) => {
     const maxX = Math.max(0, window.innerWidth - PET_W())
+    const maxY = Math.max(0, window.innerHeight - PET_H())
     const onLeft = x <= EDGE_SLACK
     const onRight = x >= maxX - EDGE_SLACK
+    // 角落里只按左右算，两个方向一起压会拧成麻花
+    const sideways = onLeft || onRight
+    const onTop = !sideways && y <= EDGE_SLACK
+    const onBottom = !sideways && y >= maxY - EDGE_SLACK
     root.classList.toggle('edge-left', onLeft)
     root.classList.toggle('edge-right', onRight)
-    if (!onLeft && !onRight) return
+    root.classList.toggle('edge-top', onTop)
+    root.classList.toggle('edge-bottom', onBottom)
+    if (!sideways && !onTop && !onBottom) return
     const now = performance.now()
     if (now - squeezeSaidAt < 4000) return
     squeezeSaidAt = now
-    showDialog(pick(strings.feedback.squeezed))
-    swimmer.spawnDrip(x + (onLeft ? PET_W() * 0.18 : PET_W() * 0.82), y + PET_H() * 0.87)
+    if (sideways) {
+      showDialog(pick(strings.feedback.squeezed))
+      swimmer.spawnDrip(x + (onLeft ? PET_W() * 0.18 : PET_W() * 0.82), y + PET_H() * 0.87)
+    } else {
+      showDialog(pick(onTop ? strings.feedback.squashedTop : strings.feedback.squashedBottom))
+      swimmer.spawnDrip(x + PET_W() * (Math.random() < 0.5 ? 0.25 : 0.75), y + PET_H() * 0.87)
+    }
   }
   const clearEdge = () => {
-    root.classList.remove('edge-left', 'edge-right')
+    root.classList.remove('edge-left', 'edge-right', 'edge-top', 'edge-bottom')
   }
 
   /** 拖着不放又不动：三秒后开始扭 */

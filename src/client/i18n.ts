@@ -112,6 +112,9 @@ export interface PetStrings {
     dragIdle: string[]
     /** 被按在屏幕边上：挤扁了 */
     squeezed: string[]
+    /** 被按在顶边 / 底边：上下压扁了 */
+    squashedTop: string[]
+    squashedBottom: string[]
     sizeSet: (name: string) => string
     notifyOn: string
     notifyOff: string
@@ -331,6 +334,14 @@ const zh: PetStrings = {
       '这边到头咯，再推就扁了 🫠',
       '呜，脸被压平了 (＞﹏＜)',
     ],
+    squashedTop: [
+      '咚！撞到天花板了 >_<',
+      '头顶被压扁啦，再按就成饼了 🫠',
+    ],
+    squashedBottom: [
+      '被按在海底了... 扁扁的 (＞﹏＜)',
+      '压、压成鲸鱼饼了 🫓',
+    ],
     sizeSet: (name) => `变成${name}号啦~ 合适吗 🐳`,
     notifyOn: '好耶！你不在的时候我会在标签页上喊你 🔔',
     notifyOff: '不喊你了，安安静静的 🤫',
@@ -547,6 +558,14 @@ const en: PetStrings = {
       'Squish... pressed against the wall >_<',
       'That is the edge. Push more and I go flat 🫠',
       'Ow, my face is flattened (＞﹏＜)',
+    ],
+    squashedTop: [
+      'Bonk! Hit the ceiling >_<',
+      'My head got flattened. Any more and I am a pancake 🫠',
+    ],
+    squashedBottom: [
+      'Pinned to the seabed... so flat (＞﹏＜)',
+      'Squashed into a whale pancake 🫓',
     ],
     sizeSet: (name) => `Now I am ${name} size~ Does it fit? 🐳`,
     notifyOn: 'Got it! I will shout from the tab title while you are away 🔔',

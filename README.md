@@ -32,7 +32,7 @@ DeepSeek Harness（DSH）的桌宠插件，桌面端和网页端都能用：右�
 
 ```json
 {
-  "dependencies": { "pet-whale": "^1.2.3" },
+  "dependencies": { "pet-whale": "^1.2.4" },
   "dsh": { "profile": { "bundles": ["...原有的...", "pet-whale"] } }
 }
 ```

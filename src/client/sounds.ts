@@ -16,6 +16,8 @@ export class WhaleSounds {
   private master: GainNode | null = null
   private muted: boolean
   private level: VolumeLevel
+  private disposed = false
+  private resuming = false
 
   constructor() {
     let muted = false
@@ -60,16 +62,19 @@ export class WhaleSounds {
 
   /** 浏览器自动播放策略：AudioContext 需在用户手势后 resume，挂一次全局 pointerdown 解锁。 */
   installGestureUnlock(): void {
+    if (this.disposed) return
     document.addEventListener('pointerdown', this.unlock, { capture: true, passive: true })
   }
 
   private readonly unlock = () => {
-    const ctx = this.acquire()
-    if (ctx !== null && ctx.state === 'suspended') void ctx.resume()
+    if (this.muted || this.disposed) return
+    try { this.acquire() } catch { /* 音频不可用不能打断用户手势 */ }
   }
 
   /** 卸载时收干净：热重载一次留一个 AudioContext 和一个全局监听，攒多了会出怪事 */
   dispose(): void {
+    if (this.disposed) return
+    this.disposed = true
     document.removeEventListener('pointerdown', this.unlock, { capture: true })
     if (this.ctx !== null) void this.ctx.close().catch(() => {})
     this.ctx = null
@@ -77,6 +82,7 @@ export class WhaleSounds {
   }
 
   private acquire(): AudioContext | null {
+    if (this.disposed) return null
     if (this.ctx === null) {
       const Ctor: typeof AudioContext | undefined =
         window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
@@ -86,7 +92,14 @@ export class WhaleSounds {
       this.master.gain.value = VOLUME_GAIN[this.level]
       this.master.connect(this.ctx.destination)
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume()
+    if (this.ctx.state === 'suspended' && !this.resuming) {
+      this.resuming = true
+      try {
+        void this.ctx.resume().catch(() => {}).finally(() => { this.resuming = false })
+      } catch {
+        this.resuming = false
+      }
+    }
     return this.ctx
   }
 

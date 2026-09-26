@@ -91,6 +91,7 @@ export interface PetStrings {
     scheduleDaily: string
     scheduleCancel: string
     errorCopied: string
+    errorCopyFailed: string
     wake: string
     sleep: string
     avoid: string
@@ -283,6 +284,7 @@ const zh: PetStrings = {
     scheduleDaily: '记下啦：每天 22:00 自动藏到右下角 🌙',
     scheduleCancel: '定时隐藏已取消~',
     errorCopied: '错误信息已复制到剪贴板，快去找主人帮忙 📋',
+    errorCopyFailed: '复制失败，请检查浏览器的剪贴板权限',
     wake: '醒啦！随时准备开工~ ✨',
     sleep: '呼噜噜... 正在做深海美梦 (Zzz) 💤',
     avoid: '让一让~ 这里交给你啦 ✨',
@@ -518,6 +520,7 @@ const en: PetStrings = {
     scheduleDaily: 'Got it: I will auto-hide at 22:00 every day 🌙',
     scheduleCancel: 'Auto-hide cancelled~',
     errorCopied: 'Error copied to clipboard, go ask for help 📋',
+    errorCopyFailed: 'Copy failed. Please check clipboard permission in your browser.',
     wake: 'Awake! Ready to work~ ✨',
     sleep: 'Zzz... dreaming in the deep sea (Zzz) 💤',
     avoid: 'Let me make room for you~ ✨',

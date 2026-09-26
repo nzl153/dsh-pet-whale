@@ -124,6 +124,26 @@ function currentSessionId(list: SessionList): string | undefined {
 export function apply(ctx: Context): () => void {
   if (typeof document === 'undefined') return () => {}
 
+  // 挂在 document 上，bundle 重新求值后仍能找到上一代 disposer。
+  const owner = document as Document & { __petWhaleDispose?: () => void }
+  owner.__petWhaleDispose?.()
+  let disposed = false
+  const timers = new Set<number>()
+  const later = (fn: () => void, ms: number): number => {
+    if (disposed) return 0
+    const id = window.setTimeout(() => {
+      timers.delete(id)
+      if (!disposed) fn()
+    }, ms)
+    timers.add(id)
+    return id
+  }
+  const cancelLater = (id: number | undefined) => {
+    window.clearTimeout(id)
+    if (id !== undefined) timers.delete(id)
+  }
+  // 仅处理没有 disposer 的旧版残留节点。
+  document.querySelectorAll('[data-dsh-whale-mini], [data-dsh-whale-particles]').forEach((el) => el.remove())
   // 双挂载防护：先清掉旧实例
   document.querySelectorAll('[data-dsh-whale]').forEach((el) => el.remove())
   document.getElementById('pet-whale-style')?.remove()
@@ -137,7 +157,7 @@ export function apply(ctx: Context): () => void {
 
     // ===== 语言 =====
     const localeService = (ctx as unknown as { locale?: LocaleLike }).locale
-    let locale: PetLocale = localeService?.getLocale().active === 'en' ? 'en' : detectBrowserLocale()
+    let locale: PetLocale = localeService ? (localeService.getLocale().active === 'en' ? 'en' : 'zh') : detectBrowserLocale()
     let strings: PetStrings = getStrings(locale)
   // ===== DOM =====
   const root = document.createElement('div')
@@ -246,17 +266,28 @@ export function apply(ctx: Context): () => void {
       // 忽略存储失败
     }
   }
-  const onResize = () => place()
+  const onResize = () => {
+    cancelAvoid()
+    swimmer.stop()
+    place()
+    if (mini !== null) {
+      const p = miniClamp(parseFloat(mini.style.right) || 0, parseFloat(mini.style.bottom) || 0)
+      mini.style.right = `${p.right}px`
+      mini.style.bottom = `${p.bottom}px`
+    }
+    if (ticker.classList.contains('show')) positionTicker()
+    if (visualState === 'idle') swimmer.scheduleNext()
+  }
 
   // ===== 台词 =====
   let dialogTimer: number | undefined
   const showDialog = (text: string) => {
     // 隐藏时不说话，避免“看不见的鲸鱼还在自言自语”
-    if (root.classList.contains('hidden')) return
+    if (disposed || root.classList.contains('hidden')) return
     dialog.textContent = text
     dialog.classList.add('show')
-    window.clearTimeout(dialogTimer)
-    dialogTimer = window.setTimeout(() => dialog.classList.remove('show'), DIALOG_MS)
+    cancelLater(dialogTimer)
+    dialogTimer = later(() => dialog.classList.remove('show'), DIALOG_MS)
   }
 
   // ===== 音效 =====
@@ -302,7 +333,7 @@ export function apply(ctx: Context): () => void {
     b.classList.remove('show')
     void b.offsetWidth
     b.classList.add('show')
-    window.setTimeout(() => b.classList.remove('show'), 950)
+    expireClass(b, 'show', 950)
   }
 
   // ===== 游泳系统 =====
@@ -317,7 +348,9 @@ export function apply(ctx: Context): () => void {
     petSize,
     isBusy: () =>
       root.classList.contains(HIDDEN_CLASS) ||
-      dragging ||
+      dragStart !== null ||
+      pet.classList.contains('petting') ||
+      pet.classList.contains('belly-up') ||
       document.hidden ||
       menu.classList.contains('open') ||
       sleeping ||
@@ -426,20 +459,28 @@ export function apply(ctx: Context): () => void {
     if (tier <= st.bondTier) return
     st.bondTier = tier
     saveStats(st)
-    window.setTimeout(() => showDialog(strings.bond.levelUp[tier]), 1500)
+    later(() => showDialog(strings.bond.levelUp[tier]), 1500)
   }
 
+  let stateInitialized = false
   const setState = (next: WhaleState, changed: boolean) => {
     const effective: WhaleState = pretendOn ? 'working' : next
     // 真开始干活了就别端着脾气，闹脾气只在闲着的时候成立
     if (effective !== 'idle' && sulking) clearSulk()
     if (effective !== 'idle') wake()
     for (const s of STATES) pet.classList.toggle(s, s === effective)
+    if (effective === 'error' && visualState !== 'error') {
+      endPat()
+      clearReaction()
+    }
     visualState = effective
     syncMiniState(effective)
-    swimmer.onStateChange(effective)
-    if (effective === 'idle') scheduleIdleMicro()
-    else clearIdleMicro()
+    if (changed || !stateInitialized) {
+      swimmer.onStateChange(effective)
+      if (effective === 'idle') scheduleIdleMicro()
+      else clearIdleMicro()
+      stateInitialized = true
+    }
     if (changed) {
       showDialog(pick(strings.status[effective]))
       autoSound(effective)
@@ -455,16 +496,32 @@ export function apply(ctx: Context): () => void {
     }
   }
 
+  // 同一动作重触发只能由最新 timer 收尾；互斥动作不能叠加眼睛和 transform。
+  const reactionClasses = ['squish', 'rolling', 'dizzy', 'joy', 'annoyed', 'shaken', 'belly-up', 'welcome']
+  const classTimers = new Map<string, number>()
+  const expireClass = (el: Element, name: string, ms: number) => {
+    const key = el === pet ? name : `${name}:${Array.from(pet.querySelectorAll('.bubble')).indexOf(el)}`
+    cancelLater(classTimers.get(key))
+    classTimers.set(key, later(() => { classTimers.delete(key); el.classList.remove(name) }, ms))
+  }
+  const clearReaction = () => {
+    for (const name of reactionClasses) {
+      cancelLater(classTimers.get(name))
+      classTimers.delete(name)
+      pet.classList.remove(name)
+    }
+  }
   // ===== 戳戳 / 翻滚 / 开心 / 戳晕 / 欢迎 =====
   const triggerSquish = () => {
     markActive()
     recordInteraction()
     popBubble()
     sounds.play('bubble')
+    clearReaction()
     pet.classList.remove('squish', 'dizzy', 'joy')
     void pet.offsetWidth
     pet.classList.add('squish')
-    window.setTimeout(() => pet.classList.remove('squish'), 450)
+    expireClass(pet, 'squish', 450)
     showDialog(pick(strings.bond.poke[currentTier()]))
   }
   const triggerRoll = () => {
@@ -472,6 +529,7 @@ export function apply(ctx: Context): () => void {
     recordInteraction()
     sounds.play('trick')
     showDialog(strings.feedback.roll)
+    clearReaction()
     pet.classList.remove('rolling', 'dizzy', 'joy')
     void pet.offsetWidth
     pet.classList.add('rolling', 'spouting')
@@ -480,30 +538,33 @@ export function apply(ctx: Context): () => void {
     swimmer.spawnSplash(curX + PET_W() / 2, curY + PET_H() * 0.64, 6)
     swimmer.spawnWaterRipple(curX + PET_W() / 2, curY + PET_H() * 0.64, false)
     popBubble()
-    window.setTimeout(() => popBubble(), 200)
-    window.setTimeout(() => pet.classList.remove('rolling', 'spouting'), 1100)
+    later(() => popBubble(), 200)
+    expireClass(pet, 'rolling', 1100)
+    expireClass(pet, 'spouting', 1100)
   }
   const triggerJoy = () => {
     if (root.classList.contains(HIDDEN_CLASS)) return
     markActive()
     recordInteraction()
+    clearReaction()
     pet.classList.remove('joy', 'squish', 'dizzy')
     void pet.offsetWidth
     pet.classList.add('joy')
     sounds.play('celebrate')
     showDialog(pick(strings.feedback.joy))
     popBubble()
-    window.setTimeout(() => pet.classList.remove('joy'), 1100)
+    expireClass(pet, 'joy', 1100)
   }
   const triggerDizzy = () => {
     markActive()
     recordInteraction()
+    clearReaction()
     pet.classList.remove('dizzy', 'squish', 'joy')
     void pet.offsetWidth
     pet.classList.add('dizzy')
     sounds.play('bubble')
     showDialog(pick(strings.feedback.pokeDizzy))
-    window.setTimeout(() => pet.classList.remove('dizzy'), 900)
+    expireClass(pet, 'dizzy', 900)
   }
   // ===== 连戳升级 =====
   // 戳一下就随机演一个，戳二十下还是同样的随机分布——那是控件，不是活物。
@@ -521,7 +582,7 @@ export function apply(ctx: Context): () => void {
 
   const clearSulk = () => {
     if (sulkTimer !== 0) {
-      window.clearTimeout(sulkTimer)
+      cancelLater(sulkTimer)
       sulkTimer = 0
     }
     sulking = false
@@ -529,8 +590,8 @@ export function apply(ctx: Context): () => void {
   }
   const bumpPokeStreak = () => {
     pokeStreak += 1
-    if (pokeDecayTimer !== 0) window.clearTimeout(pokeDecayTimer)
-    pokeDecayTimer = window.setTimeout(() => {
+    if (pokeDecayTimer !== 0) cancelLater(pokeDecayTimer)
+    pokeDecayTimer = later(() => {
       pokeDecayTimer = 0
       pokeStreak = 0
     }, POKE_DECAY_MS)
@@ -538,24 +599,26 @@ export function apply(ctx: Context): () => void {
   const triggerAnnoyed = () => {
     markActive()
     recordInteraction()
+    clearReaction()
     pet.classList.remove('annoyed', 'squish', 'dizzy', 'joy')
     void pet.offsetWidth
     pet.classList.add('annoyed')
     sounds.play('bubble')
     showDialog(pick(strings.feedback.pokeAnnoyed))
-    window.setTimeout(() => pet.classList.remove('annoyed'), 520)
+    expireClass(pet, 'annoyed', 520)
   }
   const triggerSulk = () => {
     markActive()
     recordInteraction()
     clearSulk()
     sulking = true
+    clearReaction()
     pet.classList.remove('annoyed', 'squish', 'dizzy', 'joy', 'rolling')
     void pet.offsetWidth
     pet.classList.add('sulking')
     sounds.play('bubble')
     showDialog(pick(strings.feedback.pokeSulk))
-    sulkTimer = window.setTimeout(() => {
+    sulkTimer = later(() => {
       sulkTimer = 0
       clearSulk()
       pokeStreak = 0
@@ -567,13 +630,14 @@ export function apply(ctx: Context): () => void {
     recordInteraction()
     clearSulk()
     pokeStreak = 0
+    clearReaction()
     pet.classList.remove('joy', 'squish', 'dizzy', 'annoyed')
     void pet.offsetWidth
     pet.classList.add('joy')
     sounds.play('celebrate')
     showDialog(pick(strings.feedback.comfort))
     popBubble()
-    window.setTimeout(() => pet.classList.remove('joy'), 1100)
+    expireClass(pet, 'joy', 1100)
   }
 
   // ===== 完成提醒：你不看着的时候，让标签页替它喊你 =====
@@ -587,6 +651,8 @@ export function apply(ctx: Context): () => void {
     // 忽略存储失败
   }
   const hasNotificationApi = typeof window !== 'undefined' && 'Notification' in window
+  let permissionRequest = 0
+  const notifications = new Set<Notification>()
   /** 我们改写标题前的原值；null 表示当前没在闪 */
   let titleBeforeFlash: string | null = null
   let flashedTitle = ''
@@ -609,7 +675,8 @@ export function apply(ctx: Context): () => void {
     if (Notification.permission !== 'granted') return
     try {
       const n = new Notification(`🐳 ${strings.notify.titleDone}`, { body: strings.notify.bodyDone })
-      window.setTimeout(() => n.close(), 6000)
+      notifications.add(n)
+      later(() => { notifications.delete(n); n.close() }, 6000)
     } catch {
       // 通知构造失败（部分环境要求 ServiceWorker）时静默降级到标题闪烁
     }
@@ -640,7 +707,8 @@ export function apply(ctx: Context): () => void {
     pet.classList.add('welcome', 'spouting')
     showDialog(pick(strings.feedback.restNudge))
     sounds.play('bubble')
-    window.setTimeout(() => pet.classList.remove('welcome', 'spouting'), 1400)
+    expireClass(pet, 'welcome', 1400)
+    expireClass(pet, 'spouting', 1400)
   }
   const sedentaryTick = () => {
     if (sedentaryMin === 0) return
@@ -662,12 +730,13 @@ export function apply(ctx: Context): () => void {
 
   const triggerWelcome = () => {
     if (root.classList.contains(HIDDEN_CLASS) || visualState !== 'idle') return
+    clearReaction()
     pet.classList.remove('welcome')
     void pet.offsetWidth
     pet.classList.add('welcome')
     showDialog(strings.bond.welcome[currentTier()])
     sounds.play('bubble')
-    window.setTimeout(() => pet.classList.remove('welcome'), 1200)
+    expireClass(pet, 'welcome', 1200)
   }
 
   // ===== 隐藏 / 小按钮 / 状态指示 / 拖拽 / 定时 / 关闭 =====
@@ -716,21 +785,23 @@ export function apply(ctx: Context): () => void {
   }
 
   // ===== 小按钮拖拽 =====
-  let miniDrag: { x: number; y: number; right: number; bottom: number } | null = null
+  let miniDrag: { pointerId: number; x: number; y: number; right: number; bottom: number } | null = null
   let miniDragging = false
   let miniSuppressClick = false
   const onMiniPointerDown = (e: PointerEvent) => {
-    if (e.button !== 0 || mini === null) return
+    if (disposed || e.button !== 0 || e.isPrimary === false || mini === null || miniDrag !== null) return
+    miniSuppressClick = false
     miniDrag = {
+      pointerId: e.pointerId,
       x: e.clientX,
       y: e.clientY,
       right: parseFloat(mini.style.right) || 0,
       bottom: parseFloat(mini.style.bottom) || 0,
     }
-    mini.setPointerCapture(e.pointerId)
+    try { mini.setPointerCapture(e.pointerId) } catch { /* window 事件兜底 */ }
   }
   const onMiniPointerMove = (e: PointerEvent) => {
-    if (miniDrag === null || mini === null) return
+    if (miniDrag === null || mini === null || e.pointerId !== miniDrag.pointerId) return
     const dx = e.clientX - miniDrag.x
     const dy = e.clientY - miniDrag.y
     if (!miniDragging && Math.abs(dx) + Math.abs(dy) > 4) {
@@ -744,19 +815,22 @@ export function apply(ctx: Context): () => void {
       mini.style.bottom = `${p.bottom}px`
     }
   }
-  const onMiniDragEnd = () => {
-    if (miniDrag === null) return
+  const onMiniDragEnd = (e?: PointerEvent) => {
+    if (miniDrag === null || (e && e.pointerId !== miniDrag.pointerId)) return
+    const id = miniDrag.pointerId
     miniDrag = null
+    try { mini?.releasePointerCapture(id) } catch { /* 指针已被浏览器释放 */ }
     if (miniDragging) {
       miniDragging = false
       // mini 可能已被 removeMini 清掉（桌宠被召回），但 miniDragging 仍必须复位
       mini?.classList.remove('dragging')
       saveMiniPos()
     }
-    window.setTimeout(() => { miniSuppressClick = false }, 0)
+    // 下一次 pointerdown 再重置，避免移动端延迟 click 误召回。
   }
 
   const removeMini = () => {
+    onMiniDragEnd()
     mini?.remove()
     mini = null
   }
@@ -776,9 +850,7 @@ export function apply(ctx: Context): () => void {
       showWhale()
     })
     mini.addEventListener('pointerdown', onMiniPointerDown)
-    mini.addEventListener('pointermove', onMiniPointerMove)
-    mini.addEventListener('pointerup', onMiniDragEnd)
-    mini.addEventListener('pointercancel', onMiniDragEnd)
+    mini.addEventListener('lostpointercapture', onMiniDragEnd)
     document.body.appendChild(mini)
   }
 
@@ -794,10 +866,19 @@ export function apply(ctx: Context): () => void {
     triggerSquish()
     showDialog(strings.feedback.shown)
     swimmer.scheduleNext(1500)
+    onSnapshot()
+    if (!badge.hidden) startFollow()
   }
   const hideWhale = () => {
+    endDrag()
+    endPat()
+    hideTicker()
+    clearIdleMicro()
+    cancelAvoid()
     swimmer.stop()
     root.classList.add(HIDDEN_CLASS)
+    if (followRaf !== 0) window.cancelAnimationFrame(followRaf)
+    followRaf = 0
     try {
       localStorage.setItem(HIDDEN_KEY, '1')
     } catch {
@@ -879,7 +960,9 @@ export function apply(ctx: Context): () => void {
     }
   }
   const tickerTick = () => {
-    const max = Math.max(0, tickerText.scrollWidth - ticker.clientWidth)
+    if (document.hidden || root.classList.contains('hidden')) { hideTicker(); return }
+    positionTicker()
+    const max = Math.max(0, tickerText.scrollWidth - ticker.querySelector('.dsh-whale-think-scroll')!.clientWidth)
     tickerOffset += 0.5
     if (tickerOffset > max + 40) tickerOffset = 0
     tickerText.style.transform = `translateX(-${tickerOffset}px)`
@@ -897,15 +980,16 @@ export function apply(ctx: Context): () => void {
     ticker.style.top = `${rect.top - 40}px`
   }
   const updateTicker = (text: string) => {
-    if (text.trim() === '') {
+    if (text.trim() === '' || pretendOn || document.hidden || root.classList.contains('hidden')) {
       hideTicker()
       return
     }
-    tickerText.textContent = text.slice(-THINK_TICKER_MAX)
-    tickerOffset = 0
+    const nextText = text.slice(-THINK_TICKER_MAX)
+    if (tickerText.textContent !== nextText) tickerOffset = 0
+    tickerText.textContent = nextText
     positionTicker()
     ticker.classList.add('show')
-    if (tickerRaf === 0) tickerRaf = window.requestAnimationFrame(tickerTick)
+    if (!reduceMotion && tickerRaf === 0) tickerRaf = window.requestAnimationFrame(tickerTick)
   }
   const partialTextOf = (partial: unknown): string => {
     if (partial === null || typeof partial !== 'object') return ''
@@ -940,6 +1024,9 @@ export function apply(ctx: Context): () => void {
     mini?.classList.toggle('paused', document.hidden)
     if (document.hidden) {
       hiddenSince = Date.now()
+      endDrag()
+      onMiniDragEnd()
+      endPat()
       hideTicker()
       swimmer.stop()
     } else {
@@ -947,11 +1034,11 @@ export function apply(ctx: Context): () => void {
       restoreTitle()
       if (hiddenSince !== 0 && Date.now() - hiddenSince >= SEDENTARY_AWAY_RESET_MS) sittingMs = 0
       hiddenSince = 0
+      onSnapshot()
       if (visualState === 'idle') swimmer.scheduleNext(2000)
     }
   }
   document.addEventListener('visibilitychange', onVisibility)
-  onVisibility()
 
   // ===== 角标跟着鲸鱼身体起伏 =====
   // 各状态的浮动动画不一样（idle 3.2s、睡觉 4s、游泳 0.85s、干活整只在晃），CSS 同步不了，
@@ -966,7 +1053,7 @@ export function apply(ctx: Context): () => void {
   const clampFollow = (v: number) => Math.max(-FOLLOW_MAX, Math.min(FOLLOW_MAX, v))
   const followBody = () => {
     followRaf = 0
-    if (badge.hidden || document.hidden || petBody === null) return
+    if (badge.hidden || document.hidden || root.classList.contains('hidden') || petBody === null) return
     const b = petBody.getBoundingClientRect()
     const r = root.getBoundingClientRect()
     const x = b.left + b.width / 2 - r.left
@@ -1057,7 +1144,7 @@ export function apply(ctx: Context): () => void {
               snack.classList.add('drop')
               sounds.play('snack')
               showDialog(strings.feedback.feed)
-              window.setTimeout(() => {
+              later(() => {
                 triggerJoy()
               }, 600)
             },
@@ -1078,7 +1165,8 @@ export function apply(ctx: Context): () => void {
                 // 忽略存储失败
               }
               updateTicker('')
-              setState(pretendOn ? 'working' : 'idle', true)
+              stateInitialized = false
+              onSnapshot()
               showDialog(pretendOn ? strings.feedback.pretendOn : strings.feedback.pretendOff)
             },
           ],
@@ -1100,14 +1188,7 @@ export function apply(ctx: Context): () => void {
             },
           ],
           ...(lastErrorText !== ''
-            ? [[strings.menu.copyError, () => {
-                try {
-                  void navigator.clipboard?.writeText(lastErrorText)
-                } catch {
-                  // 忽略剪贴板失败
-                }
-                showDialog(strings.feedback.errorCopied)
-              }] as [string, () => void]]
+            ? [[strings.menu.copyError, () => { void copyError() }] as [string, () => void]]
             : []),
           [
             strings.menu.more,
@@ -1247,7 +1328,9 @@ export function apply(ctx: Context): () => void {
         if (hasNotificationApi) {
           appendMenuBtn(`${strings.panel.sysNotify}${sysNotifyOn ? ' ✓' : ' ✕'}`, () => {
             const turningOn = !sysNotifyOn
+            const request = ++permissionRequest
             const commit = (granted: boolean) => {
+              if (disposed || request !== permissionRequest) return
               sysNotifyOn = turningOn && granted
               try {
                 localStorage.setItem(SYS_NOTIFY_KEY, sysNotifyOn ? '1' : '0')
@@ -1265,7 +1348,7 @@ export function apply(ctx: Context): () => void {
             }
             // 只在用户主动打开时才申请权限，不在挂载时骚扰
             if (turningOn && Notification.permission === 'default') {
-              void Notification.requestPermission().then((p) => commit(p === 'granted'))
+              void Notification.requestPermission().then((p) => commit(p === 'granted'), () => commit(false))
               return
             }
             commit(Notification.permission === 'granted')
@@ -1349,7 +1432,7 @@ export function apply(ctx: Context): () => void {
   let avoidCooldownUntil = 0
   let avoidTimer: number | undefined
   const cancelAvoid = () => {
-    window.clearTimeout(avoidTimer)
+    cancelLater(avoidTimer)
     avoidTimer = undefined
     root.style.transition = ''
   }
@@ -1369,7 +1452,7 @@ export function apply(ctx: Context): () => void {
       return
     }
     if (avoidTimer !== undefined) return
-    avoidTimer = window.setTimeout(() => {
+    avoidTimer = later(() => {
       avoidTimer = undefined
       if (root.classList.contains('hidden') || dragging || menu.classList.contains('open') || visualState !== 'idle') return
       if (performance.now() < avoidCooldownUntil) return
@@ -1386,7 +1469,7 @@ export function apply(ctx: Context): () => void {
       root.style.transition = 'left .35s ease, top .35s ease'
       root.style.left = `${next.x}px`
       root.style.top = `${next.y}px`
-      window.setTimeout(() => {
+      later(() => {
         root.style.transition = ''
         savePos()
       }, 380)
@@ -1428,8 +1511,11 @@ export function apply(ctx: Context): () => void {
     const head = swimmer.currentFacing === 'left' ? fx >= 0.05 && fx <= 0.6 : fx >= 0.4 && fx <= 0.95
     return head && fy >= 0 && fy <= 0.45
   }
+  const patTimers = new Set<number>()
   const endPat = () => {
-    window.clearTimeout(patEndTimer)
+    for (const id of patTimers) cancelLater(id)
+    patTimers.clear()
+    cancelLater(patEndTimer)
     patEndTimer = 0
     patStrokes = 0
     patStrokeTimes = []
@@ -1453,6 +1539,7 @@ export function apply(ctx: Context): () => void {
   const patReward = () => {
     popHeart()
     if (visualState === 'disappointed' && driver.soothe()) {
+      onSnapshot()
       triggerComfort()
       return
     }
@@ -1476,7 +1563,7 @@ export function apply(ctx: Context): () => void {
     pet.classList.add('sulking')
     sounds.play('bubble')
     showDialog(pick(strings.feedback.patTooFast))
-    sulkTimer = window.setTimeout(() => {
+    sulkTimer = later(() => {
       sulkTimer = 0
       clearSulk()
     }, 2600)
@@ -1492,7 +1579,7 @@ export function apply(ctx: Context): () => void {
     root.style.left = `${next.x}px`
     root.style.top = `${next.y}px`
     swimmer.spawnSplash(cx, r.top + r.height * 0.79, 4)
-    window.setTimeout(() => {
+    later(() => {
       root.style.transition = ''
       savePos()
     }, 650)
@@ -1542,27 +1629,28 @@ export function apply(ctx: Context): () => void {
       patDir = dir
       patTurnX = prevX
     }
-    window.clearTimeout(patEndTimer)
-    patEndTimer = window.setTimeout(endPat, PAT_IDLE_MS)
+    cancelLater(patEndTimer)
+    patEndTimer = later(endPat, PAT_IDLE_MS)
   }
   /** 菜单「摸摸头」和长按：没有鼠标轨迹，就替你摸三下 */
   const triggerPat = () => {
-    if (root.classList.contains('hidden')) return
+    if (root.classList.contains('hidden') || visualState === 'error' || performance.now() < patBlockedUntil) return
     endPat()
     swimmer.interrupt()
     pet.classList.add('petting')
-    ;[0, 280, 560].forEach((ms) => window.setTimeout(pressHead, ms))
-    window.setTimeout(() => {
+    root.classList.add('patting')
+    ;[0, 280, 560].forEach((ms) => patTimers.add(later(pressHead, ms)))
+    patTimers.add(later(() => {
       patSaidAt = -Infinity
       patReward()
-    }, 560)
-    patEndTimer = window.setTimeout(endPat, 1500)
+    }, 560))
+    patEndTimer = later(endPat, 1500)
   }
 
   // ===== idle 随机小动作 =====
   let idleMicroTimer: number | undefined
   const clearIdleMicro = () => {
-    window.clearTimeout(idleMicroTimer)
+    cancelLater(idleMicroTimer)
     idleMicroTimer = undefined
   }
   const microLook = () => {
@@ -1571,14 +1659,14 @@ export function apply(ctx: Context): () => void {
     const dy = Math.random() * 0.3 - 0.15
     pupil.style.transition = 'transform .45s ease'
     pupil.style.transform = `translate(${dx}px, ${dy}px)`
-    window.setTimeout(() => {
+    later(() => {
       pupil.style.transition = ''
       pupil.style.transform = ''
     }, 1500)
   }
   const microBubbles = () => {
     popBubble()
-    window.setTimeout(popBubble, 260)
+    later(popBubble, 260)
   }
   /** microSwim 的补间时长，也是"坐标不可信"的窗口 */
   const MICRO_SWIM_MS = 1450
@@ -1592,7 +1680,7 @@ export function apply(ctx: Context): () => void {
     root.style.top = `${target.y}px`
     // 补间期间 style.left 已是终点、鲸鱼还在半路，这段时间内谁读坐标都会读偏
     microSwimUntil = Date.now() + MICRO_SWIM_MS
-    window.setTimeout(() => {
+    later(() => {
       root.style.transition = ''
       microSwimUntil = 0
       savePos()
@@ -1601,7 +1689,7 @@ export function apply(ctx: Context): () => void {
   }
   const scheduleIdleMicro = () => {
     clearIdleMicro()
-    idleMicroTimer = window.setTimeout(() => {
+    idleMicroTimer = later(() => {
       if (visualState !== 'idle' || root.classList.contains('hidden') || dragging || document.hidden || menu.classList.contains('open')) {
         scheduleIdleMicro()
         return
@@ -1639,6 +1727,7 @@ export function apply(ctx: Context): () => void {
     shakenUntil = now + SHAKEN_MS + SHAKE_COOLDOWN_MS
     markActive()
     recordInteraction()
+    clearReaction()
     pet.classList.remove('shaken', 'dizzy', 'squish', 'joy', 'annoyed')
     void pet.offsetWidth
     pet.classList.add('shaken')
@@ -1646,7 +1735,7 @@ export function apply(ctx: Context): () => void {
     showDialog(pick(strings.feedback.shaken))
     // 后遗症：接下来一段时间游不直
     swimmer.setWoozy(SHAKEN_MS + WOOZY_MS)
-    window.setTimeout(() => pet.classList.remove('shaken'), SHAKEN_MS)
+    expireClass(pet, 'shaken', SHAKEN_MS)
   }
   /** 双击的专属反应：翻肚皮。翻着的时候不接别的动作，让这两秒完整演完 */
   let bellyUpUntil = 0
@@ -1659,16 +1748,17 @@ export function apply(ctx: Context): () => void {
     // 双击必然先来两次单击，连戳计数已经涨了；翻肚皮是亲昵不是骚扰，清掉
     pokeStreak = 0
     if (pokeDecayTimer !== 0) {
-      window.clearTimeout(pokeDecayTimer)
+      cancelLater(pokeDecayTimer)
       pokeDecayTimer = 0
     }
     if (sulking) clearSulk()
+    clearReaction()
     pet.classList.remove('squish', 'dizzy', 'joy', 'annoyed', 'shaken')
     void pet.offsetWidth
     pet.classList.add('belly-up')
     sounds.play('trick')
     showDialog(pick(strings.feedback.bellyUp))
-    window.setTimeout(() => pet.classList.remove('belly-up'), BELLY_UP_MS)
+    expireClass(pet, 'belly-up', BELLY_UP_MS)
   }
 
   const trackShake = (x: number) => {
@@ -1700,17 +1790,20 @@ export function apply(ctx: Context): () => void {
     if (shakeCount >= SHAKE_REVERSALS) triggerShaken()
   }
 
-  let dragStart: { x: number; y: number; ox: number; oy: number } | null = null
+  let dragStart: { pointerId: number; x: number; y: number; ox: number; oy: number } | null = null
   let longPressTimer: number | undefined
   let longPressTriggered = false
   const onPetPointerDown = (e: PointerEvent) => {
-    if (e.button !== 0) return
+    if (disposed || e.button !== 0 || e.isPrimary === false || dragStart !== null) return
+    suppressClick = false
+    endPat()
     // 抓住/开始拖拽：立即停下避让动作与游动，并冷却一段时间，想抓就能抓住
     cancelAvoid()
     swimmer.interrupt()
     avoidCooldownUntil = performance.now() + AVOID_COOLDOWN_MS
     markActive()
     dragStart = {
+      pointerId: e.pointerId,
       x: e.clientX,
       y: e.clientY,
       ox: parseFloat(root.style.left) || 0,
@@ -1721,10 +1814,10 @@ export function apply(ctx: Context): () => void {
     shakeWindowFrom = performance.now()
     // 严格保持抓取时的朝向，拖拽过程中不发生任何朝向突变
     root.dataset.facing = swimmer.currentFacing
-    pet.setPointerCapture(e.pointerId)
+    try { pet.setPointerCapture(e.pointerId) } catch { /* window 事件兜底 */ }
       longPressTriggered = false
-      window.clearTimeout(longPressTimer)
-      longPressTimer = window.setTimeout(() => {
+      cancelLater(longPressTimer)
+      longPressTimer = later(() => {
         longPressTriggered = true
         suppressClick = true
         triggerPat()
@@ -1739,7 +1832,7 @@ export function apply(ctx: Context): () => void {
     const maxX = Math.max(0, window.innerWidth - PET_W())
     const maxY = Math.max(0, window.innerHeight - PET_H())
     const onLeft = x <= EDGE_SLACK
-    const onRight = x >= maxX - EDGE_SLACK
+    const onRight = !onLeft && x >= maxX - EDGE_SLACK
     // 角落里只按左右算，两个方向一起压会拧成麻花
     const sideways = onLeft || onRight
     const onTop = !sideways && y <= EDGE_SLACK
@@ -1768,9 +1861,9 @@ export function apply(ctx: Context): () => void {
   let dragIdleTimer = 0
   /** fresh=true 表示这是人动了手才重排的，扭动该停；续问时不能清，否则刚扭就被抹掉 */
   const armDragIdle = (fresh = true) => {
-    if (dragIdleTimer !== 0) window.clearTimeout(dragIdleTimer)
+    if (dragIdleTimer !== 0) cancelLater(dragIdleTimer)
     if (fresh) pet.classList.remove('impatient')
-    dragIdleTimer = window.setTimeout(() => {
+    dragIdleTimer = later(() => {
       if (!dragging) return
       pet.classList.add('impatient')
       showDialog(pick(strings.feedback.dragIdle))
@@ -1780,7 +1873,7 @@ export function apply(ctx: Context): () => void {
   }
   const disarmDragIdle = () => {
     if (dragIdleTimer !== 0) {
-      window.clearTimeout(dragIdleTimer)
+      cancelLater(dragIdleTimer)
       dragIdleTimer = 0
     }
     pet.classList.remove('impatient')
@@ -1788,14 +1881,15 @@ export function apply(ctx: Context): () => void {
 
   let lastDripTime = 0
   const onPetPointerMove = (e: PointerEvent) => {
-    if (dragStart === null) return
+    if (dragStart === null || e.pointerId !== dragStart.pointerId) return
     const dx = e.clientX - dragStart.x
     const dy = e.clientY - dragStart.y
     if (!dragging && Math.abs(dx) + Math.abs(dy) > 4) {
+      endPat()
       dragging = true
       suppressClick = true
       root.classList.add('dragging')
-      window.clearTimeout(longPressTimer)
+      cancelLater(longPressTimer)
       armDragIdle()
     }
     if (dragging) {
@@ -1815,9 +1909,11 @@ export function apply(ctx: Context): () => void {
       }
     }
   }
-  const endDrag = () => {
-    if (dragStart === null) return
+  const endDrag = (e?: PointerEvent) => {
+    if (dragStart === null || (e && e.pointerId !== dragStart.pointerId)) return
+    const id = dragStart.pointerId
     dragStart = null
+    try { pet.releasePointerCapture(id) } catch { /* 指针已被浏览器释放 */ }
     resetShake()
     disarmDragIdle()
     clearEdge()
@@ -1833,33 +1929,29 @@ export function apply(ctx: Context): () => void {
       root.dataset.facing = swimmer.currentFacing
       pet.style.transform = `scaleX(${swimmer.currentFacing === 'left' ? 1 : -1}) rotate(0deg)`
     }
-    window.clearTimeout(longPressTimer)
-    if (longPressTriggered) {
-      longPressTriggered = false
-      window.setTimeout(() => {
-        suppressClick = false
-      }, 300)
-    } else {
-      window.setTimeout(() => {
-        suppressClick = false
-      }, 0)
+    cancelLater(longPressTimer)
+    if (!e || e.type !== 'pointerup') {
+      suppressClick = true
+      endPat()
     }
+    longPressTriggered = false
+    // 下一次 pointerdown 重置；浏览器延迟合成的 click 仍应被吞掉。
   }
 
 // ===== 打瞌睡 =====
   let sleepTimer: number | undefined
   let sleeping = false
   const markActive = () => {
-    window.clearTimeout(sleepTimer)
+    cancelLater(sleepTimer)
     if (sleeping) {
       sleeping = false
       root.classList.remove('sleeping')
       pet.classList.add('spouting')
-      window.setTimeout(() => pet.classList.remove('spouting'), 1400)
+      expireClass(pet, 'spouting', 1400)
       showDialog(strings.feedback.wake)
       sounds.play('bubble')
     }
-    sleepTimer = window.setTimeout(() => {
+    sleepTimer = later(() => {
       if (visualState !== 'idle' || dragging) {
         markActive()
         return
@@ -1874,7 +1966,7 @@ export function apply(ctx: Context): () => void {
       sleeping = false
       root.classList.remove('sleeping')
       pet.classList.add('spouting')
-      window.setTimeout(() => pet.classList.remove('spouting'), 1400)
+      expireClass(pet, 'spouting', 1400)
     }
   }
 
@@ -1900,21 +1992,30 @@ export function apply(ctx: Context): () => void {
   }
 
   // ===== 事件绑定 =====
+  const copyError = async () => {
+    const text = lastErrorText
+    let copied = false
+    try {
+      if (navigator.clipboard !== undefined) {
+        await navigator.clipboard.writeText(text)
+        copied = true
+      }
+    } catch {
+      // 无权限或不安全上下文时给出失败反馈。
+    }
+    if (!disposed && text === lastErrorText) showDialog(copied ? strings.feedback.errorCopied : strings.feedback.errorCopyFailed)
+  }
   pet.addEventListener('click', () => {
-    if (suppressClick) return
+    if (disposed || suppressClick || performance.now() < bellyUpUntil) return
     // 错误状态下点击：复制错误信息
     if (visualState === 'error' && lastErrorText !== '') {
-      try {
-        void navigator.clipboard?.writeText(lastErrorText)
-      } catch {
-        // 忽略剪贴板失败
-      }
-      showDialog(strings.feedback.errorCopied)
+      void copyError()
       return
     }
 
     // 失落时的一戳是安慰，不该被随机三选一顶掉
     if (visualState === 'disappointed' && driver.soothe()) {
+      onSnapshot()
       triggerComfort()
       return
     }
@@ -1949,6 +2050,7 @@ export function apply(ctx: Context): () => void {
   // 双击按关系深浅分流：翻肚皮是"完全放松"的姿势，
   // 只有处到形影不离才给你看，平时还是翻个跟头
   pet.addEventListener('dblclick', () => {
+    if (disposed || suppressClick || performance.now() < bellyUpUntil || visualState === 'error') return
     if (currentTier() >= BOND_THRESHOLDS.length - 1) triggerBellyUp()
     else triggerRoll()
   })
@@ -1960,9 +2062,15 @@ export function apply(ctx: Context): () => void {
     openMenu(e.clientX, e.clientY)
   })
   pet.addEventListener('pointerdown', onPetPointerDown)
-  pet.addEventListener('pointermove', onPetPointerMove)
-  pet.addEventListener('pointerup', endDrag)
-  pet.addEventListener('pointercancel', endDrag)
+  pet.addEventListener('lostpointercapture', endDrag)
+  window.addEventListener('pointermove', onPetPointerMove)
+  window.addEventListener('pointerup', endDrag)
+  window.addEventListener('pointercancel', endDrag)
+  window.addEventListener('pointermove', onMiniPointerMove)
+  window.addEventListener('pointerup', onMiniDragEnd)
+  window.addEventListener('pointercancel', onMiniDragEnd)
+  const onBlur = () => { endDrag(); onMiniDragEnd(); endPat() }
+  window.addEventListener('blur', onBlur)
   document.addEventListener('pointerdown', onDocPointerDown)
   document.addEventListener('keydown', markActive)
   document.addEventListener('wheel', markActive, { passive: true })
@@ -2050,11 +2158,18 @@ export function apply(ctx: Context): () => void {
 
   const recountOthers = () => {
     if (statusSource === undefined) return
+    const snapshot = statusSource.getSnapshot()
+    for (const id of prevOtherRunning.keys()) {
+      if (!snapshot.has(id) || rowOf(id)?.parentId !== undefined || rowOf(id)?.origin === 'subagent') {
+        prevOtherRunning.delete(id)
+        prevOtherWaiting.delete(id)
+      }
+    }
     let running = 0
     let waiting = 0
     let done: string | undefined
     let newlyWaiting: string | undefined
-    for (const [id, st] of statusSource.getSnapshot()) {
+    for (const [id, st] of snapshot) {
       const row = rowOf(id)
       // 子代理是当前会话自己派出去的活，不算"别的会话"
       if (row?.parentId !== undefined || row?.origin === 'subagent') continue
@@ -2096,7 +2211,7 @@ export function apply(ctx: Context): () => void {
   let wakeTimer = 0
   const clearWake = () => {
     if (wakeTimer !== 0) {
-      window.clearTimeout(wakeTimer)
+      cancelLater(wakeTimer)
       wakeTimer = 0
     }
   }
@@ -2106,7 +2221,7 @@ export function apply(ctx: Context): () => void {
     const at = driver.nextDeadline(now)
     if (at === null) return
     // +24ms 是给 performance.now / setTimeout 之间的粒度差留的余量，避免差一毫秒又睡一轮
-    wakeTimer = window.setTimeout(() => {
+    wakeTimer = later(() => {
       wakeTimer = 0
       onSnapshot()
     }, Math.max(16, at - now + 24))
@@ -2151,18 +2266,8 @@ export function apply(ctx: Context): () => void {
   }
 
   const onSnapshot = () => {
-    const snapObj = composeSnapshot()
-    if (snapObj === undefined) {
-      clearWake()
-      lastErrorText = ''
-      trackConcurrency(false)
-      const shown = withOthers('idle')
-      setState(shown, lastShown !== null && shown !== lastShown)
-      lastShown = shown
-      announceOtherNews()
-      updateTicker('')
-      return
-    }
+    if (disposed) return
+    const snapObj = composeSnapshot() ?? { running: false, lastAgentError: null, openError: null }
     lastErrorText = snapObj.lastAgentError ?? (snapObj.openError != null ? 'open-error' : '')
     trackConcurrency(snapObj.running)
     const step = driver.step(snapObj, performance.now())
@@ -2179,7 +2284,12 @@ export function apply(ctx: Context): () => void {
     const id = currentSessionId(sessions.list.getSnapshot())
     const binding = id === undefined ? undefined : sessions.binding(id as Parameters<ISessions['binding']>[0])
     // 0.1.7 的会话列表会因为别的会话的元数据频繁发布；当前会话和它的绑定都没变就不重订
-    if (!isFirstSessionSync && id === prevSessionId && binding === boundSession) return
+    if (disposed) return
+    if (!isFirstSessionSync && id === prevSessionId && binding === boundSession) {
+      recountOthers()
+      onSnapshot()
+      return
+    }
     unsubSession?.()
     unsubChat?.()
     unsubSession = undefined
@@ -2208,11 +2318,11 @@ export function apply(ctx: Context): () => void {
     // 契约上 target() 的第一次订阅会激活该 view。
     try {
       const target = uiConversation.binding(binding).target('chat')
-      chat = target.getSnapshot()
       unsubChat = target.subscribe(() => {
         chat = target.getSnapshot()
         onSnapshot()
       })
+      chat = target.getSnapshot()
     } catch {
       // 拿不到 chat 投影就退化成"没有工具/文本信号"：鲸鱼仍能 think / idle / celebrate，
       // 只是工具调用期间不切 working。绝不能让它把 apply 打断，那会整只鲸鱼消失。
@@ -2286,14 +2396,37 @@ export function apply(ctx: Context): () => void {
   checkBondUp()
 
   const dispose = () => {
-    window.clearTimeout(sleepTimer)
+    if (disposed) return
+    disposed = true
+    endDrag()
+    onMiniDragEnd()
+    endPat()
+    for (const id of timers) window.clearTimeout(id)
+    timers.clear()
+    classTimers.clear()
+    removalObserver.disconnect()
+    if (owner.__petWhaleDispose === dispose) delete owner.__petWhaleDispose
+    pet.removeEventListener('pointerdown', onPetPointerDown)
+    pet.removeEventListener('lostpointercapture', endDrag)
+    window.removeEventListener('pointermove', onPetPointerMove)
+    window.removeEventListener('pointerup', endDrag)
+    window.removeEventListener('pointercancel', endDrag)
+    window.removeEventListener('pointermove', onMiniPointerMove)
+    window.removeEventListener('pointerup', onMiniDragEnd)
+    window.removeEventListener('pointercancel', onMiniDragEnd)
+    window.removeEventListener('blur', onBlur)
+    cancelLater(sleepTimer)
     if (sedentaryTimer !== 0) window.clearInterval(sedentaryTimer)
     window.clearInterval(chatterTimer)
-    if (dragIdleTimer !== 0) window.clearTimeout(dragIdleTimer)
+    if (dragIdleTimer !== 0) cancelLater(dragIdleTimer)
     restoreTitle()
-    if (pokeDecayTimer !== 0) window.clearTimeout(pokeDecayTimer)
-    if (sulkTimer !== 0) window.clearTimeout(sulkTimer)
-    window.clearTimeout(dialogTimer)
+    for (const notification of notifications) {
+      try { notification.close() } catch { /* 通知服务已失效时继续清理其他资源。 */ }
+    }
+    notifications.clear()
+    if (pokeDecayTimer !== 0) cancelLater(pokeDecayTimer)
+    if (sulkTimer !== 0) cancelLater(sulkTimer)
+    cancelLater(dialogTimer)
     if (eyeRaf !== 0) window.cancelAnimationFrame(eyeRaf)
     unsubList?.()
     unsubStatus?.()
@@ -2314,7 +2447,7 @@ export function apply(ctx: Context): () => void {
     swimmer.dispose()
     sounds.dispose()
     localeUnsub?.()
-    window.clearTimeout(patEndTimer)
+    cancelLater(patEndTimer)
     if (autoHideTimer !== undefined) window.clearInterval(autoHideTimer)
     hideTicker()
     ticker.remove()
@@ -2322,6 +2455,10 @@ export function apply(ctx: Context): () => void {
     root.remove()
     style.remove()
   }
+  const removalObserver = new MutationObserver(() => { if (!root.isConnected) dispose() })
+  removalObserver.observe(document.body, { childList: true })
+  owner.__petWhaleDispose = dispose
   quitWhale = dispose
+  onVisibility()
   return dispose
 }

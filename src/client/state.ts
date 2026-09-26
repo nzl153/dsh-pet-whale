@@ -110,6 +110,7 @@ export class WhaleDriver {
     this.prevRunning = snap.running
     this.prevTurnEnds = snap.turnEnds?.size ?? 0
     this.prevError = errorKey(snap)
+    this.transient = null
     this.stickyUntil = null
     this.current = (snap.pending?.length ?? 0) > 0 ? 'wait' : deriveContinuous(snap, this.stickyUntil, 0)
   }
@@ -121,6 +122,8 @@ export class WhaleDriver {
     }
 
     const err = errorKey(snap)
+    // 新回合优先恢复实时状态，上一回合的庆祝或失落不能遮住开工。
+    if (snap.running && this.prevRunning === false) this.transient = null
     // error 边沿：新错误出现（含从上一次错误恢复后再次出错）
     if (err !== null && err !== this.prevError) {
       this.transient = { state: 'error', until: now + ERROR_MS }
@@ -151,22 +154,22 @@ export class WhaleDriver {
     // working 粘滞：见到工具活动就刷新窗口；回合结束清掉
     if (snap.running && hasToolActivity(snap)) this.stickyUntil = now + WORK_STICKY_MS
     if (!snap.running) this.stickyUntil = null
+    if (this.stickyUntil !== null && now >= this.stickyUntil) this.stickyUntil = null
+
+    // 即使 wait 抢占显示，也必须推进到期状态，否则 deadline 会每 24ms 唤醒一次。
+    if (this.transient !== null && now >= this.transient.until) {
+      this.transient = this.transient.state === 'error'
+        ? { state: 'disappointed', until: this.transient.until + DISAPPOINTED_MS }
+        : null
+      if (this.transient !== null && now >= this.transient.until) this.transient = null
+    }
 
     const waiting = (snap.pending?.length ?? 0) > 0
     let next: WhaleState
     if (waiting) {
       next = 'wait'
     } else if (this.transient !== null) {
-      if (now < this.transient.until) {
-        next = this.transient.state
-      } else if (this.transient.state === 'error') {
-        // 报错演完接一段失落自愈，而不是硬切回常态
-        this.transient = { state: 'disappointed', until: now + DISAPPOINTED_MS }
-        next = 'disappointed'
-      } else {
-        this.transient = null
-        next = deriveContinuous(snap, this.stickyUntil, now)
-      }
+      next = this.transient.state
     } else {
       next = deriveContinuous(snap, this.stickyUntil, now)
     }
@@ -193,6 +196,10 @@ export class WhaleDriver {
   reset(): void {
     this.prevRunning = null
     this.stickyUntil = null
+    this.transient = null
+    this.current = 'idle'
+    this.prevError = null
+    this.prevTurnEnds = 0
   }
 
   /**

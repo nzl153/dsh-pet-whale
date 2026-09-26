@@ -6,6 +6,12 @@ const PAT_CURSOR = `url("data:image/svg+xml,${encodeURIComponent(
 )}") 16 16, pointer`
 
 export const WHALE_CSS = `
+[data-dsh-whale] .pet-official,
+[data-dsh-whale-mini] {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 [data-dsh-whale] {
   --pw-ink: #2E2A24;
   --pw-body-light: #8FB5FF;
@@ -1068,6 +1074,7 @@ export const WHALE_CSS = `
 
 /* 减少动态效果：全关动画 */
 @media (prefers-reduced-motion: reduce) {
+  [data-dsh-whale-mini] { animation: none !important; transition: none !important; }
   [data-dsh-whale] *,
   [data-dsh-whale] { animation: none !important; transition: none !important; }
   .pw-water-ripple, .pw-stream-bubble, .pw-splash-drop, .pw-drag-drip, .pw-confetti { display: none !important; }

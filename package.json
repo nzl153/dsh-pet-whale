@@ -19,6 +19,7 @@
     "pet"
   ],
   "license": "MIT",
+  "publishConfig": { "registry": "https://registry.npmjs.org/" },
   "type": "module",
   "main": "lib/index.mjs",
   "exports": {

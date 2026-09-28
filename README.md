@@ -32,7 +32,7 @@ DeepSeek Harness（DSH）的桌宠插件，桌面端和网页端都能用：右�
 
 ```json
 {
-  "dependencies": { "pet-whale": "^1.2.4" },
+  "dependencies": { "pet-whale": "^1.2.5" },
   "dsh": { "profile": { "bundles": ["...原有的...", "pet-whale"] } }
 }
 ```
@@ -49,7 +49,7 @@ dsh plugin --profile web add link:/path/to/pet-whale
 dsh plugin --profile web add "github:nzl153/dsh-pet-whale#main"
 ```
 
-要求 DSH `>=0.1.5-alpha.2 <0.2.0`，Node.js `^22.19.0 || >=24.0.0`。各版本的验证情况见[兼容性](#兼容性)。
+要求 DSH `>=0.1.5-alpha.2 <0.3.0`，Node.js `^22.19.0 || >=24.0.0`。各版本的验证情况见[兼容性](#兼容性)。
 
 ## 特性
 
@@ -161,10 +161,11 @@ DSH 内置的 `@deepseek-ai/dsh-client-hmr` 会轮询到重建结果，通过 `/
 ### 兼容性
 
 <details>
-<summary>支持 DSH 0.1.5 到 0.1.7；0.1.7-rc.2 和 0.1.5-rc.2 真机跑过，展开看每个版本的依据</summary>
+<summary>支持 DSH 0.1.5 到 0.2.0；0.2.0-rc.1、0.1.7-rc.2 和 0.1.5-rc.2 真机跑过，展开看每个版本的依据</summary>
 
 | DSH 版本 | 状态 | 依据 |
 |---|---|---|
+| `0.2.0-rc.1` | compatible | 真机跑过（官方桌面端）：工具调用 `idle→working→celebrate→idle` 全部触发。本插件读的会话列表、会话快照、chat 投影、`sessionStatus` 类型与 0.1.7-rc.2 相同 |
 | `0.1.7-rc.2` | compatible | 真机跑过：工具调用 `idle→think→working`；回合进行中切到别的会话，角标显示 1、不误庆祝；后台会话跑完时庆祝并报出会话名，2.5 秒后回落；控制台 0 报错。官方桌面端预览版上同样在用 |
 | `0.1.7-rc.1` | compatible | 未实跑。npm 包类型比对：与 rc.2 的差异只在模型目录相关接口，本插件读的会话列表 / 会话快照 / chat 投影 / `sessionStatus` 没有变化 |
 | `0.1.5-rc.3` | compatible | 未实跑。相对 rc.2 只锁定了依赖版本 |

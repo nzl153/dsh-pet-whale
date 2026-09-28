@@ -34,7 +34,7 @@ In the profile directory you are using (the desktop app and the web UI each have
 
 ```json
 {
-  "dependencies": { "pet-whale": "^1.2.4" },
+  "dependencies": { "pet-whale": "^1.2.5" },
   "dsh": { "profile": { "bundles": ["...existing...", "pet-whale"] } }
 }
 ```
@@ -51,7 +51,7 @@ dsh plugin --profile web add link:/path/to/pet-whale
 dsh plugin --profile web add "github:nzl153/dsh-pet-whale#main"
 ```
 
-Requires DSH `>=0.1.5-alpha.2 <0.2.0` and Node.js `^22.19.0 || >=24.0.0`. See [Compatibility](#compatibility) for how each release was checked.
+Requires DSH `>=0.1.5-alpha.2 <0.3.0` and Node.js `^22.19.0 || >=24.0.0`. See [Compatibility](#compatibility) for how each release was checked.
 
 ## Features
 
@@ -168,10 +168,11 @@ the browser invalidates and reloads this plugin automatically. **Client-only cha
 ### Compatibility
 
 <details>
-<summary>Supports DSH 0.1.5 – 0.1.7; 0.1.7-rc.2 and 0.1.5-rc.2 were run on a real host. Expand for the basis of each release</summary>
+<summary>Supports DSH 0.1.5 – 0.2.0; 0.2.0-rc.1, 0.1.7-rc.2 and 0.1.5-rc.2 were run on a real host. Expand for the basis of each release</summary>
 
 | DSH release | Status | Basis |
 |---|---|---|
+| `0.2.0-rc.1` | compatible | Ran on a real host (official desktop app): tool call `idle → working → celebrate → idle` all fired. The session list, session snapshot, chat projection and `sessionStatus` types this plugin reads are the same as 0.1.7-rc.2 |
 | `0.1.7-rc.2` | compatible | Ran on a real host: tool call `idle → think → working`; switching to another session mid-turn shows badge 1 without a false celebrate; when the background session finishes it celebrates, names the session, and falls back after 2.5s; zero console errors. Also in daily use on the official desktop app preview |
 | `0.1.7-rc.1` | compatible | Not run. npm type comparison: the only differences from rc.2 are in the model-catalog interfaces; the session list, session snapshot, chat projection and `sessionStatus` this plugin reads are unchanged |
 | `0.1.5-rc.3` | compatible | Not run. Only pins dependency versions relative to rc.2 |

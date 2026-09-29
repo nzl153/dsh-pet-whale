@@ -135,7 +135,8 @@ pnpm install
 pnpm typecheck   # TypeScript type check
 pnpm dev         # dev watch: rebuild lib/client.js on src/client changes; DSH HMR applies it automatically
 pnpm build       # tsdown → lib/index.mjs + lib/client.js
-pnpm test        # jsdom smoke test (state machine / interactions / skins / cleanup)
+pnpm test        # 先构建，再跑冒烟与回归测试
+pnpm verify      # 类型检查、构建及测试、npm 包消费验收
 pnpm verify:hmr  # verify local repo <-> running DSH HMR wiring
 ```
 

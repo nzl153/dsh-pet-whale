@@ -8,6 +8,8 @@ ref-whale-girl/
 # 系统杂项
 .DS_Store
 Thumbs.db
+.dsh-memory/
+.artifacts/
 
 # 本地开发脚本（不随仓库分发）
 scripts/apply-*.mjs

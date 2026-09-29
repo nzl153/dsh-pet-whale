@@ -130,11 +130,14 @@ pnpm install
 pnpm typecheck   # tsc 类型检查
 pnpm dev         # 开发态 watch：改 src/client 自动重建 lib/client.js，DSH HMR 自动生效
 pnpm build       # tsdown → lib/index.mjs + lib/client.js
-pnpm test        # jsdom 冒烟测试（状态机 / 交互 / 换肤 / 清理）
+pnpm test        # 先构建，再跑冒烟与回归测试
+pnpm verify      # 类型检查 → 构建及测试 → npm 包消费验收
 pnpm verify:hmr  # 校验当前仓库 ↔ 运行中 DSH 的 HMR 链路一致
 ```
 
 - `src/client/palettes.ts` — 色板扩展点。加一行就是一个新皮肤；`eye`/`pupil` 字段用于深色皮肤的"眼睛反白"
+- `src/client/host-snapshot.ts` — DSH 会话与流式消息解析的兼容边界，不操作 DOM
+- 工程检查和打包门禁见 [贡献指南](CONTRIBUTING.md#工程检查)。`lib/` 随仓库分发，源码改动后必须重建并一起提交。
 - `scripts/verify-live.mjs` — 重启后的一键线上验证（boot 清单 / bundle 下载 / 注册格式）
 - 状态来源（dsh 0.1.5）：会话生命周期取自 `ctx.sessions` 的会话快照（`running` / `lastAgentError` / `openError`）；
   `partial` / `runningCalls` / `turnEnds` 取自 `ctx.uiConversation` 的 chat 投影（`ChatSnapshot.legacy`）。

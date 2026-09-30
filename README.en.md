@@ -169,11 +169,11 @@ the browser invalidates and reloads this plugin automatically. **Client-only cha
 ### Compatibility
 
 <details>
-<summary>Supports DSH 0.1.5 – 0.2.0; 0.2.0-rc.1, 0.1.7-rc.2 and 0.1.5-rc.2 were run on a real host. Expand for the basis of each release</summary>
+<summary>Supports DSH 0.1.5 – 0.2.0; 0.2.0-rc.2, 0.2.0-rc.1, 0.1.7-rc.2 and 0.1.5-rc.2 were run on a real host. Expand for the basis of each release</summary>
 
 | DSH release | Status | Basis |
 |---|---|---|
-| `0.2.0-rc.2` | compatible | Loads fine on the official desktop app. npm type comparison: the only differences from rc.1 are in the official duration labels and running icon; the session list, session snapshot, chat projection and `sessionStatus` this plugin reads are unchanged |
+| `0.2.0-rc.2` | compatible | Ran on a real host (official desktop app): the whale switches states normally during a tool call. npm type comparison: the only differences from rc.1 are in the official duration labels and running icon; the session list, session snapshot, chat projection and `sessionStatus` this plugin reads are unchanged |
 | `0.2.0-rc.1` | compatible | Ran on a real host (official desktop app): tool call `idle → working → celebrate → idle` all fired. The session list, session snapshot, chat projection and `sessionStatus` types this plugin reads are the same as 0.1.7-rc.2 |
 | `0.1.7-rc.2` | compatible | Ran on a real host: tool call `idle → think → working`; switching to another session mid-turn shows badge 1 without a false celebrate; when the background session finishes it celebrates, names the session, and falls back after 2.5s; zero console errors. Also in daily use on the official desktop app preview |
 | `0.1.7-rc.1` | compatible | Not run. npm type comparison: the only differences from rc.2 are in the model-catalog interfaces; the session list, session snapshot, chat projection and `sessionStatus` this plugin reads are unchanged |

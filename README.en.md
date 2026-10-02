@@ -34,7 +34,7 @@ In the profile directory you are using (the desktop app and the web UI each have
 
 ```json
 {
-  "dependencies": { "pet-whale": "^1.2.6" },
+  "dependencies": { "pet-whale": "^1.2.7" },
   "dsh": { "profile": { "bundles": ["...existing...", "pet-whale"] } }
 }
 ```
